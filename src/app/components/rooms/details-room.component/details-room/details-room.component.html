@@ -1,0 +1,118 @@
+<div class="container mx-auto p-6">
+  <!-- Detalles de la sala -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">{{ room?.name }}</h1>
+        <p class="mt-2">Dirección: {{ room?.address }}</p>
+        <p class="mt-2">Terapéutico: {{ room?.isTherapeutic ? 'Sí' : 'No' }}</p>
+      </div>
+      <button [routerLink]="['/rooms/edit-room',room?.idRoom]"
+      class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>Editar este ambiente
+      </button>
+    </div>
+  </div>
+  <div class="flex space-x-4">
+    <div>
+      <label class="block text-lg font-medium mb-1">Filtrar</label>
+      <select class="border border-gray-300 rounded-lg w-full px-3 py-2" [(ngModel)]="materialFilter"
+        (change)="onFilter()">
+        <option value="">Todos</option>
+        <option value="NUEVO">Nuevo</option>
+        <option value="BUENO">Bueno</option>
+        <option value="REGULAR">REGULAR</option>
+        <option value="DESGASTADO">DESGASTADO</option>
+        <option value="ROTO">ROTO</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-lg font-medium mb-1">Buscar por nombre</label>
+      <input type="text" class="border border-gray-300 rounded-lg w-full px-3 py-2" placeholder="Buscar por nombre"
+        [(ngModel)]="searchQuery" (input)="onSearch()" />
+    </div>
+  </div>
+  <br>
+
+  <!-- Tabla de materiales asignados -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border-b">Nombre</th>
+          <th class="py-2 px-4 border-b">Estado</th>
+          <th class="py-2 px-4 border-b">Stock</th>
+          <th class="py-2 px-4 border-b">Completo</th>
+          <th class="py-2 px-4 border-b">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let material of filteredMaterials">
+          <td class="py-2 px-4 border-b">{{ material.nombre }}</td>
+          <td class="py-2 px-4 border-b">{{ material.estado }}</td>
+          <td class="py-2 px-4 border-b">{{ material.stock }}</td>
+          <td class="py-2 px-4 border-b">
+            {{ material.esCompleto ? 'Sí' : 'No' }}
+          </td>
+          <td class="py-2 px-4 border-b">
+            <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600" *ngIf="material.idMaterial"
+              (click)="unassignMaterial(material.idMaterial)">
+              Desasignar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botón para asignar nuevos materiales -->
+  <div class="mt-6">
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" (click)="openAssignModal()">
+      Asignar Materiales
+    </button>
+  </div>
+
+  <!-- Botón para volver -->
+  <div class="mt-6">
+    <a [routerLink]="['/rooms']" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+      Volver a Ambientes
+    </a>
+  </div>
+
+  <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50" *ngIf="isAssignModalOpen">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+      <h2 class="text-xl font-bold mb-4">Asignar Materiales</h2>
+      <!-- Tabla de materiales -->
+      <div class="overflow-x-auto max-h-60">
+        <table class="min-w-full bg-white border">
+          <thead>
+            <tr>
+              <th class="py-2 px-4 border-b">ID</th>
+              <th class="py-2 px-4 border-b">Nombre</th>
+              <th class="py-2 px-4 border-b">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let material of unassignedMaterials">
+              <td class="py-2 px-4 border-b">{{ material.idMaterial }}</td>
+              <td class="py-2 px-4 border-b">{{ material.nombre }}</td>
+              <td class="py-2 px-4 border-b">
+                <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600" *ngIf="material.idMaterial"
+                  (click)="assignMaterial(material.idMaterial, room?.idRoom!) ">
+                  Asignar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Acciones del modal -->
+      <div class="mt-4 flex justify-end">
+        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600" (click)="closeAssignModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

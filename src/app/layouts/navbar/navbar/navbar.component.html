@@ -1,0 +1,62 @@
+<header class="relative flex items-center bg-blue-800 h-24 justify-between">
+  <!-- Logo -->
+  <div class="flex items-center gap-x-4 p-2">
+    <img ngSrc="../../../../assets/logo-b.png" alt="logo-b" width="90" height="90" class="h-22 w-22 p-1" priority>
+    <h1 class="text-3xl font-thin text-white">PLENA-Mente</h1>
+  </div>
+
+  <!-- Navegación principal -->
+  <nav class="absolute left-1/2 transform -translate-x-1/2">
+    <ul class="text-white flex space-x-6">
+      <!-- Calendario -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-calendar text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Calendario" [routerLink]="'/calendar'"></i>
+        <span class="text-sm mt-1">Calendario</span>
+      </li>
+
+      <!-- Pacientes -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-clipboard-smile text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Pacientes" [routerLink]="'/patients'"></i>
+        <span class="text-sm mt-1">Pacientes</span>
+      </li>
+
+      <!-- Ambientes -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-door text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Ambientes" [routerLink]="'/rooms'"></i>
+        <span class="text-sm mt-1">Ambientes</span>
+      </li>
+
+      <!-- Inventario -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-packages text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Inventario" [routerLink]="'/storage'"></i>
+        <span class="text-sm mt-1">Inventario</span>
+      </li>
+
+      <!-- Usuarios -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-users text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Usuarios" [routerLink]="'/users'"></i>
+        <span class="text-sm mt-1">Usuarios</span>
+      </li>
+
+      <!-- Áreas -->
+      <li class="flex flex-col items-center">
+        <i class="ti ti-bulb text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Áreas" [routerLink]="'/areas'"></i>
+        <span class="text-sm mt-1">Áreas</span>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Perfil y Cerrar sesión -->
+  <div class="flex items-center space-x-6 mr-4 md:mr-10">
+    <!-- Perfil -->
+    <div class="flex flex-col items-center">
+      <i class="ti ti-user-circle text-3xl text-white hover:scale-125 duration-150 transition-transform cursor-pointer" title="Perfil" [routerLink]="'/profile'"></i>
+      <span class="text-sm mt-1 text-white">Perfil</span>
+    </div>
+    <!-- Cerrar sesión -->
+    <div class="flex flex-col items-center">
+      <i class="ti ti-logout text-3xl text-white hover:scale-125 duration-150 transition-transform cursor-pointer" title="Cerrar sesión" (click)="logout()"></i>
+      <span class="text-sm mt-1 text-white">Cerrar sesión</span>
+    </div>
+  </div>
+</header>

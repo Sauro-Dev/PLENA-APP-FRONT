@@ -1,0 +1,117 @@
+<div class="container">
+  <!-- Sección de filtros -->
+  <div class="filter-section">
+    <div class="date-filter-container">
+      <!-- Selector de fecha -->
+      <div class="date-picker">
+        <label for="date-picker">Seleccionar Fecha:</label>
+        <input id="date-picker" type="date" [(ngModel)]="selectedDate" class="form-control"
+          (change)="onFilterSessions()">
+      </div>
+
+    </div>
+
+    <div class="patients-list" *ngIf="sessions.length > 0">
+      <h3>Pacientes presentes:</h3>
+      <ul>
+        <li *ngFor="let session of sessions">
+          <p *ngIf="session.patientPresent"><strong>Paciente:</strong> {{ session.patientName }}</p>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Calendario de sesiones -->
+  <div class="calendar" *ngIf="sessions.length > 0; else noSessions">
+    <h2>Sesiones del {{ selectedDate | date: 'longDate' }}</h2>
+
+    <div class="calendar-column">
+      <div class="calendar-cell" *ngFor="let hour of hours">
+        <div class="hour-label">{{ hour }}</div>
+        <div class="sessions">
+          <div class="session" *ngFor="let session of getSessionsForHour(hour)">
+            <p>{{ session.therapistName }}</p>
+            <div class="session-buttons">
+              <button (click)="openPresenceModal(session)" class="presence">Registrar Asistencia</button>
+              <button (click)="openDetailsModal(session)" class="details">Detalles</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay sesiones -->
+  <ng-template #noSessions>
+    <h3>No hay sesiones para esta fecha</h3>
+  </ng-template>
+</div>
+
+<!-- Modal de Registro de Asistencia -->
+<div *ngIf="showModal" class="modal presence-modal">
+  <div class="modal-content">
+    <h3>Registrar Asistencia para la Sesión de {{ selectedSession?.therapistName }}</h3>
+    <div class="form-group">
+      <label for="therapistPresent">¿El terapeuta está presente?</label>
+      <input id="therapistPresent" type="checkbox" [(ngModel)]="therapistPresent">
+    </div>
+    <div class="form-group">
+      <label for="patientPresent">¿El paciente está presente?</label>
+      <input id="patientPresent" type="checkbox" [(ngModel)]="patientPresent">
+    </div>
+    <div class="button-group">
+      <button (click)="registerPresence()" class="btn-register">Registrar Asistencia</button>
+      <button (click)="closeModal()" class="btn-cancel">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles de Sesión -->
+<div *ngIf="showDetailsModal" class="modal details-modal">
+  <div class="modal-content">
+    <h3>Detalles de la Sesión</h3>
+    <p><strong>Paciente:</strong> {{ selectedSession?.patientName }}</p>
+    <p><strong>Terapeuta:</strong> {{ selectedSession?.therapistName }}</p>
+    <p><strong>Fecha de la sesión:</strong> {{ selectedSession?.sessionDate | date: 'longDate' }}</p>
+    <p><strong>Reprogramada:</strong> {{ selectedSession?.rescheduled ? 'Sí' : 'No' }}</p>
+    <p><strong>¿Terapeuta presente?:</strong> {{ selectedSession?.therapistPresent ? 'Sí' : 'No' }}</p>
+
+    <button (click)="openReprogrammingModal(selectedSession)" class="btn-details"
+      *ngIf="selectedSession">Reprogramar</button>
+    <div class="button-group">
+      <button (click)="closeDetailsModal()" class="btn-cancel">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showReprogrammingModal" class="modal reprogramming-modal">
+  <div class="modal-content">
+    <h3>Detalles de Reprogramación</h3>
+    <p><strong>Paciente:</strong> {{ selectedSession?.patientName }}</p>
+    <p><strong>Terapeuta:</strong> {{ selectedSession?.therapistName }}</p>
+    <p><strong>Fecha Original de la Sesión:</strong> {{ selectedSession?.sessionDate | date: 'longDate' }}</p>
+    <p><strong>Reprogramada:</strong> {{ selectedSession?.rescheduled ? 'Sí' : 'No' }}</p>
+    <div class="form-group">
+      <label for="newSessionDate">Nueva Fecha:</label>
+      <input id="newSessionDate" type="date" [(ngModel)]="newSessionDate" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="newStartTime">Hora de Inicio:</label>
+      <input id="newStartTime" type="time" [(ngModel)]="newStartTime" class="form-control" min="09:00" max="21:00">
+    </div>
+    <div class="form-group">
+      <label for="newEndTime">Hora de Fin:</label>
+      <input id="newEndTime" type="time" [(ngModel)]="newEndTime" class="form-control" min="09:00" max="21:00">
+    </div>
+    <div class="form-group">
+      <label for="reason">Motivo de la reprogramación:</label>
+      <textarea id="reason" [(ngModel)]="reason" class="form-control reason-textarea" rows="4" placeholder="Explique brevemente el motivo de la reprogramación..."></textarea>
+    </div>
+
+    <div class="button-group">
+      <button (click)="sendReprogramming()" class="btn-details">Confirmar Reprogramación</button>
+      <button (click)="closeReprogrammingModal()" class="btn-cancel">Cerrar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+    <!-- Nombre del Área -->
+    <div class="mb-4">
+      <label for="name" class="block text-gray-700 font-bold">Nombre del Ambiente</label>
+      <input id="name" type="text" class="w-full p-2 border rounded" formControlName="name" />
+    </div>
+  
+    <!-- Descripción -->
+    <div class="mb-4">
+      <label for="description" class="block text-gray-700 font-bold">Dirección</label>
+      <textarea id="description" class="w-full p-2 border rounded" formControlName="address"></textarea>
+    </div>
+  
+    <!-- Es terapeutico -->
+    <div class="mb-5 relative flex items-center">
+        <label class="block text-lg font-medium text-gray-700 mr-2">¿Es Terapéutico?</label>
+        <input type="checkbox" class="border border-gray-300" formControlName="isTherapeutic">
+      </div>
+
+
+    <!-- Botones -->
+    <div class="mt-8 flex space-x-4">
+      <button type="submit"
+        class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:scale-110 transition duration-150">
+        Guardar Cambios
+      </button>
+      <button type="button" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg text-lg hover:scale-105 transition"
+        [routerLink]="['/rooms/details',IdRoom]">
+        Cancelar
+      </button>
+    </div>
+  </form>

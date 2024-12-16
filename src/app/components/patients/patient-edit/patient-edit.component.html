@@ -1,0 +1,101 @@
+<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
+  <!-- Cargando -->
+  <div *ngIf="isLoading" class="text-center text-gray-500 text-xl">
+    <i class="fas fa-spinner fa-spin mr-2"></i> Cargando datos del paciente...
+  </div>
+
+  <!-- Formulario -->
+  <form *ngIf="!isLoading" (ngSubmit)="savePatient()" class="space-y-6">
+    <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Editar Paciente</h1>
+
+    <div>
+      <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Nombre</label>
+      <input
+        id="name"
+        type="text"
+        [(ngModel)]="patient!.name"
+        name="name"
+        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        required
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="paternalSurname" class="block text-lg font-medium text-gray-700 mb-2">Apellido Paterno</label>
+        <input
+          id="paternalSurname"
+          type="text"
+          [(ngModel)]="patient!.paternalSurname"
+          name="paternalSurname"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          required
+        />
+      </div>
+      <div>
+        <label for="maternalSurname" class="block text-lg font-medium text-gray-700 mb-2">Apellido Materno</label>
+        <input
+          id="maternalSurname"
+          type="text"
+          [(ngModel)]="patient!.maternalSurname"
+          name="maternalSurname"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="age" class="block text-lg font-medium text-gray-700 mb-2">Edad</label>
+        <input
+          id="age"
+          type="number"
+          [(ngModel)]="patient!.age"
+          name="age"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          required
+        />
+      </div>
+      <div>
+        <label for="allergies" class="block text-lg font-medium text-gray-700 mb-2">Alergias</label>
+        <input
+          id="allergies"
+          type="text"
+          [(ngModel)]="patient!.allergies"
+          name="allergies"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label for="birthDate" class="block text-lg font-medium text-gray-700 mb-2">Fecha de Nacimiento</label>
+      <input
+        id="birthDate"
+        type="date"
+        [(ngModel)]="patient!.birthDate"
+        name="birthDate"
+        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        required
+      />
+    </div>
+
+    <!-- Botones -->
+    <div class="flex justify-center space-x-4 mt-8">
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        [disabled]="isSaving"
+      >
+        <i class="fas fa-save mr-2"></i> Guardar Cambios
+      </button>
+      <button
+        type="button"
+        class="bg-gray-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-600 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="cancel()"
+      >
+        <i class="fas fa-times mr-2"></i> Cancelar
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,119 @@
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Actualizar Perfil</h1>
+
+    <!-- Cargando -->
+    <div *ngIf="isLoading" class="text-center text-gray-500">
+      Cargando...
+    </div>
+
+    <!-- Formulario de actualización -->
+    <form *ngIf="!isLoading" (ngSubmit)="saveProfile()" class="space-y-6">
+      <!-- Nombre -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+        <input
+          type="text"
+          [(ngModel)]="profile.name"
+          name="name"
+          class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Apellidos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
+          <input
+            type="text"
+            [(ngModel)]="profile.paternalSurname"
+            name="paternalSurname"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Apellido Materno</label>
+          <input
+            type="text"
+            [(ngModel)]="profile.maternalSurname"
+            name="maternalSurname"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <!-- DNI y Correo -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">DNI</label>
+          <input
+            type="text"
+            [(ngModel)]="profile.dni"
+            name="dni"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+          <input
+            type="email"
+            [(ngModel)]="profile.email"
+            name="email"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <!-- Teléfonos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+          <input
+            type="text"
+            [(ngModel)]="profile.phone"
+            name="phone"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Teléfono de Respaldo</label>
+          <input
+            type="text"
+            [(ngModel)]="profile.phoneBackup"
+            name="phoneBackup"
+            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Dirección</label>
+        <input
+          type="text"
+          [(ngModel)]="profile.address"
+          name="address"
+          class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="flex flex-col md:flex-row gap-4 justify-between mt-6">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition w-full md:w-auto"
+          [disabled]="isSaving"
+        >
+          Guardar Cambios
+        </button>
+        <button
+          type="button"
+          class="bg-red-500 text-white px-5 py-2 rounded-lg shadow hover:bg-red-600 transition w-full md:w-auto"
+          (click)="cancelUpdate()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

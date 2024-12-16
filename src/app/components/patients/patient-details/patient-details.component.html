@@ -1,0 +1,51 @@
+<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
+  <!-- Cargando -->
+  <div *ngIf="isLoading" class="text-center text-gray-500 text-xl">
+    <i class="fas fa-spinner fa-spin mr-2"></i> Cargando detalles del paciente...
+  </div>
+
+  <!-- Detalles del paciente -->
+  <div *ngIf="!isLoading && patient" class="space-y-6">
+    <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Detalles del Paciente</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <p class="text-lg"><strong class="text-gray-700">ID:</strong> <span class="text-blue-600">{{ patient.idPatient }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Nombre:</strong> <span class="text-blue-600">{{ patient.name }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Apellido Paterno:</strong> <span class="text-blue-600">{{ patient.paternalSurname }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Apellido Materno:</strong> <span class="text-blue-600">{{ patient.maternalSurname }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Edad:</strong> <span class="text-blue-600">{{ patient.age }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Alergias:</strong> <span class="text-blue-600">{{ patient.allergies || 'Ninguna' }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">Estado:</strong> 
+          <span [ngClass]="{'text-green-600': patient.status, 'text-red-600': !patient.status}">
+            {{ patient.status ? 'Activo' : 'Inactivo' }}
+          </span>
+        </p>
+        <p class="text-lg"><strong class="text-gray-700">Plan:</strong> <span class="text-blue-600">{{ patient.planId }}</span></p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Tutores</h2>
+      <ul class="list-disc list-inside space-y-2">
+        <li *ngFor="let tutor of patient.tutorNames" class="text-lg text-blue-600">{{ tutor }}</li>
+      </ul>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex justify-center mt-8 space-x-4">
+      <button
+        class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="editPatient()"
+      >
+        <i class="fas fa-edit mr-2"></i> Editar Paciente
+      </button>
+      <button
+        class="bg-gray-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-600 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        [routerLink]="'/patients'"
+      >
+        <i class="fas fa-arrow-left mr-2"></i> Volver a Lista
+      </button>
+    </div>
+  </div>
+</div>

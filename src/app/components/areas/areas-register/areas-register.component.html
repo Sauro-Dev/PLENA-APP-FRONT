@@ -1,0 +1,66 @@
+<section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
+  <form [formGroup]="areaForm" (ngSubmit)="onSubmit()">
+    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Área de Intervención</h1>
+
+    <!-- Nombre del Área -->
+    <div class="mb-5 relative">
+      <label for="name" class="block text-lg font-medium text-gray-700">Nombre del Área</label>
+      <input
+        id="name"
+        type="text"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        [ngClass]="{'border-red-500': areaForm.get('name')?.invalid && areaForm.get('name')?.touched}"
+        formControlName="name"
+        placeholder="Nombre del Área"
+        maxlength="100"
+      />
+      <p *ngIf="areaForm.get('name')?.invalid && areaForm.get('name')?.touched" class="mt-1 text-sm text-red-600">
+        El nombre del área es requerido y debe tener entre 3 y 100 caracteres.
+      </p>
+    </div>
+
+    <!-- Descripción -->
+    <div class="mb-5 relative">
+      <label for="description" class="block text-lg font-medium text-gray-700">Descripción</label>
+      <textarea
+        id="description"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        [ngClass]="{'border-red-500': areaForm.get('description')?.invalid && areaForm.get('description')?.touched}"
+        formControlName="description"
+        placeholder="Descripción del Área"
+        rows="3"
+        maxlength="500"
+      ></textarea>
+      <p *ngIf="areaForm.get('description')?.invalid && areaForm.get('description')?.touched" class="mt-1 text-sm text-red-600">
+        La descripción es requerida y debe tener entre 10 y 500 caracteres.
+      </p>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-5 justify-center mt-10 mb-10">
+      <button
+        type="submit"
+        class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700 transition duration-300 ease-in-out"
+        [disabled]="areaForm.invalid"
+        [ngClass]="{'opacity-50 cursor-not-allowed': areaForm.invalid}"
+      >
+        Guardar
+      </button>
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400 transition duration-300 ease-in-out"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+
+  <!-- Mensajes de éxito o error -->
+  <div *ngIf="successMessage" class="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+    {{ errorMessage }}
+  </div>
+</section>

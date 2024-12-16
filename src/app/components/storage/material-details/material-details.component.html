@@ -1,0 +1,93 @@
+<div class="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-12">
+  <h2 class="text-3xl font-bold mb-8">Detalles de Material:</h2>
+
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">{{material?.nombre}}</h1>
+        <p class="mt-2">Descripciones: {{ material?.descripcion}}</p>
+        <p class="mt-2">stock: {{ material?.stock }}</p>
+        <p class="mt-2">¿Es completo?: {{ material?.esCompleto ? 'Sí' : 'No' }}</p>
+        <p class="mt-2">¿Es soporte?: {{ material?.esSoporte ? 'Sí' : 'No' }}</p>
+        <p class="mt-2">Estado: {{ material?.estado }}</p>
+        <p class="mt-2">¿Cuándo se registró?: {{ material?.fechaAlta | date:'yyyy-MM-dd' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-6">
+    <h3 class="text-xl font-bold mb-4">Áreas de Intervención Asociadas:</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b">Nombre</th>
+            <th class="py-2 px-4 border-b">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let area of interventionAreas">
+            <td class="py-2 px-4 border-b">{{ area.name }}</td>
+            <td class="py-2 px-4 border-b">
+              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                (click)="unassignInterArea(area)">
+                Desasignar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Botón para asignar nuevos materiales -->
+  <div class="mt-6">
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" (click)="openAssignModal()">
+      Asignar Materiales
+    </button>
+  </div>
+
+  <!-- Botón para volver -->
+  <div class="mt-6">
+    <a [routerLink]="['/storage']" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+      Volver a Ambientes
+    </a>
+  </div>
+
+  <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
+    *ngIf="isAssignInterAreaModalOpen">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+      <h2 class="text-xl font-bold mb-4">Asignar Materiales</h2>
+      <!-- Tabla de materiales -->
+      <div class="overflow-x-auto max-h-60">
+        <table class="min-w-full bg-white border">
+          <thead>
+            <tr>
+              <th class="py-2 px-4 border-b">ID</th>
+              <th class="py-2 px-4 border-b">Nombre</th>
+              <th class="py-2 px-4 border-b">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let area of allInterventionAreas">
+              <td class="py-2 px-4 border-b">{{ area.id}}</td>
+              <td class="py-2 px-4 border-b">{{ area.name }}</td>
+              <td class="py-2 px-4 border-b">
+                <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                  *ngIf="material?.idMaterial" (click)="assignMaterialInterArea(area)">
+                  Asignar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Acciones del modal -->
+      <div class="mt-4 flex justify-end">
+        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-gray-600" (click)="closeAssignModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

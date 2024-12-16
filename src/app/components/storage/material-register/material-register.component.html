@@ -1,0 +1,66 @@
+<section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Material</h1>
+
+    <!-- Nombre -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Nombre</label>
+      <input type="text"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             formControlName="nombre" placeholder="Nombre">
+    </div>
+
+    <!-- Estado -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Estado</label>
+      <select
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="estado">
+        <option *ngFor="let status of estados" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+
+    <!-- Stock -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Stock</label>
+      <input type="number"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             formControlName="stock" placeholder="Stock" min="0">
+      <small class="text-red-600 mt-1"
+             *ngIf="registerForm.get('stock')?.invalid && registerForm.get('stock')?.touched">
+        El stock no puede ser negativo.
+      </small>
+    </div>
+
+    <!-- ¿Es Completo? -->
+    <div class="mb-5 relative flex items-center">
+      <label class="block text-lg font-medium text-gray-700 mr-2">¿Es Completo?</label>
+      <input type="checkbox" class="border border-gray-300" formControlName="esCompleto">
+    </div>
+
+    <!-- ¿Es de Soporte? -->
+    <div class="mb-5 relative flex items-center">
+      <label class="block text-lg font-medium text-gray-700 mr-2">¿Es de Soporte?</label>
+      <input type="checkbox" class="border border-gray-300" formControlName="esSoporte">
+    </div>
+
+    <!-- Descripción -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Descripción</label>
+      <textarea
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="descripcion" placeholder="Descripción"></textarea>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-5 justify-center mt-10 mb-10">
+      <button type="submit" [disabled]="registerForm.invalid"
+              [ngClass]="{'bg-gray-500': registerForm.invalid, 'bg-blue-800': registerForm.valid, 'text-white': true }"
+              class="px-5 py-2 rounded-lg text-xl hover:bg-blue-700">
+        Guardar
+      </button>
+      <button type="button" (click)="onCancel()"
+              class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
+    </div>
+  </form>
+</section>

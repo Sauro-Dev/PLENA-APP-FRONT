@@ -1,0 +1,17 @@
+<nav aria-label="breadcrumb" class="bg-white py-3 px-5 rounded-lg shadow-sm mb-4">
+  <ol class="list-none p-0 m-0 inline-flex items-center text-sm text-gray-600">
+    <li *ngFor="let breadcrumb of breadcrumbs; let last = last" class="inline-flex items-center">
+      <ng-container *ngIf="!last">
+        <a [routerLink]="breadcrumb.url" class="text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out">
+          {{ breadcrumb.label }}
+        </a>
+        <svg class="mx-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </ng-container>
+      <ng-container *ngIf="last">
+        <span class="text-gray-500 font-semibold">{{ breadcrumb.label }}</span>
+      </ng-container>
+    </li>
+  </ol>
+</nav>

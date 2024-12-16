@@ -1,0 +1,40 @@
+<section class="flex flex-col items-center mt-28">
+    <div class="flex items-center gap-x-4 mb-20">
+        <img ngSrc="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority>
+        <h1 class="text-3xl font-thin">PLENA-Mente</h1>
+    </div>
+    <h2 class="text-2xl font-thin mb-10">Inicio de Sesión</h2>
+
+    <form (ngSubmit)="login()" #loginForm="ngForm" class="w-full max-w-sm">
+        <div class="mb-8">
+            <h3 class="ml-2">Usuario</h3>
+            <div class="flex items-center border-2 border-black rounded-xl">
+                <input [(ngModel)]="username" name="username" #usernameInput="ngModel" required minlength="3"
+                    class="outline-none text-xl w-80 px-3 py-2" type="text" placeholder="Usuario">
+                <i class="ti ti-user text-4xl"></i>
+            </div>
+            <div *ngIf="usernameInput.invalid && (usernameInput.dirty || usernameInput.touched)"
+                class="text-red-500 text-sm mt-1 ml-2">
+                <div *ngIf="usernameInput.errors?.['required']">El usuario es requerido.</div>
+                <div *ngIf="usernameInput.errors?.['minlength']">El usuario debe tener al menos 3 caracteres.</div>
+            </div>
+        </div>
+        <div class="mb-20">
+            <h3 class="ml-2">Contraseña</h3>
+            <div class="flex items-center border-2 border-black rounded-xl">
+                <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
+                    class="outline-none text-xl w-80 px-3 py-2" type="password" placeholder="Contraseña">
+                <i class="ti ti-lock text-4xl"></i>
+            </div>
+            <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
+                class="text-red-500 text-sm mt-1 ml-2">
+                <div *ngIf="passwordInput.errors?.['required']">La contraseña es requerida.</div>
+                <div *ngIf="passwordInput.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</div>
+            </div>
+        </div>
+        <button type="submit" [disabled]="loginForm.invalid"
+            class="bg-blue-800 text-white py-4 px-20 rounded-lg w-full disabled:opacity-50 disabled:cursor-not-allowed">
+            INICIAR SESIÓN
+        </button>
+    </form>
+</section>

@@ -1,0 +1,155 @@
+<section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Usuario</h1>
+
+    <!-- Username -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Username</label>
+      <input type="text"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="username" placeholder="Username">
+    </div>
+
+    <!-- Contraseña y Confirmar Contraseña -->
+    <div class="flex gap-5 mb-5">
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Contraseña</label>
+        <input type="password"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="password" placeholder="Contraseña">
+      </div>
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Confirmar Contraseña</label>
+        <input type="password"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="confirmPassword" placeholder="Confirmar Contraseña">
+        <small class="text-red-600 mt-1"
+          *ngIf="registerForm.hasError('passwordsDontMatch') && registerForm.get('confirmPassword')?.touched">
+          Las contraseñas no coinciden.
+        </small>
+      </div>
+    </div>
+
+    <!-- Nombres -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Nombres</label>
+      <input type="text"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="name" placeholder="Nombres">
+    </div>
+
+    <!-- Apellido Paterno y Materno -->
+    <div class="flex gap-5 mb-5">
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Apellido Paterno</label>
+        <input type="text"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="paternalSurname" placeholder="Apellido Paterno">
+      </div>
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
+        <input type="text"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="maternalSurname" placeholder="Apellido Materno">
+      </div>
+    </div>
+
+    <!-- DNI y E-mail -->
+    <div class="flex gap-5 mb-5">
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">DNI</label>
+        <input type="text"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="dni" placeholder="DNI">
+        <small class="text-red-600 mt-1"
+          *ngIf="registerForm.get('dni')?.hasError('pattern') && registerForm.get('dni')?.touched">
+          El DNI debe tener 8 dígitos.
+        </small>
+      </div>
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">E-mail</label>
+        <input type="email"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="email" placeholder="Correo">
+      </div>
+    </div>
+
+    <!-- Dirección y Fecha de Nacimiento -->
+    <div class="flex gap-5 mb-5">
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Dirección</label>
+        <input type="text"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="address" placeholder="Dirección">
+      </div>
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Fecha de Nacimiento</label>
+        <input type="date"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="birthdate">
+      </div>
+    </div>
+
+
+    <!-- Teléfonos -->
+    <div class="flex gap-5 mb-5">
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Teléfono</label>
+        <input type="tel"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="phone" placeholder="Teléfono">
+      </div>
+      <div class="w-1/2">
+        <label class="block text-lg font-medium text-gray-700">Teléfono de respaldo</label>
+        <input type="tel"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          formControlName="phoneBackup" placeholder="Teléfono de respaldo">
+      </div>
+    </div>
+
+    <!-- Rol y Admin -->
+    <div class="flex gap-5 mb-5">
+      <h1 class="text-lg font-medium">Rol:</h1>
+      <button type="button" (click)="selectRole('Terapeuta')"
+        [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Terapeuta', 'bg-gray-200': selectedRole !== 'Terapeuta' }"
+        class="px-4 py-2 rounded-lg hover:bg-blue-700">
+        Terapeuta
+      </button>
+      <button type="button" (click)="selectRole('Secretario/a')"
+        [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Secretario/a', 'bg-gray-200': selectedRole !== 'Secretario/a' }"
+        class="px-4 py-2 rounded-lg hover:bg-blue-700">
+        Secretario/a
+      </button>
+    </div>
+
+
+    <div *ngIf="selectedRole == 'Terapeuta'" class="flex gap-10 mb-5 items-center">
+      <h2 class="block text-lg font-medium text-gray-700">Admin</h2>
+      <input type="checkbox" class="w-6 h-6 border-2 border-black" [checked]="isAdminSelected"
+        (click)="toggleAdminSelection($event)" />
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-5 justify-center mt-10 mb-10">
+      <button type="submit"
+        class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700">Guardar</button>
+      <button type="button" (click)="onCancel()"
+        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
+    </div>
+    <div *ngIf="showAdminDialog"
+      class="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
+      <div class="bg-white p-8 rounded-lg shadow-lg ">
+        <h2 class="text-xl mb-4 flex justify-center ">Ingrese Clave de Admin</h2>
+        <h3 class="text-sm mb-4">¡CUIDADO! Usted esta cediendo control total del sistema</h3>
+        <input type="password" formControlName="adminPassword" class="mt-1 mb-4 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Ingrese su contraseña">
+        <div class="flex gap-4 justify-center">
+          <button type="button" (click)="confirmAdminPassword()"
+            class="bg-blue-800 text-white px-3 py-1 rounded-lg">Confirmar</button>
+          <button type="button" (click)="cancelAdminDialog()"
+            class="bg-red-600 text-white px-3 py-1 rounded-lg">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>

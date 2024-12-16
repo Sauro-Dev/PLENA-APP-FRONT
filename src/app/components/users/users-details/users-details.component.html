@@ -1,0 +1,17 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-3xl font-semibold text-blue-800 mb-4">{{ user?.name }} {{ user?.paternalSurname }} {{ user?.maternalSurname }}</h2>
+    <div class="text-left">
+      <p class="text-lg text-gray-600"><strong>ID:</strong> {{ user?.id }}</p>
+      <p class="text-lg text-gray-600"><strong>Email:</strong> <span class="text-green-500">{{ user?.email }}</span></p>
+      <p class="text-lg text-gray-600"><strong>DNI:</strong> {{ user?.dni }}</p>
+      <p class="text-lg text-gray-600"><strong>Teléfono:</strong> {{ user?.phone }}</p>
+      <p class="text-lg text-gray-600"><strong>Teléfono de Respaldo:</strong> {{ user?.phoneBackup }}</p>
+      <p class="text-lg text-gray-600"><strong>Dirección:</strong> {{ user?.address }}</p>
+      <p class="text-lg text-gray-600"><strong>Rol:</strong> {{ user?.role }}</p>
+    </div>
+    <a class="block mt-6 bg-blue-800 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition-colors duration-150" routerLink="/users">
+      Volver a la lista
+    </a>
+  </div>
+</div>
