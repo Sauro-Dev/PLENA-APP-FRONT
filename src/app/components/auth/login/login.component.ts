@@ -3,7 +3,7 @@ import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgOptimizedImage } from '@angular/common'
+import { NgOptimizedImage } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -27,14 +27,14 @@ export class LoginComponent {
         const decodedToken: any = jwtDecode(response.token);
         const role = decodedToken.role;
 
-        if(role === 'ADMIN'){
-          this.router.navigate(['/users'])
+        if (role === 'ADMIN') {
+          this.router.navigate(['/users']);
         }
-        if(role === 'SECRETARY'){
-          this.router.navigate(['/patients'])
+        if (role === 'SECRETARY') {
+          this.router.navigate(['/patients']);
         }
-        if(role === 'THERAPIST'){
-          this.router.navigate(['/calendar'])
+        if (role === 'THERAPIST') {
+          this.router.navigate(['/calendar']);
         }
       },
       error: (error) => {
