@@ -29,7 +29,7 @@ export class PatientRegisterComponent implements OnInit {
     this.patientForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
       paternalSurname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
-      maternalSurname: ['', [Validators.maxLength(30)]],
+      maternalSurname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
       birthdate: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
       allergies: ['', [Validators.maxLength(255)]],
@@ -102,7 +102,6 @@ export class PatientRegisterComponent implements OnInit {
     if (sessionDate && startTime && endTime) {
       this.patientService.getAvailableTherapists(sessionDate, startTime, endTime).subscribe(
         (therapists) => {
-          console.log(`Therapists for index ${index}:`, therapists);
           this.therapistsMap.set(index, therapists);
           this.sessionDates.at(index).get('therapist')?.setValue('');
         },
@@ -120,7 +119,6 @@ export class PatientRegisterComponent implements OnInit {
       this.patientService.createPatient(formValue).subscribe(
         (response) => {
           const patientId = response.idPatient;
-          console.log(patientId);
           const sessionRequests = formValue.sessionDates.map((session: any) => {
 
             const sessionData = {
@@ -150,10 +148,7 @@ export class PatientRegisterComponent implements OnInit {
         }
       );
     } else {
-      console.error('Formulario no válido');
-      console.log(this.patientForm);
       Object.keys(this.patientForm.controls).forEach(key => {
-        console.log(key, this.patientForm.controls[key].invalid);
       });
     }
   }

@@ -122,7 +122,6 @@ export class CalendarComponent implements OnInit{
 
       this.calendarService.reprogramSession(this.selectedSession.idSession, reprogrammingData).subscribe(
         () => {
-          console.log('Sesión reprogramada exitosamente');
           this.closeReprogrammingModal();
           this.onFilterSessions();
         },

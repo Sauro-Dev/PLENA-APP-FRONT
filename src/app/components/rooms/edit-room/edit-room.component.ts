@@ -59,7 +59,6 @@ export class EditRoomComponent implements OnInit {
     loadRoomData(): void {
       this.roomService.getRoomById(this.IdRoom).subscribe(
         (data) => {
-          console.log(data);
           this.roomForm.patchValue({ 
             name: data.name,
             address: data.address,

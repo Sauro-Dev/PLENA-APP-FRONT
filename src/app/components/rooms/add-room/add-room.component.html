@@ -1,36 +1,43 @@
 <section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
-    <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
-      <h1 class="text-3xl font-bold mb-10 text-center">Registrar Ambiente</h1>
-  
-      <!-- Nombre -->
-      <div class="mb-5 relative">
-        <label class="block text-lg font-medium text-gray-700">Nombre</label>
-        <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="name" placeholder="Nombre">
-      </div>
-  
-      <!-- Dirección -->
-      <div class="mb-5 relative">
-        <label class="block text-lg font-medium text-gray-700">Dirección</label>
-        <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="address" placeholder="Dirección">
-      </div>
-  
-      <!-- ¿Es Terapéutico? -->
-      <div class="mb-5 relative flex items-center">
-        <label class="block text-lg font-medium text-gray-700 mr-2">¿Es Terapéutico?</label>
-        <input type="checkbox" class="border border-gray-300" formControlName="isTherapeutic">
-      </div>
-  
-      <!-- Botones -->
-      <div class="flex gap-5 justify-center mt-10 mb-10">
-        <button type="submit"
-          class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700">Guardar</button>
-        <button type="button" (click)="onCancel()"
-          class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
-      </div>
-    </form>
-  </section>
-  
+  <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Ambiente</h1>
+
+    <!-- Nombre -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Nombre</label>
+      <input type="text"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="name" placeholder="Nombre"
+        [ngClass]="{'border-red-500': roomForm.get('name')?.invalid && roomForm.get('name')?.touched}">
+      <p class="mt-1 text-sm text-red-600" *ngIf="roomForm.get('name')?.invalid && roomForm.get('name')?.touched">
+        El nombre es requerido.
+      </p>
+    </div>
+
+    <!-- Dirección -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Dirección</label>
+      <input type="text"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="address" placeholder="Dirección"
+        [ngClass]="{'border-red-500': roomForm.get('address')?.invalid && roomForm.get('address')?.touched}">
+      <p class="mt-1 text-sm text-red-600" *ngIf="roomForm.get('address')?.invalid && roomForm.get('address')?.touched">
+        La dirección es requerida.
+      </p>
+    </div>
+
+    <!-- ¿Es Terapéutico? -->
+    <div class="mb-5 relative flex items-center">
+      <label class="block text-lg font-medium text-gray-700 mr-2">¿Es Terapéutico?</label>
+      <input type="checkbox" class="border border-gray-300" formControlName="isTherapeutic">
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-5 justify-center mt-10 mb-10">
+      <button type="submit"
+        class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700">Guardar</button>
+      <button type="button" (click)="onCancel()"
+        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
+    </div>
+  </form>
+</section>

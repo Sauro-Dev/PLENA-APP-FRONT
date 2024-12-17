@@ -6,8 +6,13 @@
     <div class="mb-5 relative">
       <label class="block text-lg font-medium text-gray-700">Nombre</label>
       <input type="text"
-             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-             formControlName="nombre" placeholder="Nombre">
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="nombre" placeholder="Nombre"
+        [ngClass]="{'border-red-500': registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched}">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched">
+        El nombre es requerido.
+      </p>
     </div>
 
     <!-- Estado -->
@@ -15,19 +20,24 @@
       <label class="block text-lg font-medium text-gray-700">Estado</label>
       <select
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="estado">
+        formControlName="estado"
+        [ngClass]="{'border-red-500': registerForm.get('estado')?.invalid && registerForm.get('estado')?.touched}">
+        <option value="" disabled>Seleccione un estado</option>
         <option *ngFor="let status of estados" [value]="status">{{ status }}</option>
       </select>
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('estado')?.invalid && registerForm.get('estado')?.touched">
+        El estado es requerido.
+      </p>
     </div>
 
     <!-- Stock -->
     <div class="mb-5 relative">
       <label class="block text-lg font-medium text-gray-700">Stock</label>
       <input type="number"
-             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-             formControlName="stock" placeholder="Stock" min="0">
-      <small class="text-red-600 mt-1"
-             *ngIf="registerForm.get('stock')?.invalid && registerForm.get('stock')?.touched">
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="stock" placeholder="Stock" min="0">
+      <small class="text-red-600 mt-1" *ngIf="registerForm.get('stock')?.invalid && registerForm.get('stock')?.touched">
         El stock no puede ser negativo.
       </small>
     </div>
@@ -55,12 +65,12 @@
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10 mb-10">
       <button type="submit" [disabled]="registerForm.invalid"
-              [ngClass]="{'bg-gray-500': registerForm.invalid, 'bg-blue-800': registerForm.valid, 'text-white': true }"
-              class="px-5 py-2 rounded-lg text-xl hover:bg-blue-700">
+        [ngClass]="{'bg-gray-500': registerForm.invalid, 'bg-blue-800': registerForm.valid, 'text-white': true }"
+        class="px-5 py-2 rounded-lg text-xl hover:bg-blue-700">
         Guardar
       </button>
       <button type="button" (click)="onCancel()"
-              class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
+        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
     </div>
   </form>
 </section>

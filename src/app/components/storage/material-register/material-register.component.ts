@@ -37,16 +37,8 @@ export class MaterialRegisterComponent {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const formValue = {
-        nombre: this.registerForm.get('nombre')?.value,
-        estado: this.registerForm.get('estado')?.value,
-        stock: this.registerForm.get('stock')?.value,
-        esCompleto: this.registerForm.get('esCompleto')?.value,
-        esSoporte: this.registerForm.get('esSoporte')?.value,
-        descripcion: this.registerForm.get('descripcion')?.value
-      };
+      const formValue = this.registerForm.value;
 
-      // Enviar solo los datos que el backend espera, sin el idMaterial
       this.storageService.registerMaterial(formValue).subscribe(
         (response) => {
           alert('Material registrado exitosamente');
@@ -58,6 +50,7 @@ export class MaterialRegisterComponent {
         }
       );
     } else {
+      this.registerForm.markAllAsTouched();
       console.error('Formulario inválido');
     }
   }
