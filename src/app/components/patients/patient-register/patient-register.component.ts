@@ -30,6 +30,7 @@ export class PatientRegisterComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
       paternalSurname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
       maternalSurname: ['', [Validators.maxLength(30)]],
+      dni: ['', [Validators.required, Validators.pattern('\\d{8}')]],
       birthdate: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
       allergies: ['', [Validators.maxLength(255)]],
@@ -44,7 +45,7 @@ export class PatientRegisterComponent implements OnInit {
     });
 
     this.patientService.getAllRooms().subscribe((rooms) => {
-      console.log('roms')
+      console.log('rooms')
       this.rooms = rooms;
     });
   }

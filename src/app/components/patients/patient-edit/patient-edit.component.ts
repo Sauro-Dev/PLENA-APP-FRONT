@@ -44,6 +44,7 @@ export class PatientEditComponent implements OnInit {
           name: data.name,
           paternalSurname: data.paternalSurname,
           maternalSurname: data.maternalSurname || '',
+          dni: data.dni || '',
           birthDate: new Date(data.birthdate), // Convertimos a Date
           age: data.age,
           allergies: data.allergies || '',

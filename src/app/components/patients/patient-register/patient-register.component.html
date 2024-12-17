@@ -7,7 +7,7 @@
       <label class="block text-lg font-medium text-gray-700">Nombres</label>
       <input type="text"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-        formControlName="name" placeholder="Nombres" 
+        formControlName="name" placeholder="Nombres"
         [ngClass]="{'border-red-500': patientForm.get('name')?.invalid && patientForm.get('name')?.touched}"
       />
       <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
@@ -21,7 +21,7 @@
         <label class="block text-lg font-medium text-gray-700">Apellido Paterno</label>
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          formControlName="paternalSurname" placeholder="Apellido Paterno" 
+          formControlName="paternalSurname" placeholder="Apellido Paterno"
           [ngClass]="{'border-red-500': patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched}"
         />
         <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
@@ -32,7 +32,7 @@
         <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          formControlName="maternalSurname" placeholder="Apellido Materno" 
+          formControlName="maternalSurname" placeholder="Apellido Materno"
           [ngClass]="{'border-red-500': patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched}"
         />
         <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
@@ -47,7 +47,7 @@
         <label class="block text-lg font-medium text-gray-700">Fecha de Nacimiento</label>
         <input type="date"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          formControlName="birthdate" 
+          formControlName="birthdate"
           [ngClass]="{'border-red-500': patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched}"
         />
         <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched">
@@ -58,13 +58,26 @@
         <label class="block text-lg font-medium text-gray-700">Edad</label>
         <input type="number"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          formControlName="age" placeholder="Edad" 
+          formControlName="age" placeholder="Edad"
           [ngClass]="{'border-red-500': patientForm.get('age')?.invalid && patientForm.get('age')?.touched}"
         />
         <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('age')?.invalid && patientForm.get('age')?.touched">
           La edad debe ser un número válido.
         </p>
       </div>
+    </div>
+
+    <!-- DNI -->
+    <div class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">DNI</label>
+      <input type="text"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+             formControlName="dni" placeholder="DNI"
+             [ngClass]="{'border-red-500': patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched}"
+      />
+      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched">
+        El DNI de tener 8 dígitos
+      </p>
     </div>
 
     <!-- Alergias -->
@@ -124,7 +137,7 @@
               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
               formControlName="therapist">
               <option [value]="null" disabled>Seleccione un terapeuta</option>
-              <option *ngFor="let therapist of therapistsMap.get(i) || []" [value]="therapist.id">{{ therapist.username }}
+              <option *ngFor="let therapist of therapistsMap.get(i) || []" [value]="therapist.id">{{ therapist.name }}
               </option>
             </select>
           </div>
@@ -142,7 +155,7 @@
           <label class="block text-sm font-medium text-gray-700">Nombre del Tutor</label>
           <input type="text"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            formControlName="fullName" placeholder="Nombre del Tutor" 
+            formControlName="fullName" placeholder="Nombre del Tutor"
             [ngClass]="{'border-red-500': tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched}"
           />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched">
@@ -153,7 +166,7 @@
           <label class="block text-sm font-medium text-gray-700">DNI</label>
           <input type="text"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            formControlName="dni" placeholder="DNI" 
+            formControlName="dni" placeholder="DNI"
             [ngClass]="{'border-red-500': tutor.get('dni')?.invalid && tutor.get('dni')?.touched}"
           />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.invalid && tutor.get('dni')?.touched">
@@ -164,7 +177,7 @@
           <label class="block text-sm font-medium text-gray-700">Teléfono</label>
           <input type="tel"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            formControlName="phone" placeholder="Teléfono" 
+            formControlName="phone" placeholder="Teléfono"
             [ngClass]="{'border-red-500': tutor.get('phone')?.invalid && tutor.get('phone')?.touched}"
           />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.invalid && tutor.get('phone')?.touched">
