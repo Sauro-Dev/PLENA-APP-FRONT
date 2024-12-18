@@ -17,6 +17,9 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
 
+  // Con esto se alterna el ojito de la contraseña
+  showPassword: boolean = false;
+
   constructor(private authService: AuthService, private router: Router) {}
 
   login() {
