@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {environment} from "../../enviroment";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Room} from "../rooms/room";
 import {RegisterPatient} from "./register-patient";
 
 @Injectable({

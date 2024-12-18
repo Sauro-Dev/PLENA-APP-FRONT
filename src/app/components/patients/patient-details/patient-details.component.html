@@ -7,16 +7,17 @@
   <!-- Detalles del paciente -->
   <div *ngIf="!isLoading && patient" class="space-y-6">
     <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Detalles del Paciente</h1>
-    
+
     <div class="bg-white p-6 rounded-lg shadow-md">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <p class="text-lg"><strong class="text-gray-700">ID:</strong> <span class="text-blue-600">{{ patient.idPatient }}</span></p>
         <p class="text-lg"><strong class="text-gray-700">Nombre:</strong> <span class="text-blue-600">{{ patient.name }}</span></p>
         <p class="text-lg"><strong class="text-gray-700">Apellido Paterno:</strong> <span class="text-blue-600">{{ patient.paternalSurname }}</span></p>
         <p class="text-lg"><strong class="text-gray-700">Apellido Materno:</strong> <span class="text-blue-600">{{ patient.maternalSurname }}</span></p>
+        <p class="text-lg"><strong class="text-gray-700">DNI:</strong> <span class="text-blue-600">{{ patient.dni }}</span></p>
         <p class="text-lg"><strong class="text-gray-700">Edad:</strong> <span class="text-blue-600">{{ patient.age }}</span></p>
         <p class="text-lg"><strong class="text-gray-700">Alergias:</strong> <span class="text-blue-600">{{ patient.allergies || 'Ninguna' }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Estado:</strong> 
+        <p class="text-lg"><strong class="text-gray-700">Estado:</strong>
           <span [ngClass]="{'text-green-600': patient.status, 'text-red-600': !patient.status}">
             {{ patient.status ? 'Activo' : 'Inactivo' }}
           </span>
