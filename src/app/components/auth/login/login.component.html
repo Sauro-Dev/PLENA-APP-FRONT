@@ -1,73 +1,21 @@
-<section
-  class="flex justify-center items-center min-h-screen bg-cover bg-center bg-no-repeat"
-  style="background-image: url('assets/terapiasalaazul.png');"
->
+<section class="flex justify-center items-center min-h-screen bg-cover bg-center bg-no-repeat"
+  style="background-image: url('assets/terapiasalaazul.png');">
   <!-- Contenedor principal -->
-  <div
-    class="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md md:max-w-lg lg:max-w-sm mx-4 md:mx-0"
-  >
+  <div class="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md md:max-w-lg lg:max-w-sm mx-4 md:mx-0">
     <!-- Logo y título -->
     <div class="flex flex-col items-center gap-y-4 mb-10">
-      <img
-        ngSrc="assets/logo-n.webp"
-        alt="logo-n"
-        width="112"
-        height="112"
-        class="h-28 w-28"
-        priority
-      />
+      <img ngSrc="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority />
       <h1 class="text-3xl font-thin text-gray-800">PLENA-Mente</h1>
     </div>
 
-<<<<<<< HEAD
-    <form (ngSubmit)="login()" #loginForm="ngForm" class="w-full max-w-sm">
-        <div class="mb-8">
-            <h3 class="ml-2">Usuario</h3>
-            <div class="flex items-center border-2 border-black rounded-xl">
-                <input [(ngModel)]="username" name="username" #usernameInput="ngModel" required minlength="3"
-                    class="outline-none text-xl w-80 px-3 py-2 ml-2" type="text" placeholder="Usuario">
-                <i class="ti ti-user text-4xl"></i>
-            </div>
-            <div *ngIf="usernameInput.invalid && (usernameInput.dirty || usernameInput.touched)"
-                class="text-red-500 text-sm mt-1 ml-2">
-                <div *ngIf="usernameInput.errors?.['required']">El usuario es requerido.</div>
-                <div *ngIf="usernameInput.errors?.['minlength']">El usuario debe tener al menos 3 caracteres.</div>
-            </div>
-        </div>
-        <div class="mb-20">
-            <h3 class="ml-2">Contraseña</h3>
-            <div class="flex items-center border-2 border-black rounded-xl">
-                <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
-                    class="outline-none text-xl w-80 px-3 py-2 ml-2" type="password" placeholder="Contraseña">
-                <i class="ti ti-lock text-4xl"></i>
-            </div>
-            <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
-                class="text-red-500 text-sm mt-1 ml-2">
-                <div *ngIf="passwordInput.errors?.['required']">La contraseña es requerida.</div>
-                <div *ngIf="passwordInput.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</div>
-            </div>
-=======
     <!-- Formulario -->
-    <form
-      (ngSubmit)="login()"
-      #loginForm="ngForm"
-      class="space-y-6"
-    >
+    <form (ngSubmit)="login()" #loginForm="ngForm" class="space-y-6">
       <!-- Campo Usuario -->
       <div>
         <div
-          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500"
-        >
-          <input
-            [(ngModel)]="username"
-            name="username"
-            #usernameInput="ngModel"
-            required
-            minlength="3"
-            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
-            type="text"
-            placeholder="Usuario"
-          />
+          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input [(ngModel)]="username" name="username" #usernameInput="ngModel" required minlength="3"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg" type="text" placeholder="Usuario" />
           <i class="ti ti-user text-2xl px-3 text-gray-500"></i>
         </div>
       </div>
@@ -75,39 +23,19 @@
       <!-- Campo Contraseña -->
       <div>
         <div
-          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500"
-        >
-          <input
-            [(ngModel)]="password"
-            name="password"
-            #passwordInput="ngModel"
-            required
-            minlength="6"
-            class="outline-none text-lg w-full px-3 py-2"
-            [type]="showPassword ? 'text' : 'password'"
-            placeholder="Contraseña"
-          />
+          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
+            class="outline-none text-lg w-full px-3 py-2" [type]="showPassword ? 'text' : 'password'"
+            placeholder="Contraseña" />
           <!-- Condicionar el ícono -->
-          <button
-            type="button"
-            *ngIf="password.length > 0"
-            (click)="showPassword = !showPassword"
-            class="text-gray-500 px-3 focus:outline-none"
-          >
-            <i
-              [class]="showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"
-            ></i>
+          <button type="button" *ngIf="password.length > 0" (click)="showPassword = !showPassword"
+            class="text-gray-500 px-3 focus:outline-none">
+            <i [class]="showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"></i>
           </button>
-          <i
-            *ngIf="password.length === 0"
-            class="ti ti-lock text-2xl px-3 text-gray-500"
-          ></i>
->>>>>>> develop
+          <i *ngIf="password.length === 0" class="ti ti-lock text-2xl px-3 text-gray-500"></i>
         </div>
-        <div
-          *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
-          class="text-red-500 text-sm mt-1"
-        >
+        <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
+          class="text-red-500 text-sm mt-1">
           <div *ngIf="passwordInput.errors?.['required']">
             La contraseña es requerida.
           </div>
@@ -118,11 +46,8 @@
       </div>
 
       <!-- Botón de envío -->
-      <button
-        type="submit"
-        [disabled]="loginForm.invalid"
-        class="bg-blue-600 text-white py-3 rounded-lg w-full font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <button type="submit" [disabled]="loginForm.invalid"
+        class="bg-blue-600 text-white py-3 rounded-lg w-full font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
         INICIAR SESIÓN
       </button>
     </form>
