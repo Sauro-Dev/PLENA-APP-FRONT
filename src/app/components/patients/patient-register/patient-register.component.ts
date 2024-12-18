@@ -1,18 +1,30 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterLink } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
-import { PatientsService } from "../patients.service";
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { PatientsService } from '../patients.service';
 
 @Component({
   selector: 'app-patient-register',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './patient-register.component.html',
-  styleUrls: ['./patient-register.component.css']
+  styleUrls: ['./patient-register.component.css'],
 })
 export class PatientRegisterComponent implements OnInit {
-  plans = [{ id: 1, name: 'Plan A' }, { id: 2, name: 'Plan B' }, { id: 3, name: 'Plan C' }, { id: 4, name: 'Plan D' }];
+  plans = [
+    { id: 1, name: 'Plan A' },
+    { id: 2, name: 'Plan B' },
+    { id: 3, name: 'Plan C' },
+    { id: 4, name: 'Plan D' },
+  ];
   rooms: any[] = [];
   therapistsMap: Map<number, any[]> = new Map();
 
@@ -23,14 +35,42 @@ export class PatientRegisterComponent implements OnInit {
     private fb: FormBuilder,
     private patientService: PatientsService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.patientForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
-      paternalSurname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
-      maternalSurname: ['', [Validators.maxLength(30)]],
-      dni: ['', [Validators.required, Validators.pattern('\\d{8}')]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(30),
+        ],
+      ],
+      paternalSurname: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(30),
+        ],
+      ],
+      maternalSurname: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(30),
+        ],
+      ],
+      dni: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('\\d{8}'),
+          Validators.maxLength(8),
+        ],
+      ],
       birthdate: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
       allergies: ['', [Validators.maxLength(255)]],
@@ -45,7 +85,6 @@ export class PatientRegisterComponent implements OnInit {
     });
 
     this.patientService.getAllRooms().subscribe((rooms) => {
-      console.log('rooms')
       this.rooms = rooms;
     });
   }
@@ -60,10 +99,38 @@ export class PatientRegisterComponent implements OnInit {
 
   createTutor(): FormGroup {
     return this.fb.group({
-      fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
-      dni: ['', [Validators.required, Validators.pattern('[0-9]{8}')]],
-      phone: ['', [Validators.required, Validators.pattern('[0-9]{9}')]],
+      fullName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(30),
+        ],
+      ],
+      dni: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('\\d{8}'),
+          Validators.maxLength(8),
+        ],
+      ],
+      phone: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('\\d{9}'),
+          Validators.maxLength(9),
+        ],
+      ],
     });
+  }
+
+  limitInputLength(event: KeyboardEvent, maxLength: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value.length >= maxLength && event.key !== 'Backspace') {
+      event.preventDefault();
+    }
   }
 
   createSessionDates(): FormGroup {
@@ -101,16 +168,17 @@ export class PatientRegisterComponent implements OnInit {
     const { sessionDate, startTime, endTime } = session;
 
     if (sessionDate && startTime && endTime) {
-      this.patientService.getAvailableTherapists(sessionDate, startTime, endTime).subscribe(
-        (therapists) => {
-          console.log(`Therapists for index ${index}:`, therapists);
-          this.therapistsMap.set(index, therapists);
-          this.sessionDates.at(index).get('therapist')?.setValue('');
-        },
-        (error) => {
-          console.error('Error al obtener terapeutas', error);
-        }
-      );
+      this.patientService
+        .getAvailableTherapists(sessionDate, startTime, endTime)
+        .subscribe(
+          (therapists) => {
+            this.therapistsMap.set(index, therapists);
+            this.sessionDates.at(index).get('therapist')?.setValue('');
+          },
+          (error) => {
+            console.error('Error al obtener terapeutas', error);
+          }
+        );
     }
   }
 
@@ -121,9 +189,7 @@ export class PatientRegisterComponent implements OnInit {
       this.patientService.createPatient(formValue).subscribe(
         (response) => {
           const patientId = response.idPatient;
-          console.log(patientId);
           const sessionRequests = formValue.sessionDates.map((session: any) => {
-
             const sessionData = {
               sessionDate: session.sessionDate,
               startTime: session.startTime,
@@ -131,7 +197,7 @@ export class PatientRegisterComponent implements OnInit {
               therapistId: session.therapist,
               roomId: session.room,
               planId: formValue.idPlan,
-              patientId: patientId
+              patientId: patientId,
             };
 
             return this.patientService.createSession(sessionData).toPromise();
@@ -151,16 +217,14 @@ export class PatientRegisterComponent implements OnInit {
         }
       );
     } else {
-      console.error('Formulario no válido');
-      console.log(this.patientForm);
-      Object.keys(this.patientForm.controls).forEach(key => {
-        console.log(key, this.patientForm.controls[key].invalid);
-      });
+      Object.keys(this.patientForm.controls).forEach((key) => {});
     }
   }
 
   onCancel(): void {
-    const confirmed = window.confirm('¿Estás seguro de que deseas cancelar el registro?');
+    const confirmed = window.confirm(
+      '¿Estás seguro de que deseas cancelar el registro?'
+    );
     if (confirmed) {
       this.router.navigate(['/patients']);
     }

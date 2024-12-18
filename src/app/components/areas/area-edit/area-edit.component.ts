@@ -58,7 +58,6 @@ export class AreaEditComponent implements OnInit {
   loadAreaData(): void {
     this.areaService.getAreaById(this.areaId).subscribe(
       (data) => {
-        console.log(data);
         this.areaForm.patchValue({ 
           name: data.name,
           description: data.description,

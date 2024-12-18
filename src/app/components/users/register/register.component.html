@@ -7,26 +7,39 @@
       <label class="block text-lg font-medium text-gray-700">Username</label>
       <input type="text"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="username" placeholder="Username">
+        formControlName="username" placeholder="Username"
+        [ngClass]="{'border-red-500': registerForm.get('username')?.invalid && registerForm.get('username')?.touched}">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+        El username es requerido.
+      </p>
     </div>
 
-    <!-- Contraseña y Confirmar Contraseña -->
     <div class="flex gap-5 mb-5">
+      <!-- Contraseña -->
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Contraseña</label>
         <input type="password"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="password" placeholder="Contraseña">
+          formControlName="password" placeholder="Contraseña"
+          [ngClass]="{'border-red-500': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          La contraseña es requerida.
+        </p>
       </div>
+
+      <!-- Confirmar Contraseña -->
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Confirmar Contraseña</label>
         <input type="password"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="confirmPassword" placeholder="Confirmar Contraseña">
-        <small class="text-red-600 mt-1"
+          formControlName="confirmPassword" placeholder="Confirmar Contraseña"
+          [ngClass]="{'border-red-500': registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched}">
+        <p class="mt-1 text-sm text-red-600"
           *ngIf="registerForm.hasError('passwordsDontMatch') && registerForm.get('confirmPassword')?.touched">
           Las contraseñas no coinciden.
-        </small>
+        </p>
       </div>
     </div>
 
@@ -35,7 +48,12 @@
       <label class="block text-lg font-medium text-gray-700">Nombres</label>
       <input type="text"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="name" placeholder="Nombres">
+        formControlName="name" placeholder="Nombres"
+        [ngClass]="{'border-red-500': registerForm.get('name')?.invalid && registerForm.get('name')?.touched}">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+        El nombre es requerido.
+      </p>
     </div>
 
     <!-- Apellido Paterno y Materno -->
@@ -45,12 +63,20 @@
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           formControlName="paternalSurname" placeholder="Apellido Paterno">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('paternalSurname')?.invalid && registerForm.get('paternalSurname')?.touched">
+          El apellido paterno es requerido.
+        </p>
       </div>
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           formControlName="maternalSurname" placeholder="Apellido Materno">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('maternalSurname')?.invalid && registerForm.get('maternalSurname')?.touched">
+          El apellido materno es requerido.
+        </p>
       </div>
     </div>
 
@@ -60,17 +86,25 @@
         <label class="block text-lg font-medium text-gray-700">DNI</label>
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="dni" placeholder="DNI">
+          formControlName="dni" placeholder="DNI" maxlength="8" (keypress)="limitInputLength($event, 8)">
         <small class="text-red-600 mt-1"
           *ngIf="registerForm.get('dni')?.hasError('pattern') && registerForm.get('dni')?.touched">
           El DNI debe tener 8 dígitos.
         </small>
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('dni')?.invalid && registerForm.get('dni')?.touched">
+          El DNI es requerido.
+        </p>
       </div>
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">E-mail</label>
         <input type="email"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           formControlName="email" placeholder="Correo">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          El correo es requerido.
+        </p>
       </div>
     </div>
 
@@ -81,12 +115,22 @@
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           formControlName="address" placeholder="Dirección">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched">
+          La dirección es requerido.
+        </p>
       </div>
+
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Fecha de Nacimiento</label>
         <input type="date"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="birthdate">
+          formControlName="birthdate" [min]="'1900-01-01'" [max]="maxDate"
+          [ngClass]="{'border-red-500': registerForm.get('birthdate')?.invalid && registerForm.get('birthdate')?.touched}">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('birthdate')?.hasError('outOfRange') && registerForm.get('birthdate')?.touched">
+          Porfavor ingrese la fecha correcta.
+        </p>
       </div>
     </div>
 
@@ -97,13 +141,22 @@
         <label class="block text-lg font-medium text-gray-700">Teléfono</label>
         <input type="tel"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="phone" placeholder="Teléfono">
+          formControlName="phone" placeholder="Teléfono" maxlength="9" (keypress)="limitInputLength($event, 9)">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
+          El teléfono debe tener 9 dígitos.
+        </p>
       </div>
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Teléfono de respaldo</label>
         <input type="tel"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="phoneBackup" placeholder="Teléfono de respaldo">
+          formControlName="phoneBackup" placeholder="Teléfono de respaldo" maxlength="9"
+          (keypress)="limitInputLength($event, 9)">
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="registerForm.get('phoneBackup')?.invalid && registerForm.get('phoneBackup')?.touched">
+          El teléfono de respaldo debe tener 9 dígitos.
+        </p>
       </div>
     </div>
 
@@ -112,16 +165,39 @@
       <h1 class="text-lg font-medium">Rol:</h1>
       <button type="button" (click)="selectRole('Terapeuta')"
         [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Terapeuta', 'bg-gray-200': selectedRole !== 'Terapeuta' }"
-        class="px-4 py-2 rounded-lg hover:bg-blue-700">
+        class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
         Terapeuta
       </button>
       <button type="button" (click)="selectRole('Secretario/a')"
         [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Secretario/a', 'bg-gray-200': selectedRole !== 'Secretario/a' }"
-        class="px-4 py-2 rounded-lg hover:bg-blue-700">
+        class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
         Secretario/a
       </button>
     </div>
 
+    <div *ngIf="selectedRole === 'Terapeuta'" class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Pago por sesión</label>
+      <input type="number" formControlName="paymentSession"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Pago por sesión"
+        [ngClass]="{'border-red-500': registerForm.get('paymentSession')?.invalid && registerForm.get('paymentSession')?.touched}">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('paymentSession')?.invalid && registerForm.get('paymentSession')?.touched">
+        El pago por sesión es requerido.
+      </p>
+    </div>
+
+    <div *ngIf="selectedRole === 'Secretario/a'" class="mb-5 relative">
+      <label class="block text-lg font-medium text-gray-700">Salario mensual</label>
+      <input type="number"
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        formControlName="paymentMonth" placeholder="Salario mensual"
+        [ngClass]="{'border-red-500': registerForm.get('paymentMonth')?.invalid && registerForm.get('paymentMonth')?.touched}">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="registerForm.get('paymentMonth')?.invalid && registerForm.get('paymentMonth')?.touched">
+        El salario mensual es requerido.
+      </p>
+    </div>
 
     <div *ngIf="selectedRole == 'Terapeuta'" class="flex gap-10 mb-5 items-center">
       <h2 class="block text-lg font-medium text-gray-700">Admin</h2>
@@ -131,25 +207,38 @@
 
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10 mb-10">
-      <button type="submit"
-        class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700">Guardar</button>
+      <button type="submit" class="px-5 py-2 rounded-lg text-xl" [ngClass]="{
+        'bg-blue-800 hover:bg-blue-700 text-white': registerForm.valid && selectedRole,
+        'bg-gray-500 text-gray-300 cursor-not-allowed': registerForm.invalid || !selectedRole
+      }" [disabled]="registerForm.invalid || !selectedRole">
+        Guardar
+      </button>
       <button type="button" (click)="onCancel()"
         class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
     </div>
+
     <div *ngIf="showAdminDialog"
       class="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-8 rounded-lg shadow-lg ">
-        <h2 class="text-xl mb-4 flex justify-center ">Ingrese Clave de Admin</h2>
-        <h3 class="text-sm mb-4">¡CUIDADO! Usted esta cediendo control total del sistema</h3>
-        <input type="password" formControlName="adminPassword" class="mt-1 mb-4 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+      <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-xl mb-4 flex justify-center">Ingrese Clave de Admin</h2>
+        <h3 class="text-sm mb-4">¡CUIDADO! Usted está cediendo control total del sistema</h3>
+        <input type="password" formControlName="adminPassword"
+          class="mt-1 mb-4 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Ingrese su contraseña">
+        <p class="text-sm text-red-600 mb-5"
+          *ngIf="registerForm.get('adminPassword')?.hasError('invalidPassword') && registerForm.get('adminPassword')?.touched">
+          La contraseña es incorrecta.
+        </p>
         <div class="flex gap-4 justify-center">
-          <button type="button" (click)="confirmAdminPassword()"
-            class="bg-blue-800 text-white px-3 py-1 rounded-lg">Confirmar</button>
-          <button type="button" (click)="cancelAdminDialog()"
-            class="bg-red-600 text-white px-3 py-1 rounded-lg">Cancelar</button>
+          <button type="button" (click)="confirmAdminPassword()" class="bg-blue-800 text-white px-3 py-1 rounded-lg">
+            Confirmar
+          </button>
+          <button type="button" (click)="cancelAdminDialog()" class="bg-red-600 text-white px-3 py-1 rounded-lg">
+            Cancelar
+          </button>
         </div>
       </div>
     </div>
+
   </form>
 </section>

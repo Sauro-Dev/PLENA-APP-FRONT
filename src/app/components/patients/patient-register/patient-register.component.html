@@ -8,8 +8,7 @@
       <input type="text"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
         formControlName="name" placeholder="Nombres"
-        [ngClass]="{'border-red-500': patientForm.get('name')?.invalid && patientForm.get('name')?.touched}"
-      />
+        [ngClass]="{'border-red-500': patientForm.get('name')?.invalid && patientForm.get('name')?.touched}" />
       <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
         El nombre es requerido y debe tener al menos 2 caracteres.
       </p>
@@ -22,9 +21,9 @@
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           formControlName="paternalSurname" placeholder="Apellido Paterno"
-          [ngClass]="{'border-red-500': patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched}"
-        />
-        <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
+          [ngClass]="{'border-red-500': patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched}" />
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
           El apellido paterno es requerido.
         </p>
       </div>
@@ -33,9 +32,9 @@
         <input type="text"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           formControlName="maternalSurname" placeholder="Apellido Materno"
-          [ngClass]="{'border-red-500': patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched}"
-        />
-        <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
+          [ngClass]="{'border-red-500': patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched}" />
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
           El apellido materno es requerido.
         </p>
       </div>
@@ -48,9 +47,9 @@
         <input type="date"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           formControlName="birthdate"
-          [ngClass]="{'border-red-500': patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched}"
-        />
-        <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched">
+          [ngClass]="{'border-red-500': patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched}" />
+        <p class="mt-1 text-sm text-red-600"
+          *ngIf="patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched">
           La fecha de nacimiento es requerida.
         </p>
       </div>
@@ -59,8 +58,7 @@
         <input type="number"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           formControlName="age" placeholder="Edad"
-          [ngClass]="{'border-red-500': patientForm.get('age')?.invalid && patientForm.get('age')?.touched}"
-        />
+          [ngClass]="{'border-red-500': patientForm.get('age')?.invalid && patientForm.get('age')?.touched}" />
         <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('age')?.invalid && patientForm.get('age')?.touched">
           La edad debe ser un número válido.
         </p>
@@ -71,12 +69,11 @@
     <div class="mb-5 relative">
       <label class="block text-lg font-medium text-gray-700">DNI</label>
       <input type="text"
-             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-             formControlName="dni" placeholder="DNI"
-             [ngClass]="{'border-red-500': patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched}"
-      />
+        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+        formControlName="dni" placeholder="DNI" maxlength="8" (keypress)="limitInputLength($event, 8)"
+        [ngClass]="{'border-red-500': patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched}" />
       <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched">
-        El DNI de tener 8 dígitos
+        El DNI es obligatorio y debe tener exactamente 8 dígitos.
       </p>
     </div>
 
@@ -93,10 +90,17 @@
       <label class="block text-lg font-medium text-gray-700">Plan</label>
       <select
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-        formControlName="idPlan">
+        formControlName="idPlan"
+        [ngClass]="{'border-red-500': patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched}">
+        <option [value]="null" disabled>Seleccione un plan</option>
         <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }}</option>
       </select>
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched">
+        Es obligatorio seleccionar un plan.
+      </p>
     </div>
+
 
     <!-- Fechas y Horas -->
     <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0">
@@ -156,8 +160,7 @@
           <input type="text"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
             formControlName="fullName" placeholder="Nombre del Tutor"
-            [ngClass]="{'border-red-500': tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched}"
-          />
+            [ngClass]="{'border-red-500': tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched}" />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched">
             El nombre del tutor es requerido.
           </p>
@@ -166,22 +169,20 @@
           <label class="block text-sm font-medium text-gray-700">DNI</label>
           <input type="text"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            formControlName="dni" placeholder="DNI"
-            [ngClass]="{'border-red-500': tutor.get('dni')?.invalid && tutor.get('dni')?.touched}"
-          />
+            formControlName="dni" placeholder="DNI" maxlength="8" (keypress)="limitInputLength($event, 8)"
+            [ngClass]="{'border-red-500': tutor.get('dni')?.invalid && tutor.get('dni')?.touched}" />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.invalid && tutor.get('dni')?.touched">
-            El DNI debe contener 8 dígitos.
+            El DNI del tutor debe contener exactamente 8 dígitos.
           </p>
         </div>
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">Teléfono</label>
           <input type="tel"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            formControlName="phone" placeholder="Teléfono"
-            [ngClass]="{'border-red-500': tutor.get('phone')?.invalid && tutor.get('phone')?.touched}"
-          />
+            formControlName="phone" placeholder="Teléfono" maxlength="9" (keypress)="limitInputLength($event, 9)"
+            [ngClass]="{'border-red-500': tutor.get('phone')?.invalid && tutor.get('phone')?.touched}" />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.invalid && tutor.get('phone')?.touched">
-            El teléfono debe contener 9 dígitos.
+            El teléfono del tutor debe contener exactamente 9 dígitos.
           </p>
         </div>
         <button type="button" (click)="removeTutor(i)" [disabled]="tutors.length === 1"
@@ -197,7 +198,8 @@
 
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10">
-      <button type="submit" class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700" [disabled]="patientForm.invalid">
+      <button type="submit" class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700"
+        [disabled]="patientForm.invalid">
         Guardar
       </button>
       <button type="button" (click)="onCancel()"

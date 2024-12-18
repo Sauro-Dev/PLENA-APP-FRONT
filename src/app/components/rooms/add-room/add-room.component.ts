@@ -46,6 +46,8 @@ export class AddRoomComponent {
           alert('Hubo un error al registrar la sala');
         }
       );
+    } else {
+      this.roomForm.markAllAsTouched();
     }
   }
 
