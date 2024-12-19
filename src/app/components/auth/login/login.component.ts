@@ -17,10 +17,15 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
 
-  // Con esto se alterna el ojito de la contraseña
+  // Controla la visibilidad de la contraseña
   showPassword: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
+
+  // Alterna la visibilidad de la contraseña
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   login() {
     this.authService.login(this.username, this.password).subscribe({
