@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {UsersService } from "../users.service";
+import { UsersService } from "../users.service";
 import { Router } from '@angular/router';
 
 @Component({
@@ -13,6 +13,12 @@ import { Router } from '@angular/router';
 })
 export class UserUpdateComponent {
   profile: any = {}; // Datos del perfil
+  currentPassword: string = '';
+  newPassword: string = '';
+  confirmNewPassword: string = '';
+  showCurrentPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmPassword: boolean = false;
   isLoading: boolean = true; // Para controlar la carga
   isSaving: boolean = false; // Para controlar la actualización
 
@@ -38,8 +44,19 @@ export class UserUpdateComponent {
 
   // Guardar los cambios del perfil
   saveProfile(): void {
+    if (this.newPassword && this.newPassword !== this.confirmNewPassword) {
+      alert('La nueva contraseña y su confirmación no coinciden.');
+      return;
+    }
+
+    const payload = {
+      ...this.profile,
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword,
+    };
+
     this.isSaving = true;
-    this.usersService.updateProfile(this.profile).subscribe({
+    this.usersService.updateProfile(payload).subscribe({
       next: () => {
         this.isSaving = false;
         alert('Perfil actualizado con éxito.');
@@ -57,5 +74,4 @@ export class UserUpdateComponent {
       this.router.navigate(['/profile']);
     }
   }
-
 }
