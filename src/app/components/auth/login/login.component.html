@@ -59,21 +59,20 @@
             [type]="showPassword ? 'text' : 'password'"
             placeholder="Contraseña"
           />
-          <!-- Condicionar el ícono -->
+          <!-- Mostrar candado u ojito -->
           <button
             type="button"
-            *ngIf="password.length > 0"
-            (click)="showPassword = !showPassword"
+            (click)="togglePasswordVisibility()"
             class="text-gray-500 px-3 focus:outline-none"
           >
             <i
-              [class]="showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"
+              [class]="
+                password.length > 0
+                  ? (showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl')
+                  : 'ti ti-lock text-2xl'
+              "
             ></i>
           </button>
-          <i
-            *ngIf="password.length === 0"
-            class="ti ti-lock text-2xl px-3 text-gray-500"
-          ></i>
         </div>
         <div
           *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
