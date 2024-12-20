@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {UsersService } from "../users.service";
+import { UsersService } from "../users.service";
 import { Router } from '@angular/router';
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: 'app-user-update',
@@ -12,21 +13,31 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-update.component.css'],
 })
 export class UserUpdateComponent {
-  profile: any = {}; // Datos del perfil
-  isLoading: boolean = true; // Para controlar la carga
-  isSaving: boolean = false; // Para controlar la actualización
+  profile: any = {};
+  currentPassword: string = '';
+  newPassword: string = '';
+  confirmNewPassword: string = '';
+  showCurrentPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+  isLoading: boolean = true;
+  isSaving: boolean = false;
 
-  constructor(private usersService: UsersService, private router: Router) {}
+  constructor(
+    private usersService: UsersService,
+    private router: Router,
+    private authService: AuthService // Inyectamos AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
-  // Cargar los datos actuales del perfil
   loadProfile(): void {
     this.usersService.getMyProfile().subscribe({
       next: (data) => {
         this.profile = data;
+        this.authService.setAuthenticatedUser(data); // Establecemos datos iniciales
         this.isLoading = false;
       },
       error: (error) => {
@@ -36,14 +47,40 @@ export class UserUpdateComponent {
     });
   }
 
-  // Guardar los cambios del perfil
   saveProfile(): void {
+    if (this.newPassword && this.newPassword !== this.confirmNewPassword) {
+      alert('La nueva contraseña y su confirmación no coinciden.');
+      return;
+    }
+
+    const payload = {
+      ...this.profile,
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword,
+    };
+
     this.isSaving = true;
-    this.usersService.updateProfile(this.profile).subscribe({
+    this.usersService.updateProfile(payload).subscribe({
       next: () => {
-        this.isSaving = false;
-        alert('Perfil actualizado con éxito.');
-        this.router.navigate(['/profile']); // Redirigir al perfil
+        const updatedPassword = this.newPassword || this.currentPassword;
+
+        // Volvemos a autenticar al usuario con las credenciales actualizadas
+        this.authService.login(this.profile.username, updatedPassword).subscribe({
+          next: (response) => {
+            // Guardar el token actualizado
+            localStorage.setItem('token', response.token);
+
+            // Actualizar los datos del usuario globalmente
+            this.authService.setAuthenticatedUser(this.profile);
+
+            alert('Perfil actualizado con éxito.');
+            this.router.navigate(['/profile']);
+          },
+          error: (error) => {
+            console.error('Error al iniciar sesión nuevamente:', error);
+            this.isSaving = false;
+          },
+        });
       },
       error: (error) => {
         console.error('Error al actualizar el perfil:', error);
@@ -57,5 +94,4 @@ export class UserUpdateComponent {
       this.router.navigate(['/profile']);
     }
   }
-
 }

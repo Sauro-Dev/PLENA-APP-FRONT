@@ -23,16 +23,32 @@
       <!-- Campo Contraseña -->
       <div>
         <div
-          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-          <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
-            class="outline-none text-lg w-full px-3 py-2" [type]="showPassword ? 'text' : 'password'"
-            placeholder="Contraseña" />
-          <!-- Condicionar el ícono -->
-          <button type="button" *ngIf="password.length > 0" (click)="showPassword = !showPassword"
-            class="text-gray-500 px-3 focus:outline-none">
-            <i [class]="showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"></i>
+          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500"
+        >
+          <input
+            [(ngModel)]="password"
+            name="password"
+            #passwordInput="ngModel"
+            required
+            minlength="6"
+            class="outline-none text-lg w-full px-3 py-2"
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Contraseña"
+          />
+          <!-- Mostrar candado u ojito -->
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="text-gray-500 px-3 focus:outline-none"
+          >
+            <i
+              [class]="
+                password.length > 0
+                  ? (showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl')
+                  : 'ti ti-lock text-2xl'
+              "
+            ></i>
           </button>
-          <i *ngIf="password.length === 0" class="ti ti-lock text-2xl px-3 text-gray-500"></i>
         </div>
         <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
           class="text-red-500 text-sm mt-1">
