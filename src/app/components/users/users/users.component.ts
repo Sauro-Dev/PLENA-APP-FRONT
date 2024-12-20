@@ -1,31 +1,136 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, Router, RouterModule } from '@angular/router'; // Importar Router y RouterModule
+import { RouterLink, Router, RouterModule } from '@angular/router';
 import { HttpClientModule } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { UsersService } from "../users.service";
 import { FormsModule } from "@angular/forms";
+import {AuthService} from "../../auth/auth.service";
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [RouterLink, RouterModule, HttpClientModule, CommonModule, FormsModule], // Agregar RouterModule a los imports
+  imports: [RouterLink, RouterModule, HttpClientModule, CommonModule, FormsModule],
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css'] // Cambiado a styleUrls
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
   users: any[] = [];
-  filteredUsers: any[] = []; // Para almacenar los usuarios filtrados
+  filteredUsers: any[] = [];
   searchQuery: string = '';
   selectedRole: string = '';
   sortOrder: string = 'asc';
   itemsPerPage: number = 10;
   currentPage: number = 1;
+  showAdminModal: boolean = false;
+  adminUsername: string = '';
+  newUsername: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+  notificationTitle: string = '';
+  notificationMessage: string = '';
+  showNotificationModal: boolean = false;
+  showForcedLogoutModal: boolean = false;
 
-  constructor(private usersService: UsersService, private router: Router) {} // Inyectar Router
+  constructor(private usersService: UsersService, private router: Router, private authService: AuthService ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.checkAdminFirstLogin();
   }
+
+  checkAdminFirstLogin(): void {
+    const firstLogin = localStorage.getItem('firstLogin') === 'true';
+    const profile = this.authService.getAuthenticatedUser();
+
+    if (!profile) {
+      console.warn('Perfil de usuario no cargado.');
+      return;
+    }
+
+    if (profile.role === 'ADMIN' && firstLogin) {
+      this.showAdminModal = true;
+      this.adminUsername = profile.username;
+    }
+  }
+
+  closeModal(): void {
+    this.showAdminModal = false;
+  }
+
+
+  saveAdminCredentials(): void {
+    if (this.newUsername.length > 20) {
+      this.showNotification(
+        'Error',
+        'El nombre de usuario no puede exceder los 20 caracteres.'
+      );
+      return;
+    }
+
+    if (this.newPassword.length < 6) {
+      this.showNotification(
+        'Error',
+        'La contraseña debe tener al menos 6 caracteres.'
+      );
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.showNotification(
+        'Error',
+        'Las contraseñas no coinciden. Por favor, verifica.'
+      );
+      return;
+    }
+
+    const payload = {
+      username: this.newUsername || this.adminUsername,
+      newPassword: this.newPassword,
+    };
+
+    this.usersService.updateAdminCredentials(payload).subscribe({
+      next: () => {
+        this.showNotification('Éxito', 'Credenciales actualizadas correctamente.');
+
+        setTimeout(() => {
+          this.showForcedLogoutModal = true;
+        }, 3000);
+
+        localStorage.removeItem('firstLogin');
+      },
+      error: (err) => {
+        console.error('Error al actualizar las credenciales:', err);
+        this.showNotification(
+          'Error',
+          'Ocurrió un error al intentar actualizar las credenciales.'
+        );
+      },
+    });
+  }
+
+  forceLogout(): void {
+    this.authService.logout();
+    localStorage.clear();
+
+    this.router.navigate(['/login']);
+  }
+
+  showNotification(title: string, message: string, autoClose: boolean = true): void {
+    this.notificationTitle = title;
+    this.notificationMessage = message;
+    this.showNotificationModal = true;
+
+    if (autoClose) {
+      setTimeout(() => {
+        this.closeNotificationModal();
+      }, 3000);
+    }
+  }
+
+  closeNotificationModal(): void {
+    this.showNotificationModal = false;
+  }
+
 
   loadUsers(): void {
     this.usersService.getUsers().subscribe(
@@ -35,9 +140,8 @@ export class UsersComponent implements OnInit {
       },
       (error) => {
         if (error.status === 403) {
-          // Redirigir al login o mostrar mensaje de error
           console.error('Acceso denegado: Se requiere rol ADMIN');
-          this.router.navigate(['/login']); // Redirección al login
+          this.router.navigate(['/login']);
         } else {
           console.error('Error fetching users', error);
         }
@@ -45,27 +149,27 @@ export class UsersComponent implements OnInit {
     );
   }
 
-  // Función de búsqueda
+
   onSearch(): void {
     this.filteredUsers = this.users.filter(user =>
       user.username.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
-    this.currentPage = 1; // Resetear a la primera página
+    this.currentPage = 1;
     this.paginate();
   }
 
-  // Función de filtrado
+
   onFilter(): void {
     if (this.selectedRole) {
       this.filteredUsers = this.users.filter(user => user.role === this.selectedRole);
     } else {
-      this.filteredUsers = [...this.users]; // Mostrar todos si no se selecciona rol
+      this.filteredUsers = [...this.users];
     }
-    this.currentPage = 1; // Resetear a la primera página
+    this.currentPage = 1;
     this.paginate();
   }
 
-  // Función de ordenación
+
   onSort(): void {
     this.filteredUsers.sort((a, b) => {
       const nameA = a.name.toLowerCase();
@@ -79,19 +183,19 @@ export class UsersComponent implements OnInit {
     this.paginate();
   }
 
-  // Función de cambio de número de ítems por página
+
   onItemsPerPageChange(): void {
     this.paginate();
   }
 
-  // Paginación
+
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
 
     const paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
 
-    // Si el número de usuarios es menor que el inicio de la página, volver a la primera página
+
     if (paginatedUsers.length === 0 && this.currentPage > 1) {
       this.currentPage = 1;
       this.paginate();
@@ -100,7 +204,7 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  // Funciones para cambiar de página
+
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();
