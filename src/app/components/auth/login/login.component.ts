@@ -32,16 +32,18 @@ export class LoginComponent {
       next: (response) => {
         console.log('Login exitoso:', response);
         localStorage.setItem('token', response.token);
-        const decodedToken: any = jwtDecode(response.token);
-        const role = decodedToken.role;
 
-        if (role === 'ADMIN') {
+        const decodedToken: any = jwtDecode(response.token);
+        const profile = { username: decodedToken.username, role: decodedToken.role };
+
+        this.authService.setAuthenticatedUser(profile);
+
+
+        if (profile.role === 'ADMIN') {
           this.router.navigate(['/users']);
-        }
-        if (role === 'SECRETARY') {
+        } else if (profile.role === 'SECRETARY') {
           this.router.navigate(['/patients']);
-        }
-        if (role === 'THERAPIST') {
+        } else if (profile.role === 'THERAPIST') {
           this.router.navigate(['/calendar']);
         }
       },

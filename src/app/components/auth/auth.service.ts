@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, Observable, tap} from 'rxjs';
 import { environment } from '../../enviroment';
+import {jwtDecode} from "jwt-decode";
 
 @Injectable({
   providedIn: 'root',
@@ -31,8 +32,23 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  // Método para obtener el usuario actualmente autenticado
   getAuthenticatedUser(): any {
-    return this.currentUserSubject.value || JSON.parse(localStorage.getItem('user') || 'null');
+    if (this.currentUserSubject.value) {
+      return this.currentUserSubject.value;
+    }
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        const profile = { username: decodedToken.username, role: decodedToken.role };
+        this.setAuthenticatedUser(profile);
+        return profile;
+      } catch (error) {
+        console.error('Error al decodificar el token JWT:', error);
+      }
+    }
+
+    return null;
   }
 }

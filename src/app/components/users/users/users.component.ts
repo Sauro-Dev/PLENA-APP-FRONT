@@ -40,6 +40,11 @@ export class UsersComponent implements OnInit {
     const firstLogin = localStorage.getItem('firstLogin') === 'true';
     const profile = this.authService.getAuthenticatedUser();
 
+    if (!profile) {
+      console.warn('Perfil de usuario no cargado.');
+      return;
+    }
+
     if (profile.role === 'ADMIN' && firstLogin) {
       this.showAdminModal = true;
       this.adminUsername = profile.username;
@@ -80,7 +85,7 @@ export class UsersComponent implements OnInit {
 
             // Cierra el modal y redirige al dashboard
             this.showAdminModal = false;
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/users']);
           },
           error: (err) => {
             console.error('Error al autenticar con las nuevas credenciales:', err);
