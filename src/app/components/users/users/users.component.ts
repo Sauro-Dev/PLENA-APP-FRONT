@@ -59,6 +59,22 @@ export class UsersComponent implements OnInit {
 
 
   saveAdminCredentials(): void {
+    if (this.newUsername.length > 20) {
+      this.showNotification(
+        'Error',
+        'El nombre de usuario no puede exceder los 20 caracteres.'
+      );
+      return;
+    }
+
+    if (this.newPassword.length < 6) {
+      this.showNotification(
+        'Error',
+        'La contraseña debe tener al menos 6 caracteres.'
+      );
+      return;
+    }
+
     if (this.newPassword !== this.confirmPassword) {
       this.showNotification(
         'Error',
@@ -76,11 +92,9 @@ export class UsersComponent implements OnInit {
       next: () => {
         this.showNotification('Éxito', 'Credenciales actualizadas correctamente.');
 
-
         setTimeout(() => {
           this.showForcedLogoutModal = true;
         }, 3000);
-
 
         localStorage.removeItem('firstLogin');
       },

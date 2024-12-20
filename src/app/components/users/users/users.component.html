@@ -139,19 +139,17 @@
   </div>
 </div>
 
-
-<!-- Modal Mejorada de Cambio de Credenciales -->
-<div
-  *ngIf="showAdminModal"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
->
-  <div class="bg-white w-full max-w-lg rounded-lg p-8 shadow-2xl scale-90 sm:scale-100 transition-transform">
+<!-- Modal de Cambio de Credenciales -->
+<div *ngIf="showAdminModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white w-full max-w-lg rounded-lg p-8 shadow-2xl">
+    <!-- Título modal -->
     <h2 class="text-2xl font-bold text-red-600 text-center mb-4">Cambio de Credenciales</h2>
     <p class="text-sm text-gray-700 text-center mb-6">
       Por favor, establece nuevas credenciales para mayor seguridad.
     </p>
 
     <form class="space-y-4" (ngSubmit)="saveAdminCredentials()">
+      <!-- Nuevo Username -->
       <div>
         <label for="username" class="block text-gray-500 font-medium mb-1">Nuevo Username</label>
         <input
@@ -160,10 +158,16 @@
           placeholder="Introduce un nuevo username"
           [(ngModel)]="newUsername"
           name="username"
-          class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+          maxlength="20"
+          required
+          class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
         />
+        <small *ngIf="newUsername.length > 20" class="text-red-500">
+          El nombre de usuario no puede exceder los 20 caracteres.
+        </small>
       </div>
 
+      <!-- Nueva Contraseña -->
       <div>
         <label for="newPassword" class="block text-gray-500 font-medium mb-1">Nueva Contraseña</label>
         <input
@@ -172,35 +176,45 @@
           placeholder="Introduce una nueva contraseña"
           [(ngModel)]="newPassword"
           name="newPassword"
+          minlength="6"
           required
-          class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+          class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
         />
+        <small *ngIf="newPassword && newPassword.length < 6" class="text-red-500">
+          La contraseña debe tener al menos 6 caracteres.
+        </small>
       </div>
 
+      <!-- Confirmación de Contraseña -->
       <div>
         <label for="confirmPassword" class="block text-gray-500 font-medium mb-1">Confirmar Contraseña</label>
         <input
           id="confirmPassword"
           type="password"
-          placeholder="Confirma tu nueva contraseña"
+          placeholder="Confirma tu contraseña"
           [(ngModel)]="confirmPassword"
           name="confirmPassword"
           required
-          class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+          class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
         />
+        <small *ngIf="newPassword !== confirmPassword && confirmPassword" class="text-red-500">
+          Las contraseñas no coinciden. Por favor, verifica.
+        </small>
       </div>
 
+      <!-- Botones del modal -->
       <div class="flex justify-end mt-6">
         <button
           type="button"
-          class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-all duration-200"
+          class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-all"
           (click)="closeModal()"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          class="ml-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all duration-200"
+          [disabled]="!newPassword || !confirmPassword || newPassword !== confirmPassword || newUsername.length > 20"
+          class="ml-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-all"
         >
           Guardar
         </button>
@@ -209,16 +223,13 @@
   </div>
 </div>
 
-<!-- Modal Mejorada de Notificación -->
-<div
-  *ngIf="showNotificationModal"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
->
+<!-- Modal de Notificaciones -->
+<div *ngIf="showNotificationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
   <div class="bg-white w-full max-w-md rounded-lg p-6 text-center shadow-lg">
     <h2 class="text-2xl font-bold text-blue-600 mb-4">{{ notificationTitle }}</h2>
     <p class="text-gray-700 mb-6">{{ notificationMessage }}</p>
     <button
-      class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-all duration-200"
+      class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-all"
       (click)="closeNotificationModal()"
     >
       Aceptar
@@ -226,13 +237,10 @@
   </div>
 </div>
 
-<!-- Modal de Forzar Cierre de Sesión -->
-<div
-  *ngIf="showForcedLogoutModal"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
->
+<!-- Modal de Cierre de Sesión Forzado -->
+<div *ngIf="showForcedLogoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
   <div
-    class="bg-white w-full max-w-md p-8 rounded-lg shadow-lg text-center transition-transform transform scale-90 sm:scale-100"
+    class="bg-white w-full max-w-md p-8 rounded-lg shadow-lg text-center"
   >
     <h2 class="text-2xl font-bold text-red-600 mb-4">Cierre de Sesión Necesario</h2>
     <p class="text-gray-800 mb-6">
@@ -247,3 +255,4 @@
     </button>
   </div>
 </div>
+
