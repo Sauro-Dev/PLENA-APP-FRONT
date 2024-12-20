@@ -35,7 +35,10 @@ export class PatientDetailsComponent implements OnInit {
   loadPatient(id: number): void {
     this.patientsService.getPatientById(id).subscribe(
       (data) => {
-        this.patient = data;
+        this.patient = {
+          ...data,
+          tutors: data.tutors || [],
+        };
         this.isLoading = false;
       },
       (error) => {
