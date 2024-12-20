@@ -40,12 +40,10 @@ export class AddRoomComponent {
 
       this.roomsService.registerRoom(newRoom).subscribe(
         (room) => {
-          alert('Sala registrada correctamente');
           this.router.navigate(['/rooms']);
         },
         (error) => {
           console.error('Error al registrar la sala', error);
-          alert('Hubo un error al registrar la sala');
         }
       );
     } else {
