@@ -16,6 +16,7 @@ import { jwtDecode } from 'jwt-decode';
 export class LoginComponent {
   username: string = '';
   password: string = '';
+  errorMessage: string = ''; // Variable para el mensaje de error
 
   // Controla la visibilidad de la contraseña
   showPassword: boolean = false;
@@ -36,17 +37,17 @@ export class LoginComponent {
 
         if (role === 'ADMIN') {
           this.router.navigate(['/users']);
-        }
-        if (role === 'SECRETARY') {
+        } else if (role === 'SECRETARY') {
           this.router.navigate(['/patients']);
-        }
-        if (role === 'THERAPIST') {
+        } else if (role === 'THERAPIST') {
           this.router.navigate(['/calendar']);
         }
+
+        this.errorMessage = ''; // Reiniciar el mensaje de error en caso de éxito
       },
       error: (error) => {
         console.error('Error en el login:', error);
-        alert('Usuario o contraseña incorrectos.');
+        this.errorMessage = 'Usuario o contraseña incorrectos.'; // Mensaje de error
       },
     });
   }
