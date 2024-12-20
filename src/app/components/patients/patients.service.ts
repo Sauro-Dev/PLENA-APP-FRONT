@@ -50,4 +50,12 @@ export class PatientsService {
     return this.http.put<any>(`${this.apiUrl}/select/${patientId}`, patientData, { headers });
   }
 
+  checkPatientDNI(dni: string): Observable<boolean> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<boolean>(`${this.apiUrl}/validate-dni`, {
+      params: { dni },
+      headers,
+    });
+  }
 }

@@ -2,11 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { PatientsService } from '../patients.service';
@@ -30,6 +32,8 @@ export class PatientRegisterComponent implements OnInit {
 
   patientForm!: FormGroup;
   isDateTimePickerVisible: number = 0;
+  showRegisterModal: boolean = false; // Control para la modal de registro
+  showCancelModal: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -65,13 +69,10 @@ export class PatientRegisterComponent implements OnInit {
       ],
       dni: [
         '',
-        [
-          Validators.required,
-          Validators.pattern('\\d{8}'),
-          Validators.maxLength(8),
-        ],
+        [Validators.required, Validators.pattern('\\d{8}')],
+        [this.checkDuplicateDNI.bind(this)],
       ],
-      birthdate: ['', [Validators.required]],
+      birthdate: ['', [Validators.required, this.dateRangeValidator]],
       age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
       allergies: ['', [Validators.maxLength(255)]],
       status: [true],
@@ -97,6 +98,43 @@ export class PatientRegisterComponent implements OnInit {
     return this.patientForm.get('sessionDates') as FormArray;
   }
 
+  dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+    const date = new Date(control.value);
+    const minDate = new Date('1900-01-01');
+    const maxDate = new Date();
+
+    if (date < minDate || date > maxDate) {
+      return { outOfRange: true };
+    }
+    return null;
+  }
+
+  checkDuplicateDNI(
+    control: AbstractControl
+  ): Promise<ValidationErrors | null> {
+    const dni = control.value;
+
+    return new Promise((resolve) => {
+      if (!dni) {
+        resolve(null);
+      } else {
+        this.patientService.checkPatientDNI(dni).subscribe(
+          (isTaken) => {
+            if (isTaken) {
+              resolve({ duplicateWithDatabase: true });
+            } else {
+              resolve(null);
+            }
+          },
+          (error) => {
+            console.error('Error al validar el DNI:', error);
+            resolve(null);
+          }
+        );
+      }
+    });
+  }
+
   createTutor(): FormGroup {
     return this.fb.group({
       fullName: [
@@ -107,14 +145,7 @@ export class PatientRegisterComponent implements OnInit {
           Validators.maxLength(30),
         ],
       ],
-      dni: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('\\d{8}'),
-          Validators.maxLength(8),
-        ],
-      ],
+      dni: ['', [Validators.required, Validators.pattern('\\d{8}')]],
       phone: [
         '',
         [
@@ -221,14 +252,6 @@ export class PatientRegisterComponent implements OnInit {
     }
   }
 
-  onCancel(): void {
-    const confirmed = window.confirm(
-      '¿Estás seguro de que deseas cancelar el registro?'
-    );
-    if (confirmed) {
-      this.router.navigate(['/patients']);
-    }
-  }
   updateDatePickers(planId: any): void {
     const numericPlanId = Number(planId);
     switch (numericPlanId) {
@@ -257,5 +280,46 @@ export class PatientRegisterComponent implements OnInit {
         this.removeSessionDate(this.sessionDates.length - 1);
       }
     }
+  }
+  // Mostrar la modal de registro
+  openRegisterModal(): void {
+    this.showRegisterModal = true;
+  }
+
+  // Ocultar la modal de registro
+  closeRegisterModal(): void {
+    this.showRegisterModal = false;
+  }
+
+  // Confirmar el registro
+  confirmRegister(): void {
+    this.closeRegisterModal();
+    if (this.patientForm.valid) {
+      this.patientService.createPatient(this.patientForm.value).subscribe(
+        (response) => {
+          console.log('Paciente registrado:', response);
+          this.router.navigate(['/patients']);
+        },
+        (error) => {
+          console.error('Error al registrar paciente:', error);
+        }
+      );
+    }
+  }
+
+  // Mostrar la modal de cancelación
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  // Ocultar la modal de cancelación
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  // Confirmar la cancelación
+  confirmCancel(): void {
+    this.closeCancelModal();
+    this.router.navigate(['/patients']);
   }
 }

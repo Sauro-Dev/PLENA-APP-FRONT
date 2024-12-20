@@ -10,15 +10,14 @@ import { RegisterPatient } from '../register-patient';
   standalone: true,
   templateUrl: './patient-edit.component.html',
   styleUrls: ['./patient-edit.component.css'],
-  imports: [
-    FormsModule,
-    NgIf
-  ]
+  imports: [FormsModule, NgIf],
 })
 export class PatientEditComponent implements OnInit {
-  patient: RegisterPatient | null = null; // Usamos RegisterPatient para la edición
+  patient: RegisterPatient | null = null;
   isLoading: boolean = true;
   isSaving: boolean = false;
+  showSaveModal: boolean = false;
+  showCancelModal: boolean = false;
 
   constructor(
     private patientsService: PatientsService,
@@ -49,7 +48,7 @@ export class PatientEditComponent implements OnInit {
           age: data.age,
           allergies: data.allergies || '',
           idPlan: data.idPlan || 0,
-          tutors: data.tutors || [] // Aseguramos que siempre sea un array
+          tutors: data.tutors || [], // Aseguramos que siempre sea un array
         };
         this.isLoading = false;
       },
@@ -69,23 +68,50 @@ export class PatientEditComponent implements OnInit {
 
     this.isSaving = true;
 
-    this.patientsService.updatePatient(this.route.snapshot.params['id'], this.patient).subscribe(
-      () => {
-        this.isSaving = false;
-        alert('Paciente actualizado con éxito.');
-        this.router.navigate(['/patients/details', this.route.snapshot.params['id']]);
-      },
-      (error) => {
-        console.error('Error al actualizar el paciente:', error);
-        this.isSaving = false;
-      }
-    );
+    this.patientsService
+      .updatePatient(this.route.snapshot.params['id'], this.patient)
+      .subscribe(
+        () => {
+          this.isSaving = false;
+          alert('Paciente actualizado con éxito.');
+          this.router.navigate([
+            '/patients/details',
+            this.route.snapshot.params['id'],
+          ]);
+        },
+        (error) => {
+          console.error('Error al actualizar el paciente:', error);
+          this.isSaving = false;
+        }
+      );
   }
 
-  // Método para cancelar la edición
-  cancel(): void {
-    if (confirm('¿Deseas cancelar los cambios y volver?')) {
-      this.router.navigate(['/patients/details', this.route.snapshot.params['id']]);
-    }
+  openSaveModal(): void {
+    this.showSaveModal = true;
+  }
+
+  closeSaveModal(): void {
+    this.showSaveModal = false;
+  }
+
+  confirmSave(): void {
+    this.showSaveModal = false;
+    this.savePatient();
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancel(): void {
+    this.showCancelModal = false;
+    this.router.navigate([
+      '/patients/details',
+      this.route.snapshot.params['id'],
+    ]);
   }
 }

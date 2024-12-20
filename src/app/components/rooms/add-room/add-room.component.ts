@@ -19,6 +19,8 @@ import { Router } from '@angular/router';
 })
 export class AddRoomComponent {
   roomForm: FormGroup;
+  showRegisterModal: boolean = false;
+  showCancelModal: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,13 +53,49 @@ export class AddRoomComponent {
     }
   }
 
-  onCancel(): void {
-    const confirmCancel = confirm(
-      '¿Estás seguro de que deseas cancelar el registro?'
-    );
-    if (confirmCancel) {
-      this.roomForm.reset();
-      this.router.navigate(['/rooms']);
+  // Abrir modal de registro
+  openRegisterModal(): void {
+    this.showRegisterModal = true;
+  }
+
+  // Cerrar modal de registro
+  closeRegisterModal(): void {
+    this.showRegisterModal = false;
+  }
+
+  // Confirmar registro
+  confirmRegister(): void {
+    this.closeRegisterModal();
+    if (this.roomForm.valid) {
+      const newRoom: Room = this.roomForm.value;
+      this.roomsService.registerRoom(newRoom).subscribe(
+        (room) => {
+          console.log('Sala registrada:', room);
+          this.router.navigate(['/rooms']);
+        },
+        (error) => {
+          console.error('Error al registrar la sala:', error);
+        }
+      );
+    } else {
+      this.roomForm.markAllAsTouched();
     }
+  }
+
+  // Abrir modal de cancelación
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  // Cerrar modal de cancelación
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  // Confirmar cancelación
+  confirmCancel(): void {
+    this.closeCancelModal();
+    this.roomForm.reset();
+    this.router.navigate(['/rooms']);
   }
 }

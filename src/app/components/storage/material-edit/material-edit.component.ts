@@ -13,17 +13,18 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-material-edit',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-  ],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './material-edit.component.html',
   styleUrls: ['./material-edit.component.css'],
 })
 export class MaterialEditComponent implements OnInit {
   material: Material | undefined;
   editForm: FormGroup;
-  estados: string[] = ['NUEVO', 'BUENO', 'REGULAR', 'DESGASTADO', 'ROTO'];  // Aquí defines la propiedad 'estados'
+  estados: string[] = ['NUEVO', 'BUENO', 'REGULAR', 'DESGASTADO', 'ROTO']; // Aquí defines la propiedad 'estados'
+
+  // Modales
+  showSaveModal = false;
+  showCancelModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -34,7 +35,7 @@ export class MaterialEditComponent implements OnInit {
     this.editForm = this.fb.group({
       nombre: ['', Validators.required],
       descripcion: [''],
-      estado: ['', Validators.required],  // Estado es requerido
+      estado: ['', Validators.required], // Estado es requerido
       stock: [0, [Validators.required, Validators.min(0)]],
       esCompleto: [false],
       esSoporte: [false],
@@ -56,21 +57,44 @@ export class MaterialEditComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
+  openSaveModal(): void {
     if (this.editForm.valid) {
-      const updatedMaterial = { ...this.material, ...this.editForm.value };
-      const idMaterial = this.material?.idMaterial;
-      if (idMaterial) {
-        this.storageService.updateMaterial(idMaterial, updatedMaterial).subscribe(
-          () => {
-            alert('Material actualizado correctamente');
-            this.router.navigate(['/storage']);
-          },
-          (error) => {
-            console.error('Error al actualizar el material:', error);
-          }
-        );
-      }
+      this.showSaveModal = true;
+    } else {
+      this.editForm.markAllAsTouched();
     }
+  }
+
+  closeSaveModal(): void {
+    this.showSaveModal = false;
+  }
+
+  confirmSave(): void {
+    const updatedMaterial = { ...this.material, ...this.editForm.value };
+    const idMaterial = this.material?.idMaterial;
+    if (idMaterial) {
+      this.storageService.updateMaterial(idMaterial, updatedMaterial).subscribe(
+        () => {
+          this.closeSaveModal();
+          this.router.navigate(['/storage']);
+        },
+        (error) => {
+          console.error('Error al actualizar el material:', error);
+        }
+      );
+    }
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancel(): void {
+    this.closeCancelModal();
+    this.router.navigate(['/storage']);
   }
 }
