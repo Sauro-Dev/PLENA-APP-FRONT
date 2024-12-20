@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, Router, RouterModule } from '@angular/router'; // Importar Router y RouterModule
+import { RouterLink, Router, RouterModule } from '@angular/router';
 import { HttpClientModule } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { UsersService } from "../users.service";
 import { FormsModule } from "@angular/forms";
+import {AuthService} from "../../auth/auth.service";
 
 @Component({
   selector: 'app-users',
@@ -21,11 +22,81 @@ export class UsersComponent implements OnInit {
   itemsPerPage: number = 10;
   currentPage: number = 1;
 
-  constructor(private usersService: UsersService, private router: Router) {} // Inyectar Router
+  // Variables para controlar la modal
+  showAdminModal: boolean = false;
+  adminUsername: string = '';
+  newUsername: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+
+  constructor(private usersService: UsersService, private router: Router, private authService: AuthService ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.checkAdminFirstLogin();
   }
+
+  checkAdminFirstLogin(): void {
+    const firstLogin = localStorage.getItem('firstLogin') === 'true';
+    const profile = this.authService.getAuthenticatedUser();
+
+    if (profile.role === 'ADMIN' && firstLogin) {
+      this.showAdminModal = true;
+      this.adminUsername = profile.username;
+    }
+  }
+
+  closeModal(): void {
+    this.showAdminModal = false;
+  }
+
+
+  saveAdminCredentials(): void {
+    if (this.newPassword !== this.confirmPassword) {
+      alert('Las contraseñas no coinciden. Por favor, verifica.');
+      return;
+    }
+
+    const payload = {
+      username: this.newUsername || this.adminUsername, // Si no cambia el username, usar el actual
+      password: this.newPassword,
+    };
+
+    this.usersService.updateProfile(payload).subscribe({
+      next: () => {
+        alert('Credenciales actualizadas correctamente.');
+
+        // Autenticar automáticamente con las nuevas credenciales
+        this.authService.login(payload.username, payload.password).subscribe({
+          next: () => {
+            alert('Autenticado automáticamente con las nuevas credenciales.');
+            this.authService.setAuthenticatedUser({ username: payload.username });
+
+            // Actualizar el token con el nuevo
+            const updatedToken = localStorage.getItem('token');
+            if (updatedToken) {
+              console.log('Nuevo token almacenado:', updatedToken);
+            }
+
+            this.showAdminModal = false; // Cerrar el modal
+            this.router.navigate(['/dashboard']); // Redirigir al dashboard u otra página
+          },
+          error: (err) => {
+            console.error('Error al autenticar con las nuevas credenciales:', err);
+            alert('Actualización exitosa, pero no se pudo autenticar automáticamente. Por favor, inicia sesión manualmente.');
+            this.router.navigate(['/login']); // Redirigir al login en caso de error
+          },
+        });
+
+        localStorage.removeItem('firstLogin'); // Deshabilitar la marca de primer inicio de sesión
+      },
+      error: (err) => {
+        console.error('Error al actualizar las credenciales:', err);
+        alert('Ocurrió un error al intentar actualizar las credenciales.');
+      },
+    });
+  }
+
 
   loadUsers(): void {
     this.usersService.getUsers().subscribe(
@@ -37,7 +108,7 @@ export class UsersComponent implements OnInit {
         if (error.status === 403) {
           // Redirigir al login o mostrar mensaje de error
           console.error('Acceso denegado: Se requiere rol ADMIN');
-          this.router.navigate(['/login']); // Redirección al login
+          this.router.navigate(['/login']);
         } else {
           console.error('Error fetching users', error);
         }

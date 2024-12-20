@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, tap} from 'rxjs';
 import { environment } from '../../enviroment';
 
 @Injectable({
@@ -15,7 +15,14 @@ export class AuthService {
 
   login(username: string, password: string): Observable<any> {
     const loginRequest = { username, password };
-    return this.http.post<any>(this.apiUrl, loginRequest);
+    return this.http.post<any>(this.apiUrl, loginRequest).pipe(
+      tap(response => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('firstLogin', response.firstLogin);
+        }
+      })
+    );
   }
 
   setAuthenticatedUser(user: any): void {
