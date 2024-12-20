@@ -58,37 +58,38 @@ export class UsersComponent implements OnInit {
     }
 
     const payload = {
-      username: this.newUsername || this.adminUsername, // Si no cambia el username, usar el actual
-      password: this.newPassword,
+      username: this.newUsername || this.adminUsername, // Si el nuevo username no se proporciona, usa el actual
+      newPassword: this.newPassword,
     };
 
-    this.usersService.updateProfile(payload).subscribe({
+    this.usersService.updateAdminCredentials(payload).subscribe({
       next: () => {
         alert('Credenciales actualizadas correctamente.');
 
         // Autenticar automáticamente con las nuevas credenciales
-        this.authService.login(payload.username, payload.password).subscribe({
+        this.authService.login(payload.username, payload.newPassword).subscribe({
           next: () => {
             alert('Autenticado automáticamente con las nuevas credenciales.');
             this.authService.setAuthenticatedUser({ username: payload.username });
 
-            // Actualizar el token con el nuevo
+            // Actualizar el token
             const updatedToken = localStorage.getItem('token');
             if (updatedToken) {
               console.log('Nuevo token almacenado:', updatedToken);
             }
 
-            this.showAdminModal = false; // Cerrar el modal
-            this.router.navigate(['/dashboard']); // Redirigir al dashboard u otra página
+            // Cierra el modal y redirige al dashboard
+            this.showAdminModal = false;
+            this.router.navigate(['/dashboard']);
           },
           error: (err) => {
             console.error('Error al autenticar con las nuevas credenciales:', err);
-            alert('Actualización exitosa, pero no se pudo autenticar automáticamente. Por favor, inicia sesión manualmente.');
-            this.router.navigate(['/login']); // Redirigir al login en caso de error
+            alert('Actualización exitosa, pero autenticación fallida. Por favor, inicia sesión manualmente.');
+            this.router.navigate(['/login']);
           },
         });
 
-        localStorage.removeItem('firstLogin'); // Deshabilitar la marca de primer inicio de sesión
+        localStorage.removeItem('firstLogin'); // Borra la marca de primer inicio de sesión
       },
       error: (err) => {
         console.error('Error al actualizar las credenciales:', err);

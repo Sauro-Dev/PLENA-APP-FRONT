@@ -25,14 +25,14 @@ export class UsersService {
 
   // Método para obtener usuarios desde el backend
   getUsers(): Observable<any[]> {
-    const token = this.getToken(); 
+    const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any[]>(`${this.apiUrl}/all`, { headers });
   }
 
   // Método para obtener un usuario por su ID
   getUserDetails(userId: number): Observable<any> {
-    const token = this.getToken(); 
+    const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(`${this.apiUrl}/select/${userId}`, { headers });
   }
@@ -45,7 +45,7 @@ export class UsersService {
 
   // Método para cerrar sesión
   logout(): void {
-    localStorage.removeItem('token'); 
+    localStorage.removeItem('token');
   }
 
   private getToken(): string | null {
@@ -69,5 +69,11 @@ export class UsersService {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.put<any>(`${this.apiUrl}/me`, profile, { headers });
+  }
+
+  updateAdminCredentials(credentials: { username: string; newPassword: string }): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<void>(`${this.apiUrl}/update-credentials`, credentials, { headers });
   }
 }

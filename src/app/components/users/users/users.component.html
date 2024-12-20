@@ -70,37 +70,32 @@
     </div>
   </div>
 
-  <!-- Modal para Administrador - Cambiar credenciales -->
+  <!-- Modal para cambio de credenciales del administrador -->
   <div
     *ngIf="showAdminModal"
     class="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-      <h2 class="text-2xl font-bold mb-4 text-red-600">Seguridad de Cuenta</h2>
+      <h2 class="text-2xl font-bold mb-4 text-red-600">Cambio de Credenciales</h2>
       <p class="text-sm text-gray-700 mb-4">
-        Como administrador, te recomendamos cambiar tus credenciales predeterminadas
-        para mejorar la seguridad de tu cuenta.
+        Establece un nuevo nombre de usuario y contraseña para mayor seguridad.
       </p>
       <form (ngSubmit)="saveAdminCredentials()">
-        <!-- Actualizar Username -->
+        <!-- Campo para nuevo username -->
         <div class="mb-4">
-          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-            Nuevo Username
-          </label>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nuevo Username</label>
           <input
             id="username"
             class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             [(ngModel)]="newUsername"
             name="username"
-            placeholder="Ingresa un nuevo username (Opcional)"
+            placeholder="Ingresa un nuevo username (opcional)"
           />
         </div>
 
-        <!-- Actualizar Contraseña -->
+        <!-- Campo para nueva contraseña -->
         <div class="mb-4">
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-            Nueva Contraseña
-          </label>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
           <input
             id="password"
             class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -112,11 +107,9 @@
           />
         </div>
 
-        <!-- Confirmar Contraseña -->
+        <!-- Campo para confirmar contraseña -->
         <div class="mb-4">
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">
-            Confirmar Contraseña
-          </label>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
           <input
             id="confirmPassword"
             class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
