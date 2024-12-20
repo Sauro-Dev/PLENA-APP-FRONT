@@ -2,8 +2,9 @@
   <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Gestión de Áreas de Intervención</h1>
 
   <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-    <button class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg mb-4 md:mb-0"
-            [routerLink]="'/areas/areas-register'">
+    <button
+      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg mb-4 md:mb-0"
+      [routerLink]="'/areas/areas-register'">
       <i class="fas fa-plus-circle mr-2"></i> Agregar Área
     </button>
 
@@ -11,23 +12,19 @@
       <div class="w-full md:w-auto">
         <label for="search" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
         <div class="relative">
-          <input id="search" type="text" 
-                 class="border border-gray-300 rounded-lg w-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                 placeholder="Buscar por nombre"
-                 [(ngModel)]="searchQuery" 
-                 (input)="onSearch()" 
-                 maxlength="50"
-                 pattern="[a-zA-Z0-9\s]+" />
+          <input id="search" type="text"
+            class="border border-gray-300 rounded-lg w-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Buscar por nombre" [(ngModel)]="searchQuery" (input)="onSearch()" maxlength="50"
+            pattern="[a-zA-Z0-9\s]+" />
           <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
         </div>
       </div>
 
       <div class="w-full md:w-auto">
         <label for="itemsPerPage" class="block text-lg font-medium text-gray-700 mb-2">Mostrar:</label>
-        <select id="itemsPerPage" 
-                class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                [(ngModel)]="itemsPerPage"
-                (change)="paginate()">
+        <select id="itemsPerPage"
+          class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [(ngModel)]="itemsPerPage" (change)="paginate()">
           <option value="10">10 áreas</option>
           <option value="20">20 áreas</option>
         </select>
@@ -37,16 +34,17 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     <div *ngFor="let area of filteredAreas"
-         class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+      class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
       <h2 class="text-2xl font-semibold text-blue-800 mb-2">{{ area.name }}</h2>
-      <p class="text-gray-600 mb-4">{{ area.description | slice:0:100 }}{{ area.description.length > 100 ? '...' : '' }}</p>
+      <p class="text-gray-600 mb-4">{{ area.description | slice:0:100 }}{{ area.description.length > 100 ? '...' : '' }}
+      </p>
       <div class="flex justify-around">
         <a [routerLink]="['./edit', area.id]"
-           class="bg-blue-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition duration-300">
+          class="bg-blue-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition duration-300">
           Editar
         </a>
-        <button class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition duration-300" 
-                (click)="deleteArea(area.id)">
+        <button class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition duration-300"
+          (click)="openDeleteModal(area.id)">
           Eliminar
         </button>
       </div>
@@ -58,26 +56,41 @@
   </div>
 
   <div class="flex justify-center mt-8 space-x-2">
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300" 
-            (click)="goToPage(1)" 
-            [disabled]="currentPage === 1">
+    <button
+      class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300"
+      (click)="goToPage(1)" [disabled]="currentPage === 1">
       &lt;&lt;
     </button>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300" 
-            (click)="goToPage(currentPage - 1)"
-            [disabled]="currentPage === 1">
+    <button
+      class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300"
+      (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
       &lt;
     </button>
     <span class="px-4 py-2 text-gray-700 text-lg font-medium">{{ currentPage }}</span>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300" 
-            (click)="goToPage(currentPage + 1)"
-            [disabled]="currentPage >= Math.ceil(filteredAreas.length / itemsPerPage)">
+    <button
+      class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300"
+      (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= Math.ceil(filteredAreas.length / itemsPerPage)">
       &gt;
     </button>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300"
-            (click)="goToPage(Math.ceil(filteredAreas.length / itemsPerPage))"
-            [disabled]="currentPage >= Math.ceil(filteredAreas.length / itemsPerPage)">
+    <button
+      class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition duration-300"
+      (click)="goToPage(Math.ceil(filteredAreas.length / itemsPerPage))"
+      [disabled]="currentPage >= Math.ceil(filteredAreas.length / itemsPerPage)">
       &gt;&gt;
     </button>
+  </div>
+</div>
+
+<!-- Modal Confirmación Eliminar -->
+<div *ngIf="showDeleteModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+    <h2 class="text-xl font-bold mb-4">¿Eliminar esta área?</h2>
+    <p class="mb-6 text-gray-600">Esta acción no se puede deshacer.</p>
+    <div class="flex justify-center gap-4">
+      <button (click)="confirmDelete()"
+        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">Eliminar</button>
+      <button (click)="cancelDelete()"
+        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
+    </div>
   </div>
 </div>

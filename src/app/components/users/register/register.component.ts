@@ -23,6 +23,8 @@ export class RegisterComponent {
   selectedRole: string | null = null;
   isAdminSelected: boolean = false;
   showAdminDialog: boolean = false;
+  showRegisterModal: boolean = false;
+  showCancelModal: boolean = false;
   adminPassword: string = '';
   maxDate: string;
 
@@ -99,6 +101,58 @@ export class RegisterComponent {
     }
   }
 
+  openRegisterModal(): void {
+    if (this.registerForm.valid && this.selectedRole) {
+      this.showRegisterModal = true;
+    } else {
+      this.registerForm.markAllAsTouched();
+      console.error('Formulario inválido o rol no seleccionado');
+    }
+  }
+
+  closeRegisterModal(): void {
+    this.showRegisterModal = false;
+  }
+
+  confirmRegister(): void {
+    const formValue = this.registerForm.value;
+
+    if (this.selectedRole === 'Terapeuta') {
+      formValue.paymentSession = formValue.paymentSession
+        ? Number(formValue.paymentSession)
+        : null;
+      formValue.paymentMonth = null;
+    } else if (this.selectedRole === 'Secretario/a') {
+      formValue.paymentMonth = formValue.paymentMonth
+        ? Number(formValue.paymentMonth)
+        : null;
+      formValue.paymentSession = null;
+    }
+
+    this.registerService.registerUser(formValue).subscribe(
+      () => {
+        this.closeRegisterModal();
+        this.router.navigate(['/users']);
+      },
+      (error) => {
+        console.error('Error al registrar', error);
+      }
+    );
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancel(): void {
+    this.closeCancelModal();
+    this.router.navigate(['/users']);
+  }
+
   selectRole(role: string): void {
     let backendRole: string;
 
@@ -167,7 +221,9 @@ export class RegisterComponent {
       this.registerForm.get('adminPassword')?.clearValidators();
       this.registerForm.get('adminPassword')?.updateValueAndValidity();
     } else {
-      this.registerForm.get('adminPassword')?.setErrors({ invalidPassword: true });
+      this.registerForm
+        .get('adminPassword')
+        ?.setErrors({ invalidPassword: true });
     }
   }
 
@@ -209,16 +265,6 @@ export class RegisterComponent {
       );
     } else {
       console.error('Formulario inválido o rol no seleccionado');
-    }
-  }
-
-  onCancel(): void {
-    const confirmed = window.confirm(
-      '¿Estás seguro de que deseas cancelar el registro?'
-    );
-
-    if (confirmed) {
-      this.router.navigate(['/users']);
     }
   }
 }
