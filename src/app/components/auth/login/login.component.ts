@@ -30,7 +30,6 @@ export class LoginComponent {
   login() {
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
-        console.log('Login exitoso:', response);
         localStorage.setItem('token', response.token);
 
         const decodedToken: any = jwtDecode(response.token);
