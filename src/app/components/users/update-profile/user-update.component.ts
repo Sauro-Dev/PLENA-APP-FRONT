@@ -23,6 +23,10 @@ export class UserUpdateComponent {
   isLoading: boolean = true;
   isSaving: boolean = false;
   isPasswordModalOpen: boolean = false;
+  isAlertVisible: boolean = false;
+  alertMessage: string = '';
+  alertType: 'success' | 'error' = 'success';
+  isPasswordTouched: boolean = false;
 
   constructor(
     private usersService: UsersService,
@@ -130,22 +134,37 @@ export class UserUpdateComponent {
 
   closePasswordModal(): void {
     this.isPasswordModalOpen = false;
+    this.resetPasswordFields();
+  }
+
+  resetPasswordFields(): void {
     this.currentPassword = '';
     this.newPassword = '';
     this.confirmNewPassword = '';
+    this.isPasswordTouched = false;
+  }
+
+  validatePasswordForm(): boolean {
+    this.isPasswordTouched = true;
+
+    if (!this.currentPassword || !this.newPassword || !this.confirmNewPassword) {
+      this.showAlert('Todos los campos son obligatorios.', 'error');
+      return false;
+    }
+    if (this.newPassword.length < 4 || this.newPassword.length > 100) {
+      this.showAlert('La nueva contraseña debe tener entre 4 y 100 caracteres.', 'error');
+      return false;
+    }
+    if (this.newPassword !== this.confirmNewPassword) {
+      this.showAlert('Las contraseñas no coinciden.', 'error');
+      return false;
+    }
+
+    return true;
   }
 
   updatePassword(): void {
-    if (!this.currentPassword || !this.newPassword || !this.confirmNewPassword) {
-      alert('Todos los campos de la contraseña son obligatorios.');
-      return;
-    }
-    if (this.newPassword.length < 4 || this.newPassword.length > 100) {
-      alert('La nueva contraseña debe tener entre 4 y 100 caracteres.');
-      return;
-    }
-    if (this.newPassword !== this.confirmNewPassword) {
-      alert('Las contraseñas no coinciden.');
+    if (!this.validatePasswordForm()) {
       return;
     }
 
@@ -156,17 +175,23 @@ export class UserUpdateComponent {
 
     this.usersService.updatePassword(payload).subscribe({
       next: () => {
-        alert('Contraseña actualizada correctamente.');
+        this.showAlert('Contraseña actualizada correctamente.', 'success');
         this.closePasswordModal();
-        // Limpiar campos del formulario modal
-        this.currentPassword = '';
-        this.newPassword = '';
-        this.confirmNewPassword = '';
       },
       error: (err) => {
         console.error('Error al actualizar la contraseña:', err);
-        alert('No se pudo actualizar la contraseña. Revisa los datos e intenta de nuevo.');
+        this.showAlert('No se pudo actualizar la contraseña. Revisa los datos e intenta de nuevo.', 'error');
       },
     });
+  }
+
+  showAlert(message: string, type: 'success' | 'error'): void {
+    this.alertMessage = message;
+    this.alertType = type;
+    this.isAlertVisible = true;
+
+    setTimeout(() => {
+      this.isAlertVisible = false;
+    }, 3000);
   }
 }

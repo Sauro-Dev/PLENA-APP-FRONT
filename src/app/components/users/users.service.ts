@@ -62,7 +62,7 @@ export class UsersService {
   }
 
   getMyProfile(): Observable<any> {
-    const token = this.getToken(); // Obtiene el token del usuario
+    const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(`${this.apiUrl}/me`, { headers });
   }
