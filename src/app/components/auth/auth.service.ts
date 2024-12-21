@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {BehaviorSubject, catchError, Observable, tap} from 'rxjs';
 import { environment } from '../../enviroment';
 import {jwtDecode} from "jwt-decode";
 
@@ -28,7 +28,6 @@ export class AuthService {
 
   setAuthenticatedUser(user: any): void {
     this.currentUserSubject.next(user);
-    // Opcional: guardar el usuario en localStorage si deseas persistencia en la sesión
     localStorage.setItem('user', JSON.stringify(user));
   }
 
@@ -50,6 +49,20 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  forgotPassword(data: { username: string; dni: string; newPassword: string }): Observable<void> {
+    const url = `${environment.apiUrl}/users/forgot-password`;
+
+    console.log('Realizando llamada HTTP al servidor:', data);
+
+    return this.http.post<void>(url, data).pipe(
+      tap(() => console.log('Solicitud enviada exitosamente al backend')),
+      catchError((error) => {
+        console.error('Error en forgotPassword:', error);
+        throw error;
+      })
+    );
   }
 
   logout(): void {

@@ -16,9 +16,13 @@ import { jwtDecode } from 'jwt-decode';
 export class LoginComponent {
   username: string = '';
   password: string = '';
-  errorMessage: string = ''; // Variable para el mensaje de error
-
-  // Controla la visibilidad de la contraseña
+  errorMessage: string = '';
+  failedAttempts: number = 0;
+  showForgotPassword: boolean = false;
+  recoveryUsername: string = '';
+  recoveryDNI: string = '';
+  newPassword: string = '';
+  recoveryErrorMessage: string = '';
   showPassword: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
@@ -47,12 +51,53 @@ export class LoginComponent {
           this.router.navigate(['/calendar']);
         }
 
-        this.errorMessage = ''; // Reiniciar el mensaje de error en caso de éxito
+        this.errorMessage = '';
+        this.failedAttempts = 0;
       },
       error: (error) => {
         console.error('Error en el login:', error);
-        this.errorMessage = 'Usuario o contraseña incorrectos.'; // Mensaje de error
+        this.errorMessage = 'Usuario o contraseña incorrectos.';
+        this.failedAttempts++;
+
+        if (this.failedAttempts >= 3) {
+          this.showForgotPassword = true;
+        }
       },
     });
+  }
+
+  recoverPassword() {
+    console.log('Datos enviados al servicio forgotPassword:', {
+      username: this.recoveryUsername,
+      dni: this.recoveryDNI,
+      newPassword: this.newPassword,
+    });
+
+    const recoveryData = {
+      username: this.recoveryUsername,
+      dni: this.recoveryDNI,
+      newPassword: this.newPassword,
+    };
+
+    this.authService.forgotPassword(recoveryData).subscribe({
+      next: () => {
+        this.recoveryErrorMessage = '';
+        alert('Contraseña actualizada con éxito. Intenta iniciar sesión.');
+        this.showForgotPassword = false;
+        this.failedAttempts = 0;
+        this.resetRecoveryForm();
+      },
+      error: (error) => {
+        console.error('Error en la recuperación de contraseña:', error);
+        this.recoveryErrorMessage = 'Datos inválidos. Verifique e intente de nuevo.';
+      },
+    });
+  }
+
+  resetRecoveryForm() {
+    this.recoveryUsername = '';
+    this.recoveryDNI = '';
+    this.newPassword = '';
+    this.recoveryErrorMessage = '';
   }
 }
