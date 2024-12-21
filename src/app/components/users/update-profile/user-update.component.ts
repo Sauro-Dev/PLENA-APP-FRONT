@@ -22,11 +22,12 @@ export class UserUpdateComponent {
   showConfirmPassword: boolean = false;
   isLoading: boolean = true;
   isSaving: boolean = false;
+  isPasswordModalOpen: boolean = false;
 
   constructor(
     private usersService: UsersService,
     private router: Router,
-    private authService: AuthService // Inyectamos AuthService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +38,7 @@ export class UserUpdateComponent {
     this.usersService.getMyProfile().subscribe({
       next: (data) => {
         this.profile = data;
-        this.authService.setAuthenticatedUser(data); // Establecemos datos iniciales
+        this.authService.setAuthenticatedUser(data);
         this.isLoading = false;
       },
       error: (error) => {
@@ -48,42 +49,56 @@ export class UserUpdateComponent {
   }
 
   saveProfile(): void {
-    if (this.newPassword && this.newPassword !== this.confirmNewPassword) {
-      alert('La nueva contraseña y su confirmación no coinciden.');
+    const {
+      username,
+      name,
+      paternalSurname,
+      maternalSurname,
+      dni,
+      email,
+      phone,
+      address,
+      phoneBackup,
+    } = this.profile;
+
+    // Validaciones básicas
+    if (!username || username.length < 3 || username.length > 20) {
+      alert('El nombre de usuario debe tener entre 3 y 20 caracteres.');
+      return;
+    }
+    if (!name || !dni || !email || !phone) { // Campos obligatorios
+      alert('Los campos obligatorios no pueden estar vacíos.');
+      return;
+    }
+    if (!/^\d{8}$/.test(dni)) {
+      alert('El DNI debe contener exactamente 8 números.');
+      return;
+    }
+    if (!/^\d{9}$/.test(phone)) {
+      alert('El teléfono debe contener exactamente 9 dígitos.');
+      return;
+    }
+    if (phoneBackup && !/^\d{9}$/.test(phoneBackup)) {
+      alert('El teléfono secundario debe contener exactamente 9 dígitos.');
       return;
     }
 
     const payload = {
       ...this.profile,
-      currentPassword: this.currentPassword,
-      newPassword: this.newPassword,
+      address: address || null, // Opcional
+      phoneBackup: phoneBackup || null, // Opcional
     };
 
     this.isSaving = true;
+
     this.usersService.updateProfile(payload).subscribe({
       next: () => {
-        const updatedPassword = this.newPassword || this.currentPassword;
-
-        // Volvemos a autenticar al usuario con las credenciales actualizadas
-        this.authService.login(this.profile.username, updatedPassword).subscribe({
-          next: (response) => {
-            // Guardar el token actualizado
-            localStorage.setItem('token', response.token);
-
-            // Actualizar los datos del usuario globalmente
-            this.authService.setAuthenticatedUser(this.profile);
-
-            alert('Perfil actualizado con éxito.');
-            this.router.navigate(['/profile']);
-          },
-          error: (error) => {
-            console.error('Error al iniciar sesión nuevamente:', error);
-            this.isSaving = false;
-          },
-        });
+        alert('Perfil actualizado con éxito.');
+        this.router.navigate(['/profile']);
       },
       error: (error) => {
         console.error('Error al actualizar el perfil:', error);
+        alert('Error al actualizar el perfil. Por favor, revisa los datos ingresados.');
         this.isSaving = false;
       },
     });
@@ -93,5 +108,53 @@ export class UserUpdateComponent {
     if (confirm('¿Estás seguro de que deseas cancelar los cambios? Serás redirigido a tu perfil.')) {
       this.router.navigate(['/profile']);
     }
+  }
+
+  openPasswordModal(): void {
+    this.isPasswordModalOpen = true;
+  }
+
+  closePasswordModal(): void {
+    this.isPasswordModalOpen = false;
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
+  }
+
+  updatePassword(): void {
+    // Validar entradas de usuario
+    if (!this.currentPassword || !this.newPassword || !this.confirmNewPassword) {
+      alert('Todos los campos de la contraseña son obligatorios.');
+      return;
+    }
+    if (this.newPassword.length < 4 || this.newPassword.length > 100) {
+      alert('La nueva contraseña debe tener entre 4 y 100 caracteres.');
+      return;
+    }
+    if (this.newPassword !== this.confirmNewPassword) {
+      alert('Las contraseñas no coinciden.');
+      return;
+    }
+
+    const payload = {
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword,
+    };
+
+    // Llamada al método del servicio
+    this.usersService.updatePassword(payload).subscribe({
+      next: () => {
+        alert('Contraseña actualizada correctamente.');
+        this.closePasswordModal();
+        // Limpiar campos del formulario modal
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmNewPassword = '';
+      },
+      error: (err) => {
+        console.error('Error al actualizar la contraseña:', err);
+        alert('No se pudo actualizar la contraseña. Revisa los datos e intenta de nuevo.');
+      },
+    });
   }
 }

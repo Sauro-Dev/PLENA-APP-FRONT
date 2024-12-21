@@ -78,4 +78,11 @@ export class UsersService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.put<void>(`${this.apiUrl}/update-credentials`, credentials, { headers });
   }
+
+  updatePassword(credentials: { currentPassword: string; newPassword: string }): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put<void>(`${this.apiUrl}/update-password`, credentials, { headers });
+  }
 }
