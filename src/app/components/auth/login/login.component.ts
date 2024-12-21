@@ -24,6 +24,7 @@ export class LoginComponent {
   newPassword: string = '';
   recoveryErrorMessage: string = '';
   showPassword: boolean = false;
+  showNewPassword: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -99,5 +100,9 @@ export class LoginComponent {
     this.recoveryDNI = '';
     this.newPassword = '';
     this.recoveryErrorMessage = '';
+  }
+
+  toggleNewPasswordVisibility() {
+    this.showNewPassword = !this.showNewPassword;
   }
 }
