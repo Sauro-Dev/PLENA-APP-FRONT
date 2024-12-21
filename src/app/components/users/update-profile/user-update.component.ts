@@ -61,12 +61,11 @@ export class UserUpdateComponent {
       phoneBackup,
     } = this.profile;
 
-    // Validaciones básicas
     if (!username || username.length < 3 || username.length > 20) {
       alert('El nombre de usuario debe tener entre 3 y 20 caracteres.');
       return;
     }
-    if (!name || !dni || !email || !phone) { // Campos obligatorios
+    if (!name || !dni || !email || !phone) {
       alert('Los campos obligatorios no pueden estar vacíos.');
       return;
     }
@@ -85,16 +84,31 @@ export class UserUpdateComponent {
 
     const payload = {
       ...this.profile,
-      address: address || null, // Opcional
-      phoneBackup: phoneBackup || null, // Opcional
+      address: address || null,
+      phoneBackup: phoneBackup || null,
     };
 
     this.isSaving = true;
 
     this.usersService.updateProfile(payload).subscribe({
-      next: () => {
+      next: (response) => {
         alert('Perfil actualizado con éxito.');
-        this.router.navigate(['/profile']);
+
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+        }
+
+        this.usersService.getMyProfile().subscribe({
+          next: (updatedProfile) => {
+            this.authService.setAuthenticatedUser(updatedProfile);
+            this.router.navigate(['/profile']);
+          },
+          error: (fetchError) => {
+            console.error('Error al refrescar el perfil:', fetchError);
+            alert('Hubo un problema al cargar el perfil actualizado. Por favor, vuelva a intentar.');
+            this.isSaving = false;
+          },
+        });
       },
       error: (error) => {
         console.error('Error al actualizar el perfil:', error);
@@ -122,7 +136,6 @@ export class UserUpdateComponent {
   }
 
   updatePassword(): void {
-    // Validar entradas de usuario
     if (!this.currentPassword || !this.newPassword || !this.confirmNewPassword) {
       alert('Todos los campos de la contraseña son obligatorios.');
       return;
@@ -141,7 +154,6 @@ export class UserUpdateComponent {
       newPassword: this.newPassword,
     };
 
-    // Llamada al método del servicio
     this.usersService.updatePassword(payload).subscribe({
       next: () => {
         alert('Contraseña actualizada correctamente.');

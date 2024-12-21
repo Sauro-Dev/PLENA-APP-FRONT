@@ -40,9 +40,17 @@ export class AuthService {
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
-        const profile = { username: decodedToken.username, role: decodedToken.role };
-        this.setAuthenticatedUser(profile);
-        return profile;
+        const currentUser = {
+          username: decodedToken.username,
+          role: decodedToken.role
+        };
+
+        const storedUser = localStorage.getItem('user');
+        const parsedUser = storedUser ? JSON.parse(storedUser) : {};
+        const fullUser = { ...parsedUser, ...currentUser };
+
+        this.setAuthenticatedUser(fullUser);
+        return fullUser;
       } catch (error) {
         console.error('Error al decodificar el token JWT:', error);
       }
