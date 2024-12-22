@@ -1,19 +1,107 @@
-<div class="container mx-auto px-4 py-6">
-  <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-    <h2 class="text-3xl font-semibold text-blue-800 mb-4">{{ user?.name }} {{ user?.paternalSurname }} {{
-      user?.maternalSurname }}</h2>
-    <div class="text-left">
-      <p class="text-lg text-gray-600"><strong>ID:</strong> {{ user?.id }}</p>
-      <p class="text-lg text-gray-600"><strong>Email:</strong> <span class="text-green-500">{{ user?.email }}</span></p>
-      <p class="text-lg text-gray-600"><strong>DNI:</strong> {{ user?.dni }}</p>
-      <p class="text-lg text-gray-600"><strong>Teléfono:</strong> {{ user?.phone }}</p>
-      <p class="text-lg text-gray-600"><strong>Teléfono de Respaldo:</strong> {{ user?.phoneBackup }}</p>
-      <p class="text-lg text-gray-600"><strong>Dirección:</strong> {{ user?.address }}</p>
-      <p class="text-lg text-gray-600"><strong>Rol:</strong> {{ user?.role }}</p>
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <!-- Contenedor principal -->
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">
+      {{ user?.name }} {{ user?.paternalSurname }} {{ user?.maternalSurname }}
+    </h1>
+
+    <!-- Información del usuario -->
+    <div class="divide-y divide-gray-300 space-y-6">
+
+      <!-- Información personal -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Personal</h2>
+        <div class="space-y-4">
+          <!-- ID -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">ID:</span>
+            <span class="ml-auto text-gray-600">{{ user?.id }}</span>
+          </div>
+
+          <!-- Nombre -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Nombre:</span>
+            <span class="ml-auto text-gray-600">{{ user?.name }}</span>
+          </div>
+
+          <!-- Apellidos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Paterno:</span>
+              <span class="ml-auto text-gray-600">{{ user?.paternalSurname }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Materno:</span>
+              <span class="ml-auto text-gray-600">{{ user?.maternalSurname }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de contacto -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información de Contacto</h2>
+        <div class="space-y-4">
+          <!-- Correo Electrónico -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-mail text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Correo Electrónico:</span>
+            <span class="ml-auto text-green-500">{{ user?.email }}</span>
+          </div>
+
+          <!-- Teléfonos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono:</span>
+              <span class="ml-auto text-gray-600">{{ user?.phone }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone-plus text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono Respaldo:</span>
+              <span class="ml-auto text-gray-600">{{ user?.phoneBackup }}</span>
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-map-pin text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Dirección:</span>
+            <span class="ml-auto text-gray-600">{{ user?.address }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Adicional</h2>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">DNI:</span>
+          <span class="ml-auto text-gray-600">{{ user?.dni }}</span>
+        </div>
+
+        <!-- Rol -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-users text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Rol:</span>
+          <span class="ml-auto text-gray-600">{{ user?.role }}</span>
+        </div>
+      </div>
     </div>
-    <a class="block mt-6 bg-blue-800 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition-colors duration-150"
-      routerLink="/users">
-      Volver a la lista
-    </a>
+
+    <!-- Botón para volver a la lista -->
+    <div class="text-center mt-8">
+      <a
+        class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition w-full md:w-auto"
+        routerLink="/users"
+      >
+        Volver a la Lista
+      </a>
+    </div>
   </div>
-</div>
+</section>
