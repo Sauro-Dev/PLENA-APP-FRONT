@@ -1,49 +1,104 @@
 <section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <!-- Contenedor principal -->
   <div class="bg-white shadow-lg rounded-lg p-6 w-full">
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Mi Perfil</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Mi Perfil</h1>
 
-    <!-- Cargando -->
+    <!-- Indicador de carga -->
     <div *ngIf="isLoading" class="text-center text-gray-500">
       Cargando...
     </div>
 
-    <!-- Datos del perfil -->
-    <div *ngIf="!isLoading && profile" class="space-y-4 text-gray-700">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="font-medium">Nombre de Usuario:</div>
-        <div class="text-right">{{ profile.username }}</div>
+    <!-- Contenido del Perfil -->
+    <div *ngIf="!isLoading && profile" class="divide-y divide-gray-300 space-y-6">
 
-        <div class="font-medium">Nombre:</div>
-        <div class="text-right">{{ profile.name }}</div>
+      <!-- Información personal -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Personal</h2>
+        <div class="space-y-4">
+          <!-- Campo Usuario -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-user text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Usuario:</span>
+            <span class="ml-auto text-gray-600">{{ profile.username }}</span>
+          </div>
 
-        <div class="font-medium">Apellido Paterno:</div>
-        <div class="text-right">{{ profile.paternalSurname }}</div>
+          <!-- Nombre -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Nombre:</span>
+            <span class="ml-auto text-gray-600">{{ profile.name }}</span>
+          </div>
 
-        <div class="font-medium">Apellido Materno:</div>
-        <div class="text-right">{{ profile.maternalSurname }}</div>
+          <!-- Apellidos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Paterno:</span>
+              <span class="ml-auto text-gray-600">{{ profile.paternalSurname }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Materno:</span>
+              <span class="ml-auto text-gray-600">{{ profile.maternalSurname }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div class="font-medium">Correo Electrónico:</div>
-        <div class="text-right">{{ profile.email }}</div>
+      <!-- Información de contacto -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información de Contacto</h2>
+        <div class="space-y-4">
+          <!-- Correo Electrónico -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-mail text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Correo Electrónico:</span>
+            <span class="ml-auto text-gray-600">{{ profile.email }}</span>
+          </div>
 
-        <div class="font-medium">DNI:</div>
-        <div class="text-right">{{ profile.dni }}</div>
+          <!-- Teléfonos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono:</span>
+              <span class="ml-auto text-gray-600">{{ profile.phone }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone-plus text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono Respaldo:</span>
+              <span class="ml-auto text-gray-600">{{ profile.phoneBackup }}</span>
+            </div>
+          </div>
 
-        <div class="font-medium">Teléfono:</div>
-        <div class="text-right">{{ profile.phone }}</div>
+          <!-- Dirección -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-map-pin text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Dirección:</span>
+            <span class="ml-auto text-gray-600">{{ profile.address }}</span>
+          </div>
+        </div>
+      </div>
 
-        <div class="font-medium">Teléfono de Respaldo:</div>
-        <div class="text-right">{{ profile.phoneBackup }}</div>
+      <!-- Información adicional -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Adicional</h2>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">DNI:</span>
+          <span class="ml-auto text-gray-600">{{ profile.dni }}</span>
+        </div>
 
-        <div class="font-medium">Dirección:</div>
-        <div class="text-right">{{ profile.address }}</div>
-
-        <div class="font-medium">Rol:</div>
-        <div class="text-right">{{ profile.role }}</div>
+        <!-- Rol -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-users text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Rol:</span>
+          <span class="ml-auto text-gray-600">{{ profile.role }}</span>
+        </div>
       </div>
     </div>
 
-    <!-- Botón para actualizar perfil -->
-    <div class="text-center mt-6">
+    <!-- Botón para actualizar -->
+    <div class="text-center mt-8">
       <button
         class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition w-full md:w-auto"
         routerLink="/update-profile"
