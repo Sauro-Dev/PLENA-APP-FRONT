@@ -39,6 +39,12 @@ export class UsersService {
     return this.http.get<any>(`${this.apiUrl}/select/${userId}`, { headers });
   }
 
+  updateUserDetails(userId: number, userDetails: any): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<void>(`${this.apiUrl}/update/${userId}`, userDetails, { headers });
+  }
+
   // Método para verificar si el usuario está logeado
   isLoggedIn(): boolean {
     const token = this.getToken(); // Verifica si existe un token
