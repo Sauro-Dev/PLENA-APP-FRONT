@@ -73,7 +73,6 @@ export class PatientEditComponent implements OnInit {
       .subscribe(
         () => {
           this.isSaving = false;
-          alert('Paciente actualizado con éxito.');
           this.router.navigate([
             '/patients/details',
             this.route.snapshot.params['id'],

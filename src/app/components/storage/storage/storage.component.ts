@@ -20,9 +20,9 @@ export class StorageComponent implements OnInit {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   paginatedMaterials: Material[] = [];
-  materialFilter: string ='';
+  materialFilter: string = '';
 
-  constructor(private storageService: StorageService, private router: Router) { }
+  constructor(private storageService: StorageService, private router: Router) {}
 
   ngOnInit() {
     this.loadMaterials();
@@ -42,7 +42,9 @@ export class StorageComponent implements OnInit {
     } else {
       this.filteredMaterials = this.materials.filter(
         (material) =>
-          material.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          material.nombre
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
           material.estado.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
@@ -62,13 +64,13 @@ export class StorageComponent implements OnInit {
     this.paginate();
   }
 
-  onFilter(): void{
+  onFilter(): void {
     if (this.materialFilter === '') {
       this.filteredMaterials = this.materials;
       this.paginate();
     } else {
-      this.filteredMaterials = this.materials.filter((material) =>
-        material.estado === this.materialFilter
+      this.filteredMaterials = this.materials.filter(
+        (material) => material.estado === this.materialFilter
       );
       this.paginate();
     }
@@ -83,13 +85,13 @@ export class StorageComponent implements OnInit {
       return;
     }
     this.storageService.deleteMaterial(materialId).subscribe(
-      () =>{
+      () => {
         this.loadMaterials();
       },
-      (error)=>{
+      (error) => {
         console.error('Error al eliminar un material', error);
       }
-    )
+    );
   }
 
   protected readonly Math = Math;

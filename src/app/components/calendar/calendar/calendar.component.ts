@@ -105,11 +105,9 @@ export class CalendarComponent implements OnInit{
 
   sendReprogramming() {
     if (!this.isValidTime(this.newStartTime) || !this.isValidTime(this.newEndTime)) {
-      alert('Las horas deben estar entre las 09:00 y las 21:00.');
       return;
     }
     if (this.isStartTimeGreaterThanEndTime(this.newStartTime, this.newEndTime)) {
-      alert('La hora de inicio no puede ser mayor a la de fin.');
       return;
     }
     if (this.selectedSession) {

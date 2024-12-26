@@ -49,7 +49,6 @@ export class UserUpdateComponent {
 
   saveProfile(): void {
     if (this.newPassword && this.newPassword !== this.confirmNewPassword) {
-      alert('La nueva contraseña y su confirmación no coinciden.');
       return;
     }
 
@@ -73,7 +72,6 @@ export class UserUpdateComponent {
             // Actualizar los datos del usuario globalmente
             this.authService.setAuthenticatedUser(this.profile);
 
-            alert('Perfil actualizado con éxito.');
             this.router.navigate(['/profile']);
           },
           error: (error) => {

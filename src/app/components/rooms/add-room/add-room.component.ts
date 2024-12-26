@@ -68,7 +68,6 @@ export class AddRoomComponent {
       const newRoom: Room = this.roomForm.value;
       this.roomsService.registerRoom(newRoom).subscribe(
         (room) => {
-          console.log('Sala registrada:', room);
           this.router.navigate(['/rooms']);
         },
         (error) => {

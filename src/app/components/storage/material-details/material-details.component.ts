@@ -123,19 +123,6 @@ export class MaterialDetailsComponent implements OnInit {
           // Recargar las áreas de intervención después de asignar
           this.loadInterventionAreas(idMaterial);
           this.isLoading = false;  // Desactivar el estado de carga
-        },
-        (error: HttpErrorResponse) => {
-          this.isLoading = false;  // Desactivar el estado de carga en caso de error
-          if (error.status === 400) {
-            // Mostrar mensaje si el error es un BAD_REQUEST
-            alert('Esta Área de Intervención ya fue registrada.');
-          } else if (error.status === 404) {
-            // Mostrar mensaje si el error es un NOT_FOUND
-            alert('No se ha podido encontrar el material o el área de intervención.');
-          } else {
-            // Mostrar mensaje para otros tipos de error
-            alert('Ocurrió un error inesperado. Intenta nuevamente.');
-          }
         }
       );
     }

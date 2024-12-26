@@ -100,8 +100,8 @@ export class PatientRegisterComponent implements OnInit {
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
     const date = new Date(control.value);
-    const minDate = new Date('1900-01-01');
-    const maxDate = new Date();
+    const minDate = new Date('2000-01-01');
+    const maxDate = new Date('2025-01-01');
 
     if (date < minDate || date > maxDate) {
       return { outOfRange: true };
@@ -297,7 +297,6 @@ export class PatientRegisterComponent implements OnInit {
     if (this.patientForm.valid) {
       this.patientService.createPatient(this.patientForm.value).subscribe(
         (response) => {
-          console.log('Paciente registrado:', response);
           this.router.navigate(['/patients']);
         },
         (error) => {
