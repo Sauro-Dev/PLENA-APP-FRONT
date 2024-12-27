@@ -17,9 +17,11 @@ export class UserUpdateComponent {
   currentPassword: string = '';
   newPassword: string = '';
   confirmNewPassword: string = '';
-  showCurrentPassword: boolean = false;
-  showNewPassword: boolean = false;
-  showConfirmPassword: boolean = false;
+  showPasswordField: Record<string, boolean> = {
+    currentPassword: false,
+    newPassword: false,
+    confirmNewPassword: false,
+  };
   isLoading: boolean = true;
   isSaving: boolean = false;
   isPasswordModalOpen: boolean = false;
@@ -27,12 +29,18 @@ export class UserUpdateComponent {
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
   isPasswordTouched: boolean = false;
+  isReloginModalOpen: boolean = false;
+  maxBirthdate: string;
 
   constructor(
     private usersService: UsersService,
     private router: Router,
     private authService: AuthService
-  ) {}
+
+  ) {
+    const today = new Date();
+    this.maxBirthdate = today.toISOString().split('T')[0];
+  }
 
   ngOnInit(): void {
     this.loadProfile();
@@ -41,7 +49,10 @@ export class UserUpdateComponent {
   loadProfile(): void {
     this.usersService.getMyProfile().subscribe({
       next: (data) => {
-        this.profile = data;
+        this.profile = {
+          ...data,
+          birthdate: data.birthdate ? new Date(data.birthdate).toISOString().split('T')[0] : null
+        };
         this.authService.setAuthenticatedUser(data);
         this.isLoading = false;
       },
@@ -88,6 +99,7 @@ export class UserUpdateComponent {
 
     const payload = {
       ...this.profile,
+      birthdate: this.profile.birthdate ? new Date(this.profile.birthdate).toISOString().split('T')[0] : null,
       address: address || null,
       phoneBackup: phoneBackup || null,
     };
@@ -95,17 +107,17 @@ export class UserUpdateComponent {
     this.isSaving = true;
 
     this.usersService.updateProfile(payload).subscribe({
-      next: (response) => {
+      next: () => {
         alert('Perfil actualizado con éxito.');
-
-        if (response.token) {
-          localStorage.setItem('token', response.token);
-        }
+        this.isSaving = false;
+        this.loadProfile();
 
         this.usersService.getMyProfile().subscribe({
           next: (updatedProfile) => {
             this.authService.setAuthenticatedUser(updatedProfile);
-            this.router.navigate(['/profile']);
+            setTimeout(() => {
+              this.router.navigate(['/profile']);
+            });
           },
           error: (fetchError) => {
             console.error('Error al refrescar el perfil:', fetchError);
@@ -177,12 +189,30 @@ export class UserUpdateComponent {
       next: () => {
         this.showAlert('Contraseña actualizada correctamente.', 'success');
         this.closePasswordModal();
+
+        setTimeout(() => {
+          this.isReloginModalOpen = true;
+        }, 2000);
       },
       error: (err) => {
         console.error('Error al actualizar la contraseña:', err);
         this.showAlert('No se pudo actualizar la contraseña. Revisa los datos e intenta de nuevo.', 'error');
       },
     });
+  }
+
+  closeReloginModal(): void {
+    this.isReloginModalOpen = false;
+  }
+
+  redirectToLogin(): void {
+    this.isReloginModalOpen = false;
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  togglePasswordVisibility(fieldName: string): void {
+    this.showPasswordField[fieldName] = !this.showPasswordField[fieldName];
   }
 
   showAlert(message: string, type: 'success' | 'error'): void {
@@ -192,6 +222,6 @@ export class UserUpdateComponent {
 
     setTimeout(() => {
       this.isAlertVisible = false;
-    }, 3000);
+    }, 2000);
   }
 }

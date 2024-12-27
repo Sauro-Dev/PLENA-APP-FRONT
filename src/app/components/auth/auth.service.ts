@@ -26,36 +26,30 @@ export class AuthService {
     );
   }
 
+  setToken(token: string): void {
+    localStorage.setItem('token', token);
+  }
+
   setAuthenticatedUser(user: any): void {
     this.currentUserSubject.next(user);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
   getAuthenticatedUser(): any {
-    if (this.currentUserSubject.value) {
-      return this.currentUserSubject.value;
-    }
-
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
         const currentUser = {
           username: decodedToken.username,
-          role: decodedToken.role
+          role: decodedToken.role,
         };
-
-        const storedUser = localStorage.getItem('user');
-        const parsedUser = storedUser ? JSON.parse(storedUser) : {};
-        const fullUser = { ...parsedUser, ...currentUser };
-
-        this.setAuthenticatedUser(fullUser);
-        return fullUser;
+        this.setAuthenticatedUser(currentUser);
+        return currentUser;
       } catch (error) {
         console.error('Error al decodificar el token JWT:', error);
       }
     }
-
     return null;
   }
 
@@ -73,8 +67,23 @@ export class AuthService {
     );
   }
 
+  isTokenExpired(): boolean {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken: any = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      return decodedToken.exp < currentTime;
+    }
+    return true;
+  }
+
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.setAuthenticatedUser(null);
+
+    if (this.isTokenExpired()) {
+      this.logout();
+    }
   }
 }

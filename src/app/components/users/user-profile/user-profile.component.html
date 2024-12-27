@@ -82,10 +82,19 @@
       <!-- Información adicional -->
       <div class="space-y-4">
         <h2 class="text-xl font-medium text-gray-700">Información Adicional</h2>
+
+        <!-- DNI -->
         <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
           <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
           <span class="font-medium text-gray-700">DNI:</span>
           <span class="ml-auto text-gray-600">{{ profile.dni }}</span>
+        </div>
+
+        <!-- Fecha de Nacimiento -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-calendar text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Fecha de Nacimiento:</span>
+          <span class="ml-auto text-gray-600">{{ profile.birthdate }}</span>
         </div>
 
         <!-- Rol -->

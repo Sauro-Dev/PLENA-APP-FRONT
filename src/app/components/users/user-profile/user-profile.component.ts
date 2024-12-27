@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {UsersService } from "../users.service";
-import {Router, RouterLink} from "@angular/router";
+import {RouterLink} from "@angular/router";
+import {AuthService} from "../../auth/auth.service";
 
 @Component({
   selector: 'app-user-profile',
@@ -11,21 +12,24 @@ import {Router, RouterLink} from "@angular/router";
   styleUrls: ['./user-profile.component.css'],
 })
 export class UserProfileComponent implements OnInit {
-  profile: any; // Aquí se almacenarán los datos del perfil
-  isLoading: boolean = true; // Para controlar la carga
+  profile: any;
+  isLoading: boolean = true;
 
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
-  // Cargar perfil del usuario autenticado
   loadProfile(): void {
     this.isLoading = true;
     this.usersService.getMyProfile().subscribe({
       next: (data) => {
         this.profile = data;
+        this.authService.setAuthenticatedUser(data);
         this.isLoading = false;
       },
       error: (error) => {
