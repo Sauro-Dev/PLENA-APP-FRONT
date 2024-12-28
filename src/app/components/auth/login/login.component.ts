@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgOptimizedImage } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgOptimizedImage],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
@@ -25,10 +24,12 @@ export class LoginComponent {
   recoveryErrorMessage: string = '';
   showPassword: boolean = false;
   showNewPassword: boolean = false;
+  showNotificationModal: boolean = false;
+  notificationMessage: string = '';
+  notificationType: 'success' | 'error' = 'success';
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  // Alterna la visibilidad de la contraseña
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
@@ -68,12 +69,6 @@ export class LoginComponent {
   }
 
   recoverPassword() {
-    console.log('Datos enviados al servicio forgotPassword:', {
-      username: this.recoveryUsername,
-      dni: this.recoveryDNI,
-      newPassword: this.newPassword,
-    });
-
     const recoveryData = {
       username: this.recoveryUsername,
       dni: this.recoveryDNI,
@@ -83,14 +78,20 @@ export class LoginComponent {
     this.authService.forgotPassword(recoveryData).subscribe({
       next: () => {
         this.recoveryErrorMessage = '';
-        alert('Contraseña actualizada con éxito. Intenta iniciar sesión.');
+        this.showNotification(
+          'Contraseña actualizada con éxito. Intenta iniciar sesión.',
+          'success'
+        );
         this.showForgotPassword = false;
         this.failedAttempts = 0;
         this.resetRecoveryForm();
       },
       error: (error) => {
         console.error('Error en la recuperación de contraseña:', error);
-        this.recoveryErrorMessage = 'Datos inválidos. Verifique e intente de nuevo.';
+        this.showNotification(
+          'Datos inválidos. Verifique e intente de nuevo.',
+          'error'
+        );
       },
     });
   }
@@ -104,5 +105,15 @@ export class LoginComponent {
 
   toggleNewPasswordVisibility() {
     this.showNewPassword = !this.showNewPassword;
+  }
+
+  showNotification(message: string, type: 'success' | 'error') {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    this.showNotificationModal = true;
+  }
+
+  closeNotificationModal() {
+    this.showNotificationModal = false;
   }
 }
