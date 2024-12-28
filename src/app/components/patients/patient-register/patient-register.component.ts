@@ -9,6 +9,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
   ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { PatientsService } from '../patients.service';
@@ -42,44 +43,49 @@ export class PatientRegisterComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.patientForm = this.fb.group({
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(30),
+    this.patientForm = this.fb.group(
+      {
+        name: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(2),
+            Validators.maxLength(30),
+          ],
         ],
-      ],
-      paternalSurname: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(30),
+        paternalSurname: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(2),
+            Validators.maxLength(30),
+          ],
         ],
-      ],
-      maternalSurname: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(30),
+        maternalSurname: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(2),
+            Validators.maxLength(30),
+          ],
         ],
-      ],
-      dni: [
-        '',
-        [Validators.required, Validators.pattern('\\d{8}')],
-        [this.checkDuplicateDNI.bind(this)],
-      ],
-      birthdate: ['', [Validators.required, this.dateRangeValidator]],
-      age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
-      allergies: ['', [Validators.maxLength(255)]],
-      status: [true],
-      idPlan: [null, [Validators.required]],
-      tutors: this.fb.array([this.createTutor()]),
-      sessionDates: this.fb.array([]),
-    });
+        dni: [
+          '',
+          [Validators.required, Validators.pattern('\\d{8}')],
+          [this.checkDuplicateDNI.bind(this)],
+        ],
+        birthdate: ['', [Validators.required, this.dateRangeValidator]],
+        age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
+        allergies: ['', [Validators.maxLength(255)]],
+        status: [true],
+        idPlan: [null, [Validators.required]],
+        tutors: this.fb.array([this.createTutor()]),
+        sessionDates: this.fb.array([]),
+      },
+      {
+        validators: this.checkDuplicateDNIPatientAndTutor(), // Validador de coincidencia de DNI
+      }
+    );
 
     this.patientForm.get('idPlan')?.valueChanges.subscribe((value) => {
       this.updateDatePickers(value);
@@ -109,22 +115,33 @@ export class PatientRegisterComponent implements OnInit {
     return null;
   }
 
+  checkDuplicateDNIPatientAndTutor(): ValidatorFn {
+    return (form: AbstractControl): ValidationErrors | null => {
+      const patientDNI = form.get('dni')?.value;
+      const tutors = form.get('tutors') as FormArray;
+
+      const duplicate = tutors.controls.some((tutor) => {
+        return tutor.get('dni')?.value === patientDNI;
+      });
+
+      return duplicate ? { duplicateWithTutor: true } : null;
+    };
+  }
+
   checkDuplicateDNI(
     control: AbstractControl
   ): Promise<ValidationErrors | null> {
     const dni = control.value;
+    const tutors = this.patientForm.get('tutors')?.value || [];
 
     return new Promise((resolve) => {
       if (!dni) {
         resolve(null);
       } else {
-        this.patientService.checkPatientDNI(dni).subscribe(
+        this.patientService.checkPatientDNI(dni, tutors).subscribe(
           (isTaken) => {
-            if (isTaken) {
-              resolve({ duplicateWithDatabase: true });
-            } else {
-              resolve(null);
-            }
+            resolve(isTaken ? { duplicateWithDatabase: true } : null);
+            this.patientForm.updateValueAndValidity({ emitEvent: false });
           },
           (error) => {
             console.error('Error al validar el DNI:', error);

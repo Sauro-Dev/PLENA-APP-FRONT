@@ -79,12 +79,10 @@
       <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched">
         El DNI es obligatorio.
       </p>
-      <p class="mt-1 text-sm text-red-600"
-        *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor') && patientForm.get('dni')?.touched">
+      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor')">
         El DNI del paciente no puede coincidir con el de un tutor.
       </p>
-      <p class="mt-1 text-sm text-red-600"
-        *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase') && patientForm.get('dni')?.touched">
+      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase')">
         El DNI ya está registrado en el sistema.
       </p>
     </div>

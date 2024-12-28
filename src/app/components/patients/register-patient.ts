@@ -7,5 +7,5 @@ export interface RegisterPatient {
   age: number;
   allergies: string;
   idPlan: number;
-  tutors:[];
+  tutors: [];
 }

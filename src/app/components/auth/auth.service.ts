@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, catchError, Observable, tap} from 'rxjs';
 import { environment } from '../../enviroment';
+import {jwtDecode} from "jwt-decode";
 
 @Injectable({
   providedIn: 'root',
@@ -15,17 +16,65 @@ export class AuthService {
 
   login(username: string, password: string): Observable<any> {
     const loginRequest = { username, password };
-    return this.http.post<any>(this.apiUrl, loginRequest);
+    return this.http.post<any>(this.apiUrl, loginRequest).pipe(
+      tap(response => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('firstLogin', response.firstLogin);
+        }
+      })
+    );
   }
 
   setAuthenticatedUser(user: any): void {
     this.currentUserSubject.next(user);
-    // Opcional: guardar el usuario en localStorage si deseas persistencia en la sesión
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  // Método para obtener el usuario actualmente autenticado
   getAuthenticatedUser(): any {
-    return this.currentUserSubject.value || JSON.parse(localStorage.getItem('user') || 'null');
+    if (this.currentUserSubject.value) {
+      return this.currentUserSubject.value;
+    }
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        const currentUser = {
+          username: decodedToken.username,
+          role: decodedToken.role
+        };
+
+        const storedUser = localStorage.getItem('user');
+        const parsedUser = storedUser ? JSON.parse(storedUser) : {};
+        const fullUser = { ...parsedUser, ...currentUser };
+
+        this.setAuthenticatedUser(fullUser);
+        return fullUser;
+      } catch (error) {
+        console.error('Error al decodificar el token JWT:', error);
+      }
+    }
+
+    return null;
+  }
+
+  forgotPassword(data: { username: string; dni: string; newPassword: string }): Observable<void> {
+    const url = `${environment.apiUrl}/users/forgot-password`;
+
+    console.log('Realizando llamada HTTP al servidor:', data);
+
+    return this.http.post<void>(url, data).pipe(
+      tap(() => console.log('Solicitud enviada exitosamente al backend')),
+      catchError((error) => {
+        console.error('Error en forgotPassword:', error);
+        throw error;
+      })
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    this.setAuthenticatedUser(null);
   }
 }

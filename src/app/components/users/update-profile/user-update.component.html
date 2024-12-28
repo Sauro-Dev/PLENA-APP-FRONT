@@ -1,194 +1,343 @@
 <section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
   <div class="bg-white shadow-lg rounded-lg p-6 w-full">
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Actualizar Perfil</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Actualizar Perfil</h1>
 
-    <!-- Cargando -->
+    <!-- Indicador de carga -->
     <div *ngIf="isLoading" class="text-center text-gray-500">
       Cargando...
     </div>
 
     <!-- Formulario de actualización -->
-    <form *ngIf="!isLoading" (ngSubmit)="saveProfile()" class="space-y-6">
+    <form *ngIf="!isLoading" (ngSubmit)="saveProfile()" #profileForm="ngForm" class="space-y-6">
 
       <!-- Nombre de Usuario -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
-        <input
-          type="text"
-          [(ngModel)]="profile.username"
-          name="username"
-          class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-        />
+        <label class="block text-lg font-medium text-gray-700">Nombre de Usuario *</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            type="text"
+            [(ngModel)]="profile.username"
+            name="username"
+            required
+            minlength="3"
+            maxlength="20"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="Nombre de Usuario"
+          />
+          <i class="ti ti-user text-2xl px-3 text-gray-500"></i>
+        </div>
+        <div *ngIf="profileForm.controls['username']?.invalid && profileForm.controls['username']?.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="profileForm.controls['username']?.errors?.['required']">El nombre de usuario es obligatorio.</div>
+          <div *ngIf="profileForm.controls['username']?.errors?.['minlength']">Mínimo 3 caracteres permitidos.</div>
+          <div *ngIf="profileForm.controls['username']?.errors?.['maxlength']">Máximo 20 caracteres permitidos.</div>
+        </div>
       </div>
 
       <!-- Nombre -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Nombre</label>
-        <input
-          type="text"
-          [(ngModel)]="profile.name"
-          name="name"
-          class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-        />
+        <label class="block text-lg font-medium text-gray-700">Nombre *</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            type="text"
+            [(ngModel)]="profile.name"
+            name="name"
+            required
+            maxlength="100"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="Nombre"
+          />
+          <i class="ti ti-id text-2xl px-3 text-gray-500"></i>
+        </div>
+        <div *ngIf="profileForm.controls['name']?.invalid && profileForm.controls['name']?.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="profileForm.controls['name']?.errors?.['required']">El nombre es obligatorio.</div>
+          <div *ngIf="profileForm.controls['name']?.errors?.['maxlength']">Máximo 100 caracteres permitidos.</div>
+        </div>
       </div>
 
       <!-- Apellidos -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
-          <input
-            type="text"
-            [(ngModel)]="profile.paternalSurname"
-            name="paternalSurname"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
+          <label class="block text-lg font-medium text-gray-700">Apellido Paterno *</label>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              type="text"
+              [(ngModel)]="profile.paternalSurname"
+              name="paternalSurname"
+              required
+              maxlength="100"
+              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+              placeholder="Apellido Paterno"
+            />
+            <i class="ti ti-id-badge text-2xl px-3 text-gray-500"></i>
+          </div>
+          <div *ngIf="profileForm.controls['paternalSurname']?.invalid && profileForm.controls['paternalSurname']?.touched" class="text-red-500 text-sm mt-1">
+            Obligatorio (máximo 100 caracteres).
+          </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700">Apellido Materno</label>
-          <input
-            type="text"
-            [(ngModel)]="profile.maternalSurname"
-            name="maternalSurname"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
+          <label class="block text-lg font-medium text-gray-700">Apellido Materno *</label>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              type="text"
+              [(ngModel)]="profile.maternalSurname"
+              name="maternalSurname"
+              required
+              maxlength="100"
+              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+              placeholder="Apellido Materno"
+            />
+            <i class="ti ti-id-badge text-2xl px-3 text-gray-500"></i>
+          </div>
+          <div *ngIf="profileForm.controls['maternalSurname']?.invalid && profileForm.controls['maternalSurname']?.touched" class="text-red-500 text-sm mt-1">
+            Obligatorio (máximo 100 caracteres).
+          </div>
         </div>
       </div>
 
-      <!-- DNI y Correo -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">DNI</label>
+      <!-- DNI -->
+      <div>
+        <label class="block text-lg font-medium text-gray-700">DNI *</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
           <input
             type="text"
             [(ngModel)]="profile.dni"
             name="dni"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            required
+            pattern="\d{8}"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="DNI"
           />
+          <i class="ti ti-id text-2xl px-3 text-gray-500"></i>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-          <input
-            type="email"
-            [(ngModel)]="profile.email"
-            name="email"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
+        <div *ngIf="profileForm.controls['dni']?.invalid && profileForm.controls['dni']?.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="profileForm.controls['dni']?.errors?.['required']">El DNI es obligatorio.</div>
+          <div *ngIf="profileForm.controls['dni']?.errors?.['pattern']">Debe contener exactamente 8 números.</div>
         </div>
       </div>
 
-      <!-- Teléfonos -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+      <!-- Teléfono -->
+      <div>
+        <label class="block text-lg font-medium text-gray-700">Teléfono *</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
           <input
             type="text"
             [(ngModel)]="profile.phone"
             name="phone"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            required
+            maxlength="9"
+            pattern="\d{9}"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="Teléfono"
           />
+          <i class="ti ti-phone text-2xl px-3 text-gray-500"></i>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Teléfono de Respaldo</label>
-          <input
-            type="text"
-            [(ngModel)]="profile.phoneBackup"
-            name="phoneBackup"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
+        <div *ngIf="profileForm.controls['phone']?.invalid && profileForm.controls['phone']?.touched" class="text-red-500 text-sm mt-1">
+          Debe ser un número válido de 9 dígitos.
         </div>
       </div>
 
       <!-- Dirección -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Dirección</label>
+        <label class="block text-lg font-medium text-gray-700">Dirección</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            type="text"
+            [(ngModel)]="profile.address"
+            name="address"
+            maxlength="100"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="Dirección"
+          />
+          <i class="ti ti-map-pin text-2xl px-3 text-gray-500"></i>
+        </div>
+        <div *ngIf="profileForm.controls['address']?.invalid && profileForm.controls['address']?.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="profileForm.controls['address']?.errors?.['maxlength']">Máximo 100 caracteres permitidos.</div>
+        </div>
+      </div>
+
+      <!-- Teléfono de respaldo -->
+      <div>
+        <label class="block text-lg font-medium text-gray-700">Teléfono de Respaldo</label>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            type="text"
+            [(ngModel)]="profile.phoneBackup"
+            name="phoneBackup"
+            maxlength="9"
+            pattern="\d{9}"
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            placeholder="Teléfono Secundario"
+          />
+          <i class="ti ti-phone-plus text-2xl px-3 text-gray-500"></i>
+        </div>
+        <div *ngIf="profileForm.controls['phoneBackup']?.invalid && profileForm.controls['phoneBackup']?.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="profileForm.controls['phoneBackup']?.errors?.['pattern']">Debe contener exactamente 9 dígitos.</div>
+        </div>
+      </div>
+
+      <!-- Rol (Solo lectura) -->
+      <div>
+        <label class="block text-lg font-medium text-gray-700">Rol</label>
         <input
           type="text"
-          [(ngModel)]="profile.address"
-          name="address"
-          class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          [(ngModel)]="profile.role"
+          name="role"
+          readonly
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg focus:outline-none"
         />
       </div>
 
-      <!-- Contraseña Actual -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Contraseña Actual</label>
-        <div class="relative">
-          <input
-            [type]="showCurrentPassword ? 'text' : 'password'"
-            [(ngModel)]="currentPassword"
-            name="currentPassword"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Ingrese su contraseña actual"
-          />
-          <button
-            type="button"
-            (click)="showCurrentPassword = !showCurrentPassword"
-            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-          >
-            <i [class]="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-          </button>
-        </div>
-      </div>
 
-      <!-- Nueva Contraseña -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Nueva Contraseña</label>
-        <div class="relative">
-          <input
-            [type]="showNewPassword ? 'text' : 'password'"
-            [(ngModel)]="newPassword"
-            name="newPassword"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Ingrese la nueva contraseña"
-          />
-          <button
-            type="button"
-            (click)="showNewPassword = !showNewPassword"
-            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-          >
-            <i [class]="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Confirmar Nueva Contraseña -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Confirmar Nueva Contraseña</label>
-        <div class="relative">
-          <input
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            [(ngModel)]="confirmNewPassword"
-            name="confirmNewPassword"
-            class="mt-1 block w-full px-4 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Confirme la nueva contraseña"
-          />
-          <button
-            type="button"
-            (click)="showConfirmPassword = !showConfirmPassword"
-            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-          >
-            <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Botones -->
-      <div class="flex flex-col md:flex-row gap-4 justify-between mt-6">
+      <!-- Botones finales de acción -->
+      <div class="flex justify-end gap-4 mt-8">
+        <!-- Botón para actualizar perfil -->
         <button
           type="submit"
-          class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition w-full md:w-auto"
-          [disabled]="isSaving"
-        >
+          class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition"
+          [disabled]="profileForm.invalid || isSaving">
           Guardar Cambios
         </button>
+
+        <!-- Botón para abrir el modal de modificar contraseña -->
         <button
           type="button"
-          class="bg-red-500 text-white px-5 py-2 rounded-lg shadow hover:bg-red-600 transition w-full md:w-auto"
-          (click)="cancelUpdate()"
-        >
+          (click)="openPasswordModal()"
+          class="bg-gray-700 text-white px-6 py-3 rounded-lg shadow hover:bg-gray-800 transition">
+          Modificar Contraseña
+        </button>
+
+        <!-- Botón de cancelar cambios -->
+        <button
+          type="button"
+          class="bg-red-500 text-white px-6 py-3 rounded-lg shadow hover:bg-red-600 transition"
+          (click)="cancelUpdate()">
           Cancelar
         </button>
+      </div>
+
+
+      <!-- Modal de Cambio de Contraseña -->
+      <div *ngIf="isPasswordModalOpen" class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md">
+          <!-- Título -->
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Modificar Contraseña</h2>
+
+          <!-- Formulario de Contraseña -->
+          <form>
+            <!-- Contraseña Actual -->
+            <div class="mb-4">
+              <label for="current-password" class="block text-lg font-medium text-gray-700 mb-1">Contraseña Actual</label>
+              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+                <input
+                  type="{{ showCurrentPassword ? 'text' : 'password' }}"
+                  id="current-password"
+                  [(ngModel)]="currentPassword"
+                  name="currentPassword"
+                  required
+                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+                  placeholder="Introduce tu contraseña actual"
+                />
+                <button
+                  type="button"
+                  (click)="showCurrentPassword = !showCurrentPassword"
+                  class="text-gray-500 px-3 focus:outline-none"
+                >
+                  <i [class]="showCurrentPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"></i>
+                </button>
+              </div>
+              <!-- Error de validación -->
+              <div *ngIf="!currentPassword && isPasswordTouched" class="text-red-500 text-sm mt-1">
+                La contraseña actual es obligatoria.
+              </div>
+            </div>
+
+            <!-- Nueva Contraseña -->
+            <div class="mb-4">
+              <label for="new-password" class="block text-lg font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+                <input
+                  type="{{ showNewPassword ? 'text' : 'password' }}"
+                  id="new-password"
+                  [(ngModel)]="newPassword"
+                  name="newPassword"
+                  minlength="4"
+                  required
+                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+                  placeholder="Introduce una nueva contraseña"
+                />
+                <button
+                  type="button"
+                  (click)="showNewPassword = !showNewPassword"
+                  class="text-gray-500 px-3 focus:outline-none"
+                >
+                  <i [class]="showNewPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"></i>
+                </button>
+              </div>
+              <!-- Error de validación -->
+              <div *ngIf="newPassword && newPassword.length < 4" class="text-red-500 text-sm mt-1">
+                La nueva contraseña debe tener al menos 4 caracteres.
+              </div>
+            </div>
+
+            <!-- Confirmación de Nueva Contraseña -->
+            <div class="mb-6">
+              <label for="confirm-password" class="block text-lg font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
+              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+                <input
+                  type="{{ showConfirmPassword ? 'text' : 'password' }}"
+                  id="confirm-password"
+                  [(ngModel)]="confirmNewPassword"
+                  name="confirmNewPassword"
+                  minlength="4"
+                  required
+                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+                  placeholder="Confirma tu nueva contraseña"
+                />
+                <button
+                  type="button"
+                  (click)="showConfirmPassword = !showConfirmPassword"
+                  class="text-gray-500 px-3 focus:outline-none"
+                >
+                  <i [class]="showConfirmPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl'"></i>
+                </button>
+              </div>
+              <!-- Error de validación -->
+              <div *ngIf="newPassword !== confirmNewPassword && confirmNewPassword" class="text-red-500 text-sm mt-1">
+                Las contraseñas no coinciden.
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex justify-end gap-2">
+              <button
+                type="button"
+                (click)="closePasswordModal()"
+                class="px-6 py-2 border border-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg shadow transition">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                (click)="updatePassword()"
+                class="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow transition">
+                Cambiar Contraseña
+              </button>
+            </div>
+
+            <!-- Pequeña modal para alertas -->
+            <div
+              *ngIf="isAlertVisible"
+              [ngClass]="{
+    'bg-green-100 border-green-400 text-green-700': alertType === 'success',
+    'bg-red-100 border-red-400 text-red-700': alertType === 'error'
+  }"
+              class="fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-xl border-l-4"
+            >
+              <p class="text-sm">{{ alertMessage }}</p>
+            </div>
+          </form>
+        </div>
       </div>
     </form>
   </div>
 </section>
+

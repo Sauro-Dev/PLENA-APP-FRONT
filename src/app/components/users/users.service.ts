@@ -39,6 +39,12 @@ export class UsersService {
     return this.http.get<any>(`${this.apiUrl}/select/${userId}`, { headers });
   }
 
+  updateUserDetails(userId: number, userDetails: any): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<void>(`${this.apiUrl}/update/${userId}`, userDetails, { headers });
+  }
+
   // Método para verificar si el usuario está logeado
   isLoggedIn(): boolean {
     const token = this.getToken(); // Verifica si existe un token
@@ -62,7 +68,7 @@ export class UsersService {
   }
 
   getMyProfile(): Observable<any> {
-    const token = this.getToken(); // Obtiene el token del usuario
+    const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(`${this.apiUrl}/me`, { headers });
   }
@@ -71,5 +77,18 @@ export class UsersService {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.put<any>(`${this.apiUrl}/me`, profile, { headers });
+  }
+
+  updateAdminCredentials(credentials: { username: string; newPassword: string }): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<void>(`${this.apiUrl}/update-credentials`, credentials, { headers });
+  }
+
+  updatePassword(credentials: { currentPassword: string; newPassword: string }): Observable<void> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put<void>(`${this.apiUrl}/update-password`, credentials, { headers });
   }
 }
