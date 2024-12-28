@@ -49,8 +49,6 @@ export class AuthService {
   forgotPassword(data: { username: string; dni: string; newPassword: string }): Observable<void> {
     const url = `${environment.apiUrl}/users/forgot-password`;
 
-    console.log('Realizando llamada HTTP al servidor:', data);
-
     return this.http.post<void>(url, data).pipe(
       tap(() => console.log('Solicitud enviada exitosamente al backend')),
       catchError((error) => {
