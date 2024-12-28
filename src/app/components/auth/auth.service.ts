@@ -10,8 +10,6 @@ import {jwtDecode} from "jwt-decode";
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/users/login`;
   private currentUserSubject = new BehaviorSubject<any>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
@@ -25,11 +23,6 @@ export class AuthService {
       })
     );
   }
-
-  setToken(token: string): void {
-    localStorage.setItem('token', token);
-  }
-
   setAuthenticatedUser(user: any): void {
     this.currentUserSubject.next(user);
     localStorage.setItem('user', JSON.stringify(user));
@@ -66,24 +59,9 @@ export class AuthService {
       })
     );
   }
-
-  isTokenExpired(): boolean {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken: any = jwtDecode(token);
-      const currentTime = Math.floor(Date.now() / 1000);
-      return decodedToken.exp < currentTime;
-    }
-    return true;
-  }
-
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.setAuthenticatedUser(null);
-
-    if (this.isTokenExpired()) {
-      this.logout();
-    }
   }
 }

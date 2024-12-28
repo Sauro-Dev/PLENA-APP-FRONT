@@ -206,202 +206,68 @@
       </div>
 
 
-      <!-- Botones finales de acción -->
+      <!-- Botones finales -->
       <div class="flex justify-end gap-4 mt-8">
-        <!-- Botón para actualizar perfil -->
         <button
           type="submit"
           class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition"
           [disabled]="profileForm.invalid || isSaving">
           Guardar Cambios
         </button>
-
-        <!-- Botón para abrir el modal de modificar contraseña -->
-        <button
-          type="button"
-          (click)="openPasswordModal()"
-          class="bg-gray-700 text-white px-6 py-3 rounded-lg shadow hover:bg-gray-800 transition">
-          Modificar Contraseña
-        </button>
-
-        <!-- Botón de cancelar cambios -->
         <button
           type="button"
           class="bg-red-500 text-white px-6 py-3 rounded-lg shadow hover:bg-red-600 transition"
-          (click)="cancelUpdate()">
+          (click)="cancelUpdate()"
+        >
           Cancelar
         </button>
       </div>
-
-
-      <!-- Modal de Cambio de Contraseña -->
-      <div *ngIf="isPasswordModalOpen" class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md">
-          <!-- Título -->
-          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Modificar Contraseña</h2>
-
-          <!-- Formulario de Contraseña -->
-          <form>
-            <!-- Contraseña Actual -->
-            <div class="mb-4">
-              <label for="current-password" class="block text-lg font-medium text-gray-700 mb-1">Contraseña Actual</label>
-              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-                <input
-                  [type]="showPasswordField['currentPassword'] ? 'text' : 'password'"
-                  id="current-password"
-                  [(ngModel)]="currentPassword"
-                  name="currentPassword"
-                  required
-                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
-                  placeholder="Introduce tu contraseña actual"
-                />
-                <button
-                  type="button"
-                  (click)="togglePasswordVisibility('currentPassword')"
-                  class="text-gray-500 px-3 focus:outline-none"
-                >
-                  <i
-                    [class]="
-          showPasswordField['currentPassword']
-            ? 'ti ti-eye-off text-2xl'
-            : 'ti ti-eye text-2xl'
-        "
-                  ></i>
-                </button>
-              </div>
-              <!-- Error de validación -->
-              <div *ngIf="!currentPassword && isPasswordTouched" class="text-red-500 text-sm mt-1">
-                La contraseña actual es obligatoria.
-              </div>
-            </div>
-
-            <!-- Nueva Contraseña -->
-            <div class="mb-4">
-              <label for="new-password" class="block text-lg font-medium text-gray-700 mb-1">Nueva Contraseña</label>
-              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-                <input
-                  [type]="showPasswordField['newPassword'] ? 'text' : 'password'"
-                  id="new-password"
-                  [(ngModel)]="newPassword"
-                  name="newPassword"
-                  minlength="4"
-                  required
-                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
-                  placeholder="Introduce una nueva contraseña"
-                />
-                <button
-                  type="button"
-                  (click)="togglePasswordVisibility('newPassword')"
-                  class="text-gray-500 px-3 focus:outline-none"
-                >
-                  <i
-                    [class]="
-          showPasswordField['newPassword']
-            ? 'ti ti-eye-off text-2xl'
-            : 'ti ti-eye text-2xl'
-        "
-                  ></i>
-                </button>
-              </div>
-              <!-- Error de validación -->
-              <div *ngIf="newPassword && newPassword.length < 4" class="text-red-500 text-sm mt-1">
-                La nueva contraseña debe tener al menos 4 caracteres.
-              </div>
-            </div>
-
-            <!-- Confirmación de Nueva Contraseña -->
-            <div class="mb-6">
-              <label for="confirm-password" class="block text-lg font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
-              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-                <input
-                  [type]="showPasswordField['confirmNewPassword'] ? 'text' : 'password'"
-                  id="confirm-password"
-                  [(ngModel)]="confirmNewPassword"
-                  name="confirmNewPassword"
-                  minlength="4"
-                  required
-                  class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
-                  placeholder="Confirma tu nueva contraseña"
-                />
-                <button
-                  type="button"
-                  (click)="togglePasswordVisibility('confirmNewPassword')"
-                  class="text-gray-500 px-3 focus:outline-none"
-                >
-                  <i
-                    [class]="
-          showPasswordField['confirmNewPassword']
-            ? 'ti ti-eye-off text-2xl'
-            : 'ti ti-eye text-2xl'
-        "
-                  ></i>
-                </button>
-              </div>
-              <!-- Error de validación -->
-              <div *ngIf="newPassword !== confirmNewPassword && confirmNewPassword" class="text-red-500 text-sm mt-1">
-                Las contraseñas no coinciden.
-              </div>
-            </div>
-
-            <!-- Botones de acción -->
-            <div class="flex justify-end gap-2">
-              <button
-                type="button"
-                (click)="closePasswordModal()"
-                class="px-6 py-2 border border-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg shadow transition">
-                Cancelar
-              </button>
-              <button
-                type="button"
-                (click)="updatePassword()"
-                class="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow transition">
-                Cambiar Contraseña
-              </button>
-            </div>
-
-            <!-- Modal para re-logeo -->
-            <div *ngIf="isReloginModalOpen" class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md">
-                <!-- Título -->
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Inicia Sesión de Nuevo</h2>
-
-                <!-- Contenido -->
-                <p class="text-center text-gray-600 mb-6">
-                  Tu contraseña ha sido actualizada correctamente. Por seguridad, inicia sesión nuevamente.
-                </p>
-
-                <!-- Botones -->
-                <div class="flex justify-center gap-4">
-                  <button
-                    (click)="redirectToLogin()"
-                    class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition">
-                    Ir al Inicio de Sesión
-                  </button>
-                  <button
-                    (click)="closeReloginModal()"
-                    class="bg-gray-600 text-white px-6 py-3 rounded-lg shadow hover:bg-gray-700 transition">
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Pequeña modal para alertas -->
-            <div
-              *ngIf="isAlertVisible"
-              class="fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-xl border-l-4"
-              [class.bg-green-100]="alertType === 'success'"
-              [class.border-green-400]="alertType === 'success'"
-              [class.text-green-700]="alertType === 'success'"
-              [class.bg-red-100]="alertType === 'error'"
-              [class.border-red-400]="alertType === 'error'"
-              [class.text-red-700]="alertType === 'error'">
-              <p class="text-sm">{{ alertMessage }}</p>
-            </div>
-          </form>
-        </div>
-      </div>
     </form>
+  </div>
+
+  <!-- Modal informativo tras actualización -->
+  <div *ngIf="isReauthModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+      <h2 class="text-xl font-bold text-center mb-4">Actualización Exitosa</h2>
+      <p class="text-gray-600 text-center mb-6">
+        Tu perfil ha sido actualizado con éxito. Por seguridad, debes iniciar sesión nuevamente para continuar.
+      </p>
+      <div class="flex justify-center">
+        <button
+          type="button"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          (click)="navigateToLogin()">
+          Ir al inicio de sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación para cancelar cambios -->
+  <div
+    *ngIf="isCancelModalOpen"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+  >
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+      <h2 class="text-xl font-bold text-center mb-4">Cancelar Cambios</h2>
+      <p class="text-gray-600 text-center mb-6">
+        ¿Estás seguro de que deseas cancelar los cambios? Serás redirigido a tu perfil y los cambios no se guardarán.
+      </p>
+      <div class="flex justify-between gap-4">
+        <button
+          (click)="confirmCancel()"
+          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition w-full"
+        >
+          Sí, cancelar
+        </button>
+        <button
+          (click)="closeCancelModal()"
+          class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-full"
+        >
+          No, volver
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
