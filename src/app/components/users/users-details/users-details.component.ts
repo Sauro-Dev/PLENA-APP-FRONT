@@ -17,6 +17,10 @@ export class UsersDetailsComponent implements OnInit {
   user: any;
   editableUser: any = {};
   showEditModal = false;
+  showNotificationModal = false;
+  notificationMessage = '';
+  notificationType: 'success' | 'error' = 'success';
+  showCancelModal = false;
   isLoading: boolean = false;
   maxBirthdate: string = '';
 
@@ -55,7 +59,20 @@ export class UsersDetailsComponent implements OnInit {
   }
 
   closeEditModal(): void {
+    if (JSON.stringify(this.user) !== JSON.stringify(this.editableUser)) {
+      this.showCancelModal = true;
+    } else {
+      this.showEditModal = false;
+    }
+  }
+
+  confirmCancelEdit(): void {
     this.showEditModal = false;
+    this.showCancelModal = false;
+  }
+
+  cancelCancelEdit(): void {
+    this.showCancelModal = false;
   }
 
   saveUserDetails(): void {
@@ -64,15 +81,46 @@ export class UsersDetailsComponent implements OnInit {
       () => {
         this.user = { ...this.editableUser };
         this.showEditModal = false;
+        this.showNotification('Información actualizada correctamente', 'success');
+
+        const authenticatedUser = this.authService.getAuthenticatedUser();
+        if (authenticatedUser && authenticatedUser.username === this.user.username) {
+          this.requestReauthentication();
+        }
+
         this.isLoading = false;
-        alert('Información actualizada correctamente');
+
       },
       (error) => {
         console.error('Error al actualizar la información', error);
+        this.showNotification('Error al actualizar la información', 'error');
         this.isLoading = false;
-        alert('Error al actualizar la información');
       }
     );
+  }
+
+  requestReauthentication(): void {
+    this.showNotification(
+      'Se han actualizado tus datos. Por favor, inicia sesión nuevamente por seguridad.',
+      'success'
+    );
+
+    setTimeout(() => {
+      this.authService.logout();
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }, 3000);
+  }
+
+  showNotification(message: string, type: 'success' | 'error'): void {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    this.showNotificationModal = true;
+  }
+
+  closeNotificationModal(): void {
+    if (this.showNotificationModal) {
+      this.showNotificationModal = false;
+    }
   }
 
   isAdmin(): boolean {

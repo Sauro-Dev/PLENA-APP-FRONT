@@ -4,7 +4,7 @@
   <div class="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md md:max-w-lg lg:max-w-sm mx-4 md:mx-0">
     <!-- Logo y título -->
     <div class="flex flex-col items-center gap-y-4 mb-10">
-      <img ngSrc="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority />
+      <img src="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority />
       <h1 class="text-3xl font-thin text-gray-800">PLENA-Mente</h1>
     </div>
 
@@ -183,5 +183,33 @@
         </button>
       </div>
     </form>
+  </div>
+
+  <div
+    *ngIf="showNotificationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md text-center"
+      [class.text-green-600]="notificationType === 'success'"
+      [class.text-red-600]="notificationType === 'error'"
+    >
+      <!-- Ícono dependiendo del tipo de notificación -->
+      <i
+        class="text-4xl"
+        [class.ti-circle-check]="notificationType === 'success'"
+        [class.ti-alert-triangle]="notificationType === 'error'"
+      ></i>
+
+      <!-- Mensaje -->
+      <p class="text-gray-800 text-xl mt-4">{{ notificationMessage }}</p>
+      <!-- Botón para cerrar -->
+      <button
+        (click)="closeNotificationModal()"
+        class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Cerrar
+      </button>
+    </div>
   </div>
 </section>

@@ -45,13 +45,11 @@ export class UsersService {
     return this.http.put<void>(`${this.apiUrl}/update/${userId}`, userDetails, { headers });
   }
 
-  // Método para verificar si el usuario está logeado
   isLoggedIn(): boolean {
-    const token = this.getToken(); // Verifica si existe un token
-    return !!token; // Devuelve true si el token existe, de lo contrario false
+    const token = this.getToken();
+    return !!token;
   }
 
-  // Método para cerrar sesión
   logout(): void {
     localStorage.removeItem('token');
   }
@@ -61,6 +59,12 @@ export class UsersService {
       return localStorage.getItem('token');
     }
     return null;
+  }
+
+  private setToken(token: string): void {
+    if (this.isBrowser()) {
+      localStorage.setItem('token', token);
+    }
   }
 
   private isBrowser(): boolean {
@@ -76,6 +80,7 @@ export class UsersService {
   updateProfile(profile: any): Observable<any> {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
     return this.http.put<any>(`${this.apiUrl}/me`, profile, { headers });
   }
 

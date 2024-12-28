@@ -98,7 +98,7 @@
         <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
           <i class="ti ti-calendar text-2xl text-gray-500 mr-3"></i>
           <span class="font-medium text-gray-700">Fecha de Nacimiento:</span>
-          <span class="ml-auto text-gray-600">{{ user?.birthdate | date:'dd/MM/yyyy' }}</span>
+          <span class="ml-auto text-gray-600">{{ user?.birthdate }}</span>
       </div>
      </div>
     </div>
@@ -335,5 +335,64 @@
         </button>
       </div>
     </form>
+    <div
+      *ngIf="showNotificationModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="alert"
+      aria-live="assertive"
+      aria-label="Notificación de estado"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md text-center"
+        [class.text-green-600]="notificationType === 'success'"
+        [class.text-red-600]="notificationType === 'error'"
+      >
+        <i
+          class="text-4xl"
+          [class.ti-circle-check]="notificationType === 'success'"
+          [class.ti-alert-triangle]="notificationType === 'error'"
+        ></i>
+        <p class="text-gray-800 text-xl mt-4">
+          {{ notificationMessage }}
+        </p>
+        <button
+          (click)="closeNotificationModal()"
+          class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+
+    <div
+      *ngIf="showCancelModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-labelledby="cancelModalLabel"
+      aria-describedby="cancelModalDesc"
+    >
+      <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md text-center">
+        <i class="ti ti-alert-triangle text-red-600 text-4xl"></i>
+        <p id="cancelModalDesc" class="text-gray-800 text-xl mt-4">
+          Se perderán sus cambios, ¿desea continuar?
+        </p>
+        <div class="mt-6 flex justify-center gap-4">
+          <button
+            (click)="confirmCancelEdit()"
+            class="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+            aria-label="Confirmar cancelación"
+          >
+            Sí, continuar
+          </button>
+          <button
+            (click)="cancelCancelEdit()"
+            class="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
+            aria-label="Cancelar acción"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

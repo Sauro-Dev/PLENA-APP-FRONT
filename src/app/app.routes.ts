@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './components/auth/auth.guard';
-import { roleGuard } from './components/roleGuards/role-guard.guard';
+import { roleGuard } from './components/auth/role-guard.guard';
 
 export const routes: Routes = [
   {
@@ -76,7 +76,8 @@ export const routes: Routes = [
       import('./components/users/update-profile/user-update.component').then(
         (m) => m.UserUpdateComponent
       ),
-    data: { breadcrumb: ' Actualizar mi Perfil' },
+      canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: ' Actualizar mi Perfil', roles: ['secretary', 'therapist', 'admin'] },
 
   }
 ];

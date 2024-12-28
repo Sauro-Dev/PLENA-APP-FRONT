@@ -10,8 +10,6 @@ import {jwtDecode} from "jwt-decode";
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/users/login`;
   private currentUserSubject = new BehaviorSubject<any>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
@@ -25,44 +23,31 @@ export class AuthService {
       })
     );
   }
-
   setAuthenticatedUser(user: any): void {
     this.currentUserSubject.next(user);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
   getAuthenticatedUser(): any {
-    if (this.currentUserSubject.value) {
-      return this.currentUserSubject.value;
-    }
-
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
         const currentUser = {
           username: decodedToken.username,
-          role: decodedToken.role
+          role: decodedToken.role,
         };
-
-        const storedUser = localStorage.getItem('user');
-        const parsedUser = storedUser ? JSON.parse(storedUser) : {};
-        const fullUser = { ...parsedUser, ...currentUser };
-
-        this.setAuthenticatedUser(fullUser);
-        return fullUser;
+        this.setAuthenticatedUser(currentUser);
+        return currentUser;
       } catch (error) {
         console.error('Error al decodificar el token JWT:', error);
       }
     }
-
     return null;
   }
 
   forgotPassword(data: { username: string; dni: string; newPassword: string }): Observable<void> {
     const url = `${environment.apiUrl}/users/forgot-password`;
-
-    console.log('Realizando llamada HTTP al servidor:', data);
 
     return this.http.post<void>(url, data).pipe(
       tap(() => console.log('Solicitud enviada exitosamente al backend')),
@@ -72,9 +57,9 @@ export class AuthService {
       })
     );
   }
-
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.setAuthenticatedUser(null);
   }
 }
