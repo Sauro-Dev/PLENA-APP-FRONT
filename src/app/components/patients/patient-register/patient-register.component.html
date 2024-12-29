@@ -76,23 +76,26 @@
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
         formControlName="dni" placeholder="DNI" maxlength="8" (keypress)="limitInputLength($event, 8)"
         [ngClass]="{'border-red-500': patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched}" />
-      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="patientForm.get('dni')?.hasError('required') && patientForm.get('dni')?.touched">
         El DNI es obligatorio.
       </p>
-      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor')">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor') && patientForm.get('dni')?.touched">
         El DNI del paciente no puede coincidir con el de un tutor.
       </p>
-      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase')">
+      <p class="mt-1 text-sm text-red-600"
+        *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase') && patientForm.get('dni')?.touched">
         El DNI ya está registrado en el sistema.
       </p>
     </div>
 
-    <!-- Alergias -->
+    <!-- Presunción Diagnotisca -->
     <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Alergias</label>
+      <label class="block text-lg font-medium text-gray-700">Presunción Diagnotisca</label>
       <textarea
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-        formControlName="allergies" placeholder="Alergias" rows="3"></textarea>
+        formControlName="presumptiveDiagnosis" placeholder="Presunción Diagnotisca" rows="3"></textarea>
     </div>
 
     <!-- Plan -->
@@ -199,12 +202,12 @@
             El teléfono del tutor debe contener exactamente 9 dígitos.
           </p>
         </div>
-        <button type="button" (click)="removeTutor(i)" [disabled]="tutors.length === 1"
+        <button type="button" (click)="removeTutor(i)" *ngIf="tutors.length > 1"
           class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-500 transition">
           Eliminar Tutor
         </button>
       </div>
-      <button type="button" (click)="addTutor()"
+      <button *ngIf="tutors.length < 2" type="button" (click)="addTutor()"
         class="bg-blue-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
         Añadir Tutor
       </button>
@@ -212,7 +215,7 @@
 
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10">
-      <button type="submit" (click)="openRegisterModal()" class="px-5 py-2 rounded-lg text-xl" [ngClass]="{
+      <button type="button" (click)="onSubmit()" class="px-5 py-2 rounded-lg text-xl" [ngClass]="{
         'bg-blue-800 hover:bg-blue-700 text-white': patientForm.valid,
         'bg-gray-500 text-gray-300 cursor-not-allowed': patientForm.invalid
       }" [disabled]="patientForm.invalid">
@@ -224,17 +227,19 @@
       </button>
     </div>
 
-    <!-- Modal de Confirmación de Registro -->
+    <!-- Modal de Confirmación -->
     <div *ngIf="showRegisterModal"
       class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h3 class="text-xl font-bold text-blue-800 mb-4">Confirmar Registro</h3>
         <p class="text-gray-700 mb-6">¿Estás seguro de que deseas registrar este paciente?</p>
         <div class="flex justify-end space-x-4">
-          <button (click)="confirmRegister()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sí,
-            Registrar</button>
-          <button (click)="closeRegisterModal()"
-            class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancelar</button>
+          <button (click)="confirmRegister()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Sí, Registrar
+          </button>
+          <button (click)="closeRegisterModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
+            Cancelar
+          </button>
         </div>
       </div>
     </div>

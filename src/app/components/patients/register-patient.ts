@@ -1,3 +1,5 @@
+import { Tutor } from './tutor';
+
 export interface RegisterPatient {
   name: string;
   paternalSurname: string;
@@ -5,7 +7,7 @@ export interface RegisterPatient {
   dni: string;
   birthDate: Date;
   age: number;
-  allergies: string;
+  presumptiveDiagnosis: string;
   idPlan: number;
-  tutors: [];
+  tutors: Tutor[];
 }

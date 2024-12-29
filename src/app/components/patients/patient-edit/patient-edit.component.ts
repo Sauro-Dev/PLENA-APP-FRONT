@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientsService } from '../patients.service';
-import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RegisterPatient } from '../register-patient';
+import { CommonModule } from '@angular/common';
+import { Tutor } from '../tutor';
 
 @Component({
   selector: 'app-patient-edit',
   standalone: true,
   templateUrl: './patient-edit.component.html',
   styleUrls: ['./patient-edit.component.css'],
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule],
 })
 export class PatientEditComponent implements OnInit {
   patient: RegisterPatient | null = null;
@@ -26,16 +27,14 @@ export class PatientEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['id']; // Obtener ID de la URL
+    const id = this.route.snapshot.params['id'];
     if (id) {
       this.loadPatient(id);
     } else {
-      console.error('ID de paciente no proporcionado.');
       this.router.navigate(['/patients']);
     }
   }
 
-  // Método para cargar los detalles del paciente
   loadPatient(id: number): void {
     this.patientsService.getPatientById(id).subscribe(
       (data) => {
@@ -44,32 +43,39 @@ export class PatientEditComponent implements OnInit {
           paternalSurname: data.paternalSurname,
           maternalSurname: data.maternalSurname || '',
           dni: data.dni || '',
-          birthDate: new Date(data.birthdate), // Convertimos a Date
+          birthDate: new Date(data.birthdate),
           age: data.age,
-          allergies: data.allergies || '',
+          presumptiveDiagnosis: data.presumptiveDiagnosis || '',
           idPlan: data.idPlan || 0,
-          tutors: data.tutors || [], // Aseguramos que siempre sea un array
+          tutors: data.tutors || [],
         };
         this.isLoading = false;
       },
-      (error) => {
-        console.error('Error al cargar los detalles del paciente:', error);
+      () => {
         this.isLoading = false;
       }
     );
   }
 
-  // Método para guardar los cambios
   savePatient(): void {
     if (!this.patient) {
-      console.error('El paciente no está cargado.');
       return;
     }
-
+    const updateData = {
+      idPatient: this.route.snapshot.params['id'],
+      name: this.patient.name,
+      paternalSurname: this.patient.paternalSurname,
+      maternalSurname: this.patient.maternalSurname,
+      dni: this.patient.dni,
+      birthdate: this.patient.birthDate,
+      age: this.patient.age,
+      presumptiveDiagnosis: this.patient.presumptiveDiagnosis,
+      idPlan: this.patient.idPlan,
+      tutors: this.patient.tutors,
+    };
     this.isSaving = true;
-
     this.patientsService
-      .updatePatient(this.route.snapshot.params['id'], this.patient)
+      .updatePatient(this.route.snapshot.params['id'], updateData)
       .subscribe(
         () => {
           this.isSaving = false;
@@ -78,11 +84,27 @@ export class PatientEditComponent implements OnInit {
             this.route.snapshot.params['id'],
           ]);
         },
-        (error) => {
-          console.error('Error al actualizar el paciente:', error);
+        () => {
           this.isSaving = false;
         }
       );
+  }
+
+  onTutorChange<T extends keyof Tutor>(
+    value: any,
+    index: number,
+    field: T
+  ): void {
+    if (this.patient && this.patient.tutors[index]) {
+      this.patient.tutors[index][field] = value;
+    }
+  }
+
+  onlyNumber(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
   }
 
   openSaveModal(): void {

@@ -1,102 +1,176 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <!-- Cargando -->
   <div *ngIf="isLoading" class="text-center text-gray-500 text-xl">
     <i class="fas fa-spinner fa-spin mr-2"></i> Cargando datos del paciente...
   </div>
 
-  <!-- Formulario -->
-  <form *ngIf="!isLoading" (ngSubmit)="openSaveModal()" class="space-y-6">
-    <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Editar Paciente</h1>
+  <form #editForm="ngForm" *ngIf="!isLoading" (ngSubmit)="openSaveModal()" class="space-y-6" novalidate>
+    <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">
+      Editar Paciente
+    </h1>
 
     <div>
-      <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Nombre</label>
-      <input id="name" type="text" [(ngModel)]="patient!.name" name="name"
-        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required />
+      <label for="name" class="block text-lg font-medium text-gray-700 mb-2">
+        Nombre
+      </label>
+      <input id="name" type="text" name="name" required minlength="2" maxlength="30" [(ngModel)]="patient!.name"
+        #nameField="ngModel"
+        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+      <div *ngIf="nameField.invalid && nameField.touched" class="text-red-600 text-sm mt-1">
+        <p *ngIf="nameField.errors?.['required']">El nombre es requerido.</p>
+        <p *ngIf="nameField.errors?.['minlength']">El nombre debe tener al menos 2 caracteres.</p>
+        <p *ngIf="nameField.errors?.['maxlength']">El nombre no puede exceder 30 caracteres.</p>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label for="paternalSurname" class="block text-lg font-medium text-gray-700 mb-2">Apellido Paterno</label>
-        <input id="paternalSurname" type="text" [(ngModel)]="patient!.paternalSurname" name="paternalSurname"
-          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required />
-      </div>
-      <div>
-        <label for="maternalSurname" class="block text-lg font-medium text-gray-700 mb-2">Apellido Materno</label>
-        <input id="maternalSurname" type="text" [(ngModel)]="patient!.maternalSurname" name="maternalSurname"
+        <label for="paternalSurname" class="block text-lg font-medium text-gray-700 mb-2">
+          Apellido Paterno
+        </label>
+        <input id="paternalSurname" type="text" name="paternalSurname" required minlength="2" maxlength="30"
+          [(ngModel)]="patient!.paternalSurname" #paternalSurnameField="ngModel"
           class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label for="age" class="block text-lg font-medium text-gray-700 mb-2">Edad</label>
-        <input id="age" type="number" [(ngModel)]="patient!.age" name="age"
-          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required />
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="dni" class="block text-lg font-medium text-gray-700 mb-2">DNI</label>
-          <input id="dni" type="text" [(ngModel)]="patient!.dni" name="dni"
-            class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required />
+        <div *ngIf="paternalSurnameField.invalid && paternalSurnameField.touched" class="text-red-600 text-sm mt-1">
+          <p *ngIf="paternalSurnameField.errors?.['required']">El apellido paterno es requerido.</p>
+          <p *ngIf="paternalSurnameField.errors?.['minlength']">Debe tener al menos 2 caracteres.</p>
+          <p *ngIf="paternalSurnameField.errors?.['maxlength']">No puede exceder 30 caracteres.</p>
         </div>
       </div>
+
       <div>
-        <label for="allergies" class="block text-lg font-medium text-gray-700 mb-2">Alergias</label>
-        <input id="allergies" type="text" [(ngModel)]="patient!.allergies" name="allergies"
+        <label for="maternalSurname" class="block text-lg font-medium text-gray-700 mb-2">
+          Apellido Materno
+        </label>
+        <input id="maternalSurname" type="text" name="maternalSurname" [(ngModel)]="patient!.maternalSurname"
+          #maternalSurnameField="ngModel"
           class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
     </div>
 
-    <div>
-      <label for="birthDate" class="block text-lg font-medium text-gray-700 mb-2">Fecha de Nacimiento</label>
-      <input id="birthDate" type="date" [(ngModel)]="patient!.birthDate" name="birthDate"
-        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required />
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="age" class="block text-lg font-medium text-gray-700 mb-2">
+          Edad
+        </label>
+        <input id="age" type="number" name="age" required min="0" [(ngModel)]="patient!.age" #ageField="ngModel"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <div *ngIf="ageField.invalid && ageField.touched" class="text-red-600 text-sm mt-1">
+          <p *ngIf="ageField.errors?.['required']">La edad es requerida.</p>
+          <p *ngIf="ageField.errors?.['min']">La edad mínima es 0.</p>
+        </div>
+      </div>
+
+      <div>
+        <label for="dni" class="block text-lg font-medium text-gray-700 mb-2">
+          DNI
+        </label>
+        <input id="dni" type="text" name="dni" required maxlength="8" pattern="^[0-9]{8}$" (keypress)="onlyNumber($event)"
+          [(ngModel)]="patient!.dni" #dniField="ngModel"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <div *ngIf="dniField.invalid && dniField.touched" class="text-red-600 text-sm mt-1">
+          <p *ngIf="dniField.errors?.['required']">El DNI es obligatorio.</p>
+          <p *ngIf="dniField.errors?.['pattern']">El DNI debe tener exactamente 8 dígitos.</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Botones -->
+    <div>
+      <label for="presumptiveDiagnosis" class="block text-lg font-medium text-gray-700 mb-2">
+        Presunción Diagnotisca
+      </label>
+      <textarea id="presumptiveDiagnosis" name="presumptiveDiagnosis" [(ngModel)]="patient!.presumptiveDiagnosis"
+        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        rows="3"></textarea>
+    </div>
+
+    <div>
+      <label for="birthDate" class="block text-lg font-medium text-gray-700 mb-2">
+        Fecha de Nacimiento
+      </label>
+      <input id="birthDate" type="date" name="birthDate" required [(ngModel)]="patient!.birthDate"
+        #birthDateField="ngModel"
+        class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+      <div *ngIf="birthDateField.invalid && birthDateField.touched" class="text-red-600 text-sm mt-1">
+        <p *ngIf="birthDateField.errors?.['required']">La fecha de nacimiento es requerida.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-lg font-medium text-gray-700 mb-3">Tutores</h2>
+      <div *ngFor="let tutor of patient!.tutors; let i = index" class="border p-4 mb-4 rounded-lg bg-gray-50 shadow-sm">
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">Nombre del Tutor</label>
+          <input type="text" [ngModel]="tutor.fullName" name="tutorFullName-{{ i }}" required minlength="2"
+            maxlength="30" (ngModelChange)="onTutorChange($event, i, 'fullName')" #tutorFullNameField="ngModel"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm" />
+          <div *ngIf="tutorFullNameField.invalid && tutorFullNameField.touched" class="text-red-600 text-sm mt-1">
+            <p *ngIf="tutorFullNameField.errors?.['required']">El nombre del tutor es requerido.</p>
+            <p *ngIf="tutorFullNameField.errors?.['minlength']">Debe tener al menos 2 caracteres.</p>
+            <p *ngIf="tutorFullNameField.errors?.['maxlength']">No puede exceder 30 caracteres.</p>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">DNI</label>
+          <input type="text" [ngModel]="tutor.dni" name="tutorDni-{{ i }}" required pattern="^[0-9]{8}$" maxlength="8"
+            (keypress)="onlyNumber($event)" (ngModelChange)="onTutorChange($event, i, 'dni')" #tutorDniField="ngModel"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm" />
+          <div *ngIf="tutorDniField.invalid && tutorDniField.touched" class="text-red-600 text-sm mt-1">
+            <p *ngIf="tutorDniField.errors?.['required']">El DNI del tutor es requerido.</p>
+            <p *ngIf="tutorDniField.errors?.['pattern']">El DNI debe tener exactamente 8 dígitos.</p>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+          <input type="text" [ngModel]="tutor.phone" name="tutorPhone-{{ i }}" pattern="^[0-9]{9}$" maxlength="9"
+            (keypress)="onlyNumber($event)" (ngModelChange)="onTutorChange($event, i, 'phone')"
+            #tutorPhoneField="ngModel"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm" />
+          <div *ngIf="tutorPhoneField.invalid && tutorPhoneField.touched" class="text-red-600 text-sm mt-1">
+            <p *ngIf="tutorPhoneField.errors?.['required']">El teléfono del tutor es requerido.</p>
+            <p *ngIf="tutorPhoneField.errors?.['pattern']">El teléfono debe tener exactamente 9 dígitos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="flex justify-center space-x-4 mt-8">
-      <button type="button"
-        class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
-        [disabled]="isSaving" (click)="openSaveModal()">
-        <i class="fas fa-save mr-2"></i> Guardar Cambios
+      <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg" [disabled]="editForm.invalid">
+        Guardar Cambios
       </button>
-      <button type="button"
-        class="bg-gray-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-600 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
-        (click)="openCancelModal()">
-        <i class="fas fa-times mr-2"></i> Cancelar
+      <button type="button" class="bg-gray-500 text-white px-6 py-3 rounded-lg text-lg" (click)="openCancelModal()">
+        Cancelar
       </button>
     </div>
   </form>
 
-  <!-- Modal Confirmación Guardar -->
   <div *ngIf="showSaveModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
       <h2 class="text-xl font-bold mb-4">¿Guardar los cambios?</h2>
       <p class="mb-6 text-gray-600">Se actualizarán los datos del paciente.</p>
       <div class="flex justify-center gap-4">
-        <button (click)="confirmSave()"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500">Guardar</button>
-        <button (click)="closeSaveModal()"
-          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
+        <button (click)="confirmSave()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500">
+          Guardar
+        </button>
+        <button (click)="closeSaveModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
+          Cancelar
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Confirmación Cancelar -->
   <div *ngIf="showCancelModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
       <h2 class="text-xl font-bold mb-4">¿Cancelar la edición?</h2>
       <p class="mb-6 text-gray-600">Se perderán todos los cambios no guardados.</p>
       <div class="flex justify-center gap-4">
-        <button (click)="confirmCancel()"
-          class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">Cancelar</button>
-        <button (click)="closeCancelModal()"
-          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Volver</button>
+        <button (click)="confirmCancel()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">
+          Cancelar
+        </button>
+        <button (click)="closeCancelModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
+          Volver
+        </button>
       </div>
     </div>
   </div>

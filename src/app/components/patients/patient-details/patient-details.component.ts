@@ -1,25 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { PatientsService } from '../patients.service';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {CommonModule, NgForOf, NgIf} from "@angular/common";
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CommonModule, NgForOf, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-patient-details',
   standalone: true,
   templateUrl: './patient-details.component.html',
   styleUrls: ['./patient-details.component.css'],
-  imports: [
-    RouterLink,
-    NgIf,
-    NgForOf,
-    CommonModule
-  ]
+  imports: [RouterLink, NgIf, NgForOf, CommonModule],
 })
 export class PatientDetailsComponent implements OnInit {
   patient: any = null; // Detalles del paciente
   isLoading: boolean = true; // Estado de carga
 
-  constructor(private patientsService: PatientsService, private route: ActivatedRoute, private router: Router ) {}
+  constructor(
+    private patientsService: PatientsService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.params['id']; // Obtener ID de la URL

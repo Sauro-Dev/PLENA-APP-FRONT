@@ -33,7 +33,7 @@ export class PatientRegisterComponent implements OnInit {
 
   patientForm!: FormGroup;
   isDateTimePickerVisible: number = 0;
-  showRegisterModal: boolean = false; // Control para la modal de registro
+  showRegisterModal: boolean = false;
   showCancelModal: boolean = false;
 
   constructor(
@@ -76,19 +76,31 @@ export class PatientRegisterComponent implements OnInit {
         ],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
         age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
-        allergies: ['', [Validators.maxLength(255)]],
+        presumptiveDiagnosis: ['', [Validators.maxLength(255)]],
         status: [true],
         idPlan: [null, [Validators.required]],
         tutors: this.fb.array([this.createTutor()]),
         sessionDates: this.fb.array([]),
       },
       {
-        validators: this.checkDuplicateDNIPatientAndTutor(), // Validador de coincidencia de DNI
+        validators: this.checkDuplicateDNIPatientAndTutor(),
       }
     );
 
     this.patientForm.get('idPlan')?.valueChanges.subscribe((value) => {
       this.updateDatePickers(value);
+    });
+
+    this.patientForm.get('dni')?.valueChanges.subscribe(() => {
+      if (this.patientForm.get('dni')?.touched) {
+        this.patientForm.updateValueAndValidity();
+      }
+    });
+
+    this.patientForm.get('tutors')?.valueChanges.subscribe(() => {
+      if (this.tutors.controls.some((control) => control.get('dni')?.touched)) {
+        this.patientForm.updateValueAndValidity();
+      }
     });
 
     this.patientService.getAllRooms().subscribe((rooms) => {
@@ -117,14 +129,37 @@ export class PatientRegisterComponent implements OnInit {
 
   checkDuplicateDNIPatientAndTutor(): ValidatorFn {
     return (form: AbstractControl): ValidationErrors | null => {
-      const patientDNI = form.get('dni')?.value;
+      const patientDNI = form.get('dni');
       const tutors = form.get('tutors') as FormArray;
 
+      if (!patientDNI?.touched) {
+        return null;
+      }
+
       const duplicate = tutors.controls.some((tutor) => {
-        return tutor.get('dni')?.value === patientDNI;
+        const tutorDNI = tutor.get('dni');
+        return (
+          tutorDNI?.touched &&
+          tutorDNI?.value === patientDNI.value &&
+          patientDNI.value !== ''
+        );
       });
 
-      return duplicate ? { duplicateWithTutor: true } : null;
+      if (duplicate) {
+        patientDNI.setErrors({
+          ...patientDNI.errors,
+          duplicateWithTutor: true,
+        });
+        return { duplicateWithTutor: true };
+      }
+
+      if (patientDNI?.hasError('duplicateWithTutor')) {
+        const errors = { ...patientDNI.errors };
+        delete errors['duplicateWithTutor'];
+        patientDNI.setErrors(Object.keys(errors).length ? errors : null);
+      }
+
+      return null;
     };
   }
 
@@ -135,16 +170,14 @@ export class PatientRegisterComponent implements OnInit {
     const tutors = this.patientForm.get('tutors')?.value || [];
 
     return new Promise((resolve) => {
-      if (!dni) {
+      if (!dni || !control.touched) {
         resolve(null);
       } else {
         this.patientService.checkPatientDNI(dni, tutors).subscribe(
           (isTaken) => {
             resolve(isTaken ? { duplicateWithDatabase: true } : null);
-            this.patientForm.updateValueAndValidity({ emitEvent: false });
           },
           (error) => {
-            console.error('Error al validar el DNI:', error);
             resolve(null);
           }
         );
@@ -221,10 +254,9 @@ export class PatientRegisterComponent implements OnInit {
         .subscribe(
           (therapists) => {
             this.therapistsMap.set(index, therapists);
-            this.sessionDates.at(index).get('therapist')?.setValue('');
           },
           (error) => {
-            console.error('Error al obtener terapeutas', error);
+            // Handle error silently
           }
         );
     }
@@ -232,40 +264,7 @@ export class PatientRegisterComponent implements OnInit {
 
   onSubmit(): void {
     if (this.patientForm.valid) {
-      const formValue = this.patientForm.value;
-
-      this.patientService.createPatient(formValue).subscribe(
-        (response) => {
-          const patientId = response.idPatient;
-          const sessionRequests = formValue.sessionDates.map((session: any) => {
-            const sessionData = {
-              sessionDate: session.sessionDate,
-              startTime: session.startTime,
-              endTime: session.endTime,
-              therapistId: session.therapist,
-              roomId: session.room,
-              planId: formValue.idPlan,
-              patientId: patientId,
-            };
-
-            return this.patientService.createSession(sessionData).toPromise();
-          });
-
-          Promise.all(sessionRequests).then(
-            () => {
-              this.router.navigate(['/patients']);
-            },
-            (error) => {
-              console.error('Error al crear sesiones:', error);
-            }
-          );
-        },
-        (error) => {
-          console.error('Error al registrar paciente:', error);
-        }
-      );
-    } else {
-      Object.keys(this.patientForm.controls).forEach((key) => {});
+      this.openRegisterModal();
     }
   }
 
@@ -298,42 +297,48 @@ export class PatientRegisterComponent implements OnInit {
       }
     }
   }
-  // Mostrar la modal de registro
+
   openRegisterModal(): void {
     this.showRegisterModal = true;
   }
 
-  // Ocultar la modal de registro
   closeRegisterModal(): void {
     this.showRegisterModal = false;
   }
 
-  // Confirmar el registro
   confirmRegister(): void {
     this.closeRegisterModal();
     if (this.patientForm.valid) {
-      this.patientService.createPatient(this.patientForm.value).subscribe(
+      const formValue = this.patientForm.value;
+
+      formValue.tutors = formValue.tutors.map((tutor: any) => ({
+        fullName: tutor.fullName,
+        dni: tutor.dni,
+        phone: tutor.phone,
+      }));
+
+      this.patientService.createPatient(formValue).subscribe(
         (response) => {
           this.router.navigate(['/patients']);
         },
         (error) => {
           console.error('Error al registrar paciente:', error);
+          if (error.status === 200) {
+            this.router.navigate(['/patients']);
+          }
         }
       );
     }
   }
 
-  // Mostrar la modal de cancelación
   openCancelModal(): void {
     this.showCancelModal = true;
   }
 
-  // Ocultar la modal de cancelación
   closeCancelModal(): void {
     this.showCancelModal = false;
   }
 
-  // Confirmar la cancelación
   confirmCancel(): void {
     this.closeCancelModal();
     this.router.navigate(['/patients']);
