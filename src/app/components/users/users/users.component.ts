@@ -4,7 +4,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { UsersService } from "../users.service";
 import { FormsModule } from "@angular/forms";
-import {AuthService} from "../../auth/auth.service";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: 'app-users',
@@ -30,8 +30,9 @@ export class UsersComponent implements OnInit {
   notificationMessage: string = '';
   showNotificationModal: boolean = false;
   showForcedLogoutModal: boolean = false;
+  showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 
-  constructor(private usersService: UsersService, private router: Router, private authService: AuthService ) {}
+  constructor(private usersService: UsersService, private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -56,7 +57,6 @@ export class UsersComponent implements OnInit {
   closeModal(): void {
     this.showAdminModal = false;
   }
-
 
   saveAdminCredentials(): void {
     if (this.newUsername.length > 20) {
@@ -111,7 +111,6 @@ export class UsersComponent implements OnInit {
   forceLogout(): void {
     this.authService.logout();
     localStorage.clear();
-
     this.router.navigate(['/login']);
   }
 
@@ -131,7 +130,6 @@ export class UsersComponent implements OnInit {
     this.showNotificationModal = false;
   }
 
-
   loadUsers(): void {
     this.usersService.getUsers().subscribe(
       (data) => {
@@ -149,7 +147,6 @@ export class UsersComponent implements OnInit {
     );
   }
 
-
   onSearch(): void {
     this.filteredUsers = this.users.filter(user =>
       user.username.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -157,7 +154,6 @@ export class UsersComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-
 
   onFilter(): void {
     if (this.selectedRole) {
@@ -168,7 +164,6 @@ export class UsersComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-
 
   onSort(): void {
     this.filteredUsers.sort((a, b) => {
@@ -183,18 +178,14 @@ export class UsersComponent implements OnInit {
     this.paginate();
   }
 
-
   onItemsPerPageChange(): void {
     this.paginate();
   }
 
-
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-
     const paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
-
 
     if (paginatedUsers.length === 0 && this.currentPage > 1) {
       this.currentPage = 1;
@@ -204,10 +195,13 @@ export class UsersComponent implements OnInit {
     }
   }
 
-
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
   }
 
   protected readonly Math = Math;
