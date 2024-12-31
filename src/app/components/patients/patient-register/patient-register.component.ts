@@ -75,7 +75,6 @@ export class PatientRegisterComponent implements OnInit {
           [this.checkDuplicateDNI.bind(this)],
         ],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
-        age: ['', [Validators.required, Validators.min(0), Validators.max(18)]],
         presumptiveDiagnosis: ['', [Validators.maxLength(255)]],
         status: [true],
         idPlan: [null, [Validators.required]],

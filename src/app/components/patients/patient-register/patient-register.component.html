@@ -74,20 +74,6 @@
           Ingresa una fecha correcta.
         </p>
       </div>
-
-      <div class="w-1/2">
-        <label class="block text-lg font-medium text-gray-700">Edad</label>
-        <input type="number" formControlName="age" placeholder="Edad"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          [ngClass]="{
-            'border-red-500':
-              patientForm.get('age')?.invalid &&
-              patientForm.get('age')?.touched
-          }" />
-        <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('age')?.invalid && patientForm.get('age')?.touched">
-          La edad debe ser un número válido.
-        </p>
-      </div>
     </div>
 
     <!-- DNI del Paciente -->

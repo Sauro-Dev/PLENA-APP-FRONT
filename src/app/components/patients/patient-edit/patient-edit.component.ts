@@ -68,7 +68,6 @@ export class PatientEditComponent implements OnInit {
       maternalSurname: this.patient.maternalSurname,
       dni: this.patient.dni,
       birthdate: this.patient.birthDate,
-      age: this.patient.age,
       presumptiveDiagnosis: this.patient.presumptiveDiagnosis,
       idPlan: this.patient.idPlan,
       tutors: this.patient.tutors,
