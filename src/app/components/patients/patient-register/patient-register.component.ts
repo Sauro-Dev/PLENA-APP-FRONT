@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -71,7 +71,7 @@ export class PatientRegisterComponent implements OnInit {
         ],
         dni: [
           '',
-          [Validators.required, Validators.pattern('\\d{8}')],
+          [Validators.required, Validators.pattern('^[0-9]{8}$')],
           [this.checkDuplicateDNI.bind(this)],
         ],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
@@ -177,7 +177,7 @@ export class PatientRegisterComponent implements OnInit {
           (isTaken) => {
             resolve(isTaken ? { duplicateWithDatabase: true } : null);
           },
-          (error) => {
+          () => {
             resolve(null);
           }
         );
@@ -195,21 +195,22 @@ export class PatientRegisterComponent implements OnInit {
           Validators.maxLength(30),
         ],
       ],
-      dni: ['', [Validators.required, Validators.pattern('\\d{8}')]],
-      phone: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('\\d{9}'),
-          Validators.maxLength(9),
-        ],
-      ],
+      dni: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
     });
   }
 
   limitInputLength(event: KeyboardEvent, maxLength: number): void {
     const input = event.target as HTMLInputElement;
     if (input.value.length >= maxLength && event.key !== 'Backspace') {
+      event.preventDefault();
+    }
+  }
+
+  // Agrega esta función para permitir solo números en DNI
+  onlyNumber(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
       event.preventDefault();
     }
   }
@@ -255,8 +256,8 @@ export class PatientRegisterComponent implements OnInit {
           (therapists) => {
             this.therapistsMap.set(index, therapists);
           },
-          (error) => {
-            // Handle error silently
+          () => {
+            // Manejo de error silencioso
           }
         );
     }
@@ -318,7 +319,7 @@ export class PatientRegisterComponent implements OnInit {
       }));
 
       this.patientService.createPatient(formValue).subscribe(
-        (response) => {
+        () => {
           this.router.navigate(['/patients']);
         },
         (error) => {
