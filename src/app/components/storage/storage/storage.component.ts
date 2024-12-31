@@ -21,6 +21,7 @@ export class StorageComponent implements OnInit {
   currentPage: number = 1;
   paginatedMaterials: Material[] = [];
   materialFilter: string = '';
+  showFilters: boolean = false;
 
   constructor(private storageService: StorageService, private router: Router) {}
 
@@ -74,6 +75,10 @@ export class StorageComponent implements OnInit {
       );
       this.paginate();
     }
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
   }
 
   navigateToEdit(id: string | undefined): void {

@@ -1,32 +1,64 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Gestión de Materiales</h1>
+  <h1 class="text-3xl font-semibold text-center text-blue-900 mb-6 block md:hidden">
+    Gestión de Materiales
+  </h1>
 
-  <!-- Encabezado con botón de agregar material y controles -->
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+  <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
+    Gestión de Materiales
+  </h1>
+
+  <!-- Botón Agregar Material (Escritorio) -->
+  <div class="hidden md:flex justify-end mb-6">
     <button
-      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg mb-4 md:mb-0"
+      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+      [routerLink]="'/storage/material-register'">
+      <i class="fas fa-plus-circle mr-2"></i> Agregar Material
+    </button>
+  </div>
+
+  <!-- Botón Agregar Material y Filtros (Móvil) -->
+  <div class="flex justify-between items-center mb-6 md:hidden">
+    <button
+      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
       [routerLink]="'/storage/material-register'">
       <i class="fas fa-plus-circle mr-2"></i> Agregar Material
     </button>
 
-    <div class="flex flex-wrap justify-center md:justify-end space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-      <!-- Búsqueda -->
-      <div class="w-full md:w-auto">
-        <label for="search" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+    <!-- Botón de filtros (Móvil) -->
+    <button
+      class="flex items-center bg-white border border-blue-600 text-blue-600 px-4 py-3 rounded-lg shadow-md hover:bg-blue-50 active:scale-95 transition-all ml-4"
+      (click)="toggleFilters()">
+      <i class="fas fa-filter text-lg"></i>
+    </button>
+  </div>
+
+  <!-- Filtros desplegables (solo móvil) -->
+  <div *ngIf="showFilters" class="block md:hidden mb-6">
+    <div class="mt-4 space-y-4">
+      <!-- Campo de búsqueda (Móvil) -->
+      <div class="relative">
+        <label for="buscar-movil" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
         <div class="relative">
-          <input id="search" type="text"
-            class="border border-gray-300 rounded-lg w-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Buscar material" [(ngModel)]="searchTerm" (input)="onSearch()" />
-          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          <input
+            id="buscar-movil"
+            type="text"
+            class="border border-gray-300 rounded-xl w-full py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            placeholder="Buscar material"
+          />
+          <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"></i>
         </div>
       </div>
 
-      <!-- Filtro -->
-      <div class="w-full md:w-auto">
-        <label for="filter" class="block text-lg font-medium text-gray-700 mb-2">Filtrar:</label>
-        <select id="filter"
-          class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          [(ngModel)]="materialFilter" (change)="onFilter()">
+      <!-- Filtrar por Estado (Móvil) -->
+      <div>
+        <label for="filtrar-movil" class="block text-sm font-medium text-gray-700">Filtrar por Estado:</label>
+        <select
+          id="filtrar-movil"
+          class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500"
+          [(ngModel)]="materialFilter"
+          (change)="onFilter()">
           <option value="">Todos</option>
           <option value="NUEVO">Nuevo</option>
           <option value="BUENO">Bueno</option>
@@ -35,63 +67,101 @@
           <option value="ROTO">Roto</option>
         </select>
       </div>
+    </div>
+  </div>
 
-      <!-- Mostrar cantidad -->
-      <div class="w-full md:w-auto">
-        <label for="itemsPerPage" class="block text-lg font-medium text-gray-700 mb-2">Mostrar:</label>
-        <select id="itemsPerPage"
-          class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          [(ngModel)]="itemsPerPage" (change)="paginate()">
-          <option value="10">10 materiales</option>
-          <option value="20">20 materiales</option>
-        </select>
+  <!-- Filtros y búsqueda (Escritorio) -->
+  <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-md mb-8">
+    <!-- Campo de búsqueda (Escritorio) -->
+    <div class="relative col-span-2">
+      <label for="buscar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+      <div class="relative">
+        <input
+          id="buscar-escritorio"
+          type="text"
+          class="border border-gray-300 rounded-xl w-1/2 py-3 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+          placeholder="Buscar material"
+        />
+        <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"></i>
       </div>
+    </div>
+
+    <!-- Filtrar por Estado (Escritorio) -->
+    <div>
+      <label for="filtrar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Filtrar por Estado:</label>
+      <select
+        id="filtrar-escritorio"
+        class="border border-gray-300 rounded-xl w-full px-4 py-3 focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="materialFilter"
+        (change)="onFilter()">
+        <option value="">Todos</option>
+        <option value="NUEVO">Nuevo</option>
+        <option value="BUENO">Bueno</option>
+        <option value="REGULAR">Regular</option>
+        <option value="DESGASTADO">Desgastado</option>
+        <option value="ROTO">Roto</option>
+      </select>
+    </div>
+
+    <!-- Mostrar por página (Escritorio) -->
+    <div>
+      <label for="mostrar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Por Página:</label>
+      <select
+        id="mostrar-escritorio"
+        class="border border-gray-300 rounded-xl w-full px-4 py-3 focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="itemsPerPage"
+        (change)="paginate()">
+        <option value="10">10 materiales</option>
+        <option value="20">20 materiales</option>
+      </select>
     </div>
   </div>
 
   <!-- Tabla de materiales -->
-  <div class="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
-    <table class="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
+  <div class="overflow-x-auto md:overflow-hidden bg-white rounded-lg shadow overflow-y-auto relative">
+    <table class="border-collapse table-auto w-full whitespace-nowrap bg-white table-striped relative">
       <thead>
-        <tr class="text-left">
-          <th
-            class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-            Acciones</th>
-          <th
-            class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-            ID Material</th>
-          <th
-            class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-            Nombre</th>
-          <th
-            class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-            Stock</th>
-          <th
-            class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-            Estado</th>
-        </tr>
+      <tr class="text-left">
+        <th
+          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+          Acciones</th>
+        <th
+          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+          ID Material</th>
+        <th
+          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+          Nombre</th>
+        <th
+          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+          Stock</th>
+        <th
+          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
+          Estado</th>
+      </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let material of paginatedMaterials" class="hover:bg-gray-100">
-          <td class="border-b border-gray-200 px-6 py-4">
-            <div class="flex items-center space-x-3">
-              <button (click)="navigateToEdit(material.idMaterial)" class="text-blue-500 hover:text-blue-700">
-                <i class="fas fa-pencil-alt"></i>
-              </button>
-              <button (click)="delete(material.idMaterial)" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-              <button [routerLink]="['/storage/material-details', material.idMaterial]"
-                class="text-green-500 hover:text-green-700">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </td>
-          <td class="border-b border-gray-200 px-6 py-4">{{ material.idMaterial }}</td>
-          <td class="border-b border-gray-200 px-6 py-4">{{ material.nombre }}</td>
-          <td class="border-b border-gray-200 px-6 py-4">{{ material.stock }}</td>
-          <td class="border-b border-gray-200 px-6 py-4">{{ material.estado }}</td>
-        </tr>
+      <tr *ngFor="let material of paginatedMaterials" class="hover:bg-gray-100">
+        <td class="border-b border-gray-200 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <button (click)="navigateToEdit(material.idMaterial)" class="text-blue-500 hover:text-blue-700">
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button (click)="delete(material.idMaterial)" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button [routerLink]="['/storage/material-details', material.idMaterial]"
+                    class="text-green-500 hover:text-green-700">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </td>
+        <td class="border-b border-gray-200 px-6 py-4">{{ material.idMaterial }}</td>
+        <td class="border-b border-gray-200 px-6 py-4">{{ material.nombre }}</td>
+        <td class="border-b border-gray-200 px-6 py-4">{{ material.stock }}</td>
+        <td class="border-b border-gray-200 px-6 py-4">{{ material.estado }}</td>
+      </tr>
       </tbody>
     </table>
   </div>
