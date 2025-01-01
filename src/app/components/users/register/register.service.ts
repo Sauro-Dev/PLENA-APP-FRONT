@@ -5,7 +5,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { environment } from '../../../enviroment';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { RegisterUser } from './register-user';
 
 @Injectable({
@@ -22,7 +22,6 @@ export class RegisterService {
     return this.http.post<any>(this.apiUrl, data, { headers }).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.error instanceof ProgressEvent) {
-          // Error del servidor no es un JSON válido
           return throwError(
             () => new Error('Error del servidor: ' + error.message)
           );
@@ -33,5 +32,35 @@ export class RegisterService {
         }
       })
     );
+  }
+
+  checkDNI(dni: string): Observable<boolean> {
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http
+      .get<{ dniTaken: boolean }>(
+        `${environment.apiUrl}/users/validate?dni=${dni}`,
+        { headers }
+      )
+      .pipe(
+        map((response) => response.dniTaken),
+        catchError(() => of(false))
+      );
+  }
+
+  checkEmail(email: string): Observable<boolean> {
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http
+      .get<{ emailTaken: boolean }>(
+        `${environment.apiUrl}/users/validate?email=${email}`,
+        { headers }
+      )
+      .pipe(
+        map((response) => response.emailTaken),
+        catchError(() => of(false))
+      );
   }
 }

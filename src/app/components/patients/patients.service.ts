@@ -45,15 +45,24 @@ export class PatientsService {
   getAvailableTherapists(
     sessionDate: string,
     startTime: string,
-    endTime: string
+    endTime: string,
+    role?: string
   ): Observable<any[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    let params: any = { sessionDate, startTime, endTime };
+
+    if (role) {
+      params.role = role;
+    }
+
     return this.http.get<any[]>(
       `${environment.apiUrl}/sessions/available-therapists`,
-      { params: { sessionDate, startTime, endTime }, headers }
+      { params, headers }
     );
   }
+  
   getPatientById(patientId: number): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
@@ -79,7 +88,7 @@ export class PatientsService {
     return this.http.get<boolean>(`${this.apiUrl}/validate-dni`, {
       params: {
         dni: dni,
-        tutors: JSON.stringify(tutors), // Pasar la lista de tutores como JSON
+        tutors: JSON.stringify(tutors),
       },
       headers,
     });

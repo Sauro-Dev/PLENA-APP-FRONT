@@ -7,6 +7,7 @@ import {
   AbstractControl,
   ValidationErrors,
   ReactiveFormsModule,
+  ValidatorFn,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -25,7 +26,6 @@ export class RegisterComponent {
   showAdminDialog: boolean = false;
   showRegisterModal: boolean = false;
   showCancelModal: boolean = false;
-  adminPassword: string = '';
   maxDate: string;
 
   constructor(
@@ -44,7 +44,11 @@ export class RegisterComponent {
         name: ['', Validators.required],
         paternalSurname: ['', Validators.required],
         maternalSurname: ['', Validators.required],
-        dni: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
+        dni: [
+          '',
+          [Validators.required, Validators.pattern('^[0-9]{8}$')],
+          [this.dniTakenValidator.bind(this)],
+        ],
         email: [
           '',
           [
@@ -54,21 +58,24 @@ export class RegisterComponent {
               /^[a-zA-ZñÑ0-9._%+-]+@[a-zA-ZñÑ0-9.-]+\.[a-zA-Z]{2,4}$/
             ),
           ],
+          [this.emailTakenValidator.bind(this)],
         ],
         address: ['', Validators.required],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
-        phoneBackup: [
-          '',
-          [Validators.required, Validators.pattern('^[0-9]{9}$')],
-        ],
+        phoneBackup: ['', [Validators.pattern('^[0-9]{9}$')]],
         role: ['', Validators.required],
         isAdmin: [false],
         paymentSession: [null],
         paymentMonth: [null],
         adminPassword: [''],
       },
-      { validators: this.passwordsMatchValidator }
+      {
+        validators: [
+          this.phonesNotEqualValidator,
+          this.passwordsMatchValidator,
+        ],
+      }
     );
   }
 
@@ -80,14 +87,66 @@ export class RegisterComponent {
     if (date < minDate || date > maxDate) {
       return { outOfRange: true };
     }
-
     return null;
   }
+
+  onlyNumber(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  dniTakenValidator(
+    control: AbstractControl
+  ): Promise<ValidationErrors | null> {
+    const dni = control.value;
+    return new Promise((resolve) => {
+      if (!dni) {
+        resolve(null);
+      } else {
+        this.registerService.checkDNI(dni).subscribe(
+          (isTaken) => {
+            resolve(isTaken ? { dniTaken: true } : null);
+          },
+          () => resolve(null)
+        );
+      }
+    });
+  }
+
+  emailTakenValidator(
+    control: AbstractControl
+  ): Promise<ValidationErrors | null> {
+    const email = control.value;
+    return new Promise((resolve) => {
+      if (!email) {
+        resolve(null);
+      } else {
+        this.registerService.checkEmail(email).subscribe(
+          (isTaken) => {
+            resolve(isTaken ? { emailTaken: true } : null);
+          },
+          () => resolve(null)
+        );
+      }
+    });
+  }
+
+  phonesNotEqualValidator: ValidatorFn = (
+    group: AbstractControl
+  ): ValidationErrors | null => {
+    const phone = group.get('phone')?.value;
+    const phoneBackup = group.get('phoneBackup')?.value;
+    if (phone && phoneBackup && phone === phoneBackup) {
+      return { phonesSame: true };
+    }
+    return null;
+  };
 
   passwordsMatchValidator(form: AbstractControl): ValidationErrors | null {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-
     return password && confirmPassword && password !== confirmPassword
       ? { passwordsDontMatch: true }
       : null;
@@ -95,7 +154,6 @@ export class RegisterComponent {
 
   limitInputLength(event: KeyboardEvent, maxLength: number): void {
     const input = event.target as HTMLInputElement;
-
     if (input.value.length >= maxLength && event.key !== 'Backspace') {
       event.preventDefault();
     }
@@ -118,15 +176,26 @@ export class RegisterComponent {
     const formValue = this.registerForm.value;
 
     if (this.selectedRole === 'Terapeuta') {
+      // Chequeamos si marcó Admin
+      if (this.isAdminSelected) {
+        formValue.role = 'ADMIN';
+      } else {
+        formValue.role = 'THERAPIST';
+      }
+
       formValue.paymentSession = formValue.paymentSession
         ? Number(formValue.paymentSession)
         : null;
       formValue.paymentMonth = null;
     } else if (this.selectedRole === 'Secretario/a') {
+      formValue.role = 'SECRETARY';
       formValue.paymentMonth = formValue.paymentMonth
         ? Number(formValue.paymentMonth)
         : null;
       formValue.paymentSession = null;
+    } else {
+      formValue.role = '';
+      console.error('Rol inválido');
     }
 
     this.registerService.registerUser(formValue).subscribe(
@@ -154,76 +223,69 @@ export class RegisterComponent {
   }
 
   selectRole(role: string): void {
-    let backendRole: string;
+    this.selectedRole = role;
 
     if (role === 'Terapeuta') {
-      backendRole = 'THERAPIST';
+      this.registerForm.patchValue({ role: 'THERAPIST' });
       this.registerForm
         .get('paymentSession')
         ?.setValidators([Validators.required, Validators.min(0)]);
       this.registerForm.get('paymentMonth')?.clearValidators();
     } else if (role === 'Secretario/a') {
-      backendRole = 'SECRETARY';
+      this.registerForm.patchValue({ role: 'SECRETARY' });
       this.registerForm
         .get('paymentMonth')
         ?.setValidators([Validators.required, Validators.min(0)]);
       this.registerForm.get('paymentSession')?.clearValidators();
     } else {
-      backendRole = '';
+      this.registerForm.patchValue({ role: '' });
       this.registerForm.get('paymentSession')?.clearValidators();
+      this.registerForm.get('paymentMonth')?.clearValidators();
     }
-
-    this.selectedRole = role;
-    this.registerForm.patchValue({ role: backendRole });
 
     this.registerForm.get('paymentSession')?.updateValueAndValidity();
     this.registerForm.get('paymentMonth')?.updateValueAndValidity();
   }
 
-  promptAdminPassword(event: MouseEvent): void {
-    if (event) {
-      event.preventDefault();
-    }
-
+  promptAdminPassword(): void {
     this.registerForm.patchValue({ adminPassword: '' });
-
     this.registerForm
       .get('adminPassword')
       ?.setValidators([Validators.required]);
     this.registerForm.get('adminPassword')?.updateValueAndValidity();
-
     this.showAdminDialog = true;
   }
 
-  toggleAdminSelection(event: MouseEvent): void {
+  toggleAdminSelection(event: Event): void {
     const checkbox = event.target as HTMLInputElement;
+    this.isAdminSelected = checkbox.checked;
 
     if (checkbox.checked) {
-      this.promptAdminPassword(event);
+      this.registerForm
+        .get('adminPassword')
+        ?.setValidators([Validators.required]);
+      this.showAdminDialog = true;
     } else {
-      this.isAdminSelected = false;
-      this.registerForm.patchValue({ isAdmin: false });
-
-      // Eliminar el validador de adminPassword
       this.registerForm.get('adminPassword')?.clearValidators();
-      this.registerForm.get('adminPassword')?.updateValueAndValidity();
+      this.registerForm.get('adminPassword')?.setValue('');
     }
+    this.registerForm.get('adminPassword')?.updateValueAndValidity();
   }
 
   confirmAdminPassword(): void {
     const adminPassword = this.registerForm.get('adminPassword')?.value;
-
     if (adminPassword === 'admin123') {
       this.isAdminSelected = true;
       this.registerForm.patchValue({ isAdmin: true });
       this.showAdminDialog = false;
-
       this.registerForm.get('adminPassword')?.clearValidators();
+      this.registerForm.get('adminPassword')?.setValue('');
       this.registerForm.get('adminPassword')?.updateValueAndValidity();
     } else {
       this.registerForm
         .get('adminPassword')
         ?.setErrors({ invalidPassword: true });
+      this.isAdminSelected = false;
     }
   }
 
@@ -232,28 +294,28 @@ export class RegisterComponent {
     this.isAdminSelected = false;
     this.registerForm.patchValue({ isAdmin: false });
 
+    this.registerForm.get('adminPassword')?.setValue('');
     this.registerForm.get('adminPassword')?.clearValidators();
     this.registerForm.get('adminPassword')?.updateValueAndValidity();
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid && this.selectedRole) {
+    if (this.registerForm.valid) {
       const formValue = this.registerForm.value;
 
-      if (this.selectedRole === 'Terapeuta') {
-        formValue.paymentSession = formValue.paymentSession
-          ? Number(formValue.paymentSession)
-          : null;
-        formValue.paymentMonth = null;
-      } else if (this.selectedRole === 'Secretario/a') {
-        formValue.paymentMonth = formValue.paymentMonth
-          ? Number(formValue.paymentMonth)
-          : null;
-        formValue.paymentSession = null;
-      } else {
-        formValue.paymentSession = null;
-        formValue.paymentMonth = null;
-      }
+      formValue.role =
+        this.selectedRole === 'Terapeuta'
+          ? this.isAdminSelected
+            ? 'ADMIN'
+            : 'THERAPIST'
+          : 'SECRETARY';
+
+      formValue.paymentSession = formValue.paymentSession
+        ? Number(formValue.paymentSession)
+        : null;
+      formValue.paymentMonth = formValue.paymentMonth
+        ? Number(formValue.paymentMonth)
+        : null;
 
       this.registerService.registerUser(formValue).subscribe(
         () => {
@@ -264,7 +326,7 @@ export class RegisterComponent {
         }
       );
     } else {
-      console.error('Formulario inválido o rol no seleccionado');
+      console.error('Formulario inválido');
     }
   }
 }
