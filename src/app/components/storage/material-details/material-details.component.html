@@ -43,21 +43,21 @@
   <!-- Botón para asignar nuevos materiales -->
   <div class="mt-6">
     <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" (click)="openAssignModal()">
-      Asignar Materiales
+      Asignar Área de Intervención
     </button>
   </div>
 
   <!-- Botón para volver -->
   <div class="mt-6">
     <a [routerLink]="['/storage']" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-      Volver a Ambientes
+      Volver a Inventario
     </a>
   </div>
 
   <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
     *ngIf="isAssignInterAreaModalOpen">
     <div class="bg-white rounded-lg p-6 max-w-md w-full">
-      <h2 class="text-xl font-bold mb-4">Asignar Materiales</h2>
+      <h2 class="text-xl font-bold mb-4">Asignar Área</h2>
       <!-- Tabla de materiales -->
       <div class="overflow-x-auto max-h-60">
         <table class="min-w-full bg-white border">
