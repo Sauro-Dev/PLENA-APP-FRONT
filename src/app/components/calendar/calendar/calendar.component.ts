@@ -1,147 +1,96 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgModel, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../calendar.service';
-
-
 import { Session } from '../session';
-
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { CalendarOptions } from '@fullcalendar/core';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import listPlugin from '@fullcalendar/list';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, FormsModule, FullCalendarModule],
   templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.css'
 })
-export class CalendarComponent implements OnInit{
+export class CalendarComponent implements OnInit {
   selectedDate: string = '';
-  selectedFilter: string = 'day';
-  sessions: any[] = [];
-  hours: string[] = ['9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM'];
+  sessions: Session[] = [];
+  calendarOptions: CalendarOptions = {
+    plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
+    initialView: 'timeGridWeek',
+    slotMinTime: '09:00:00',
+    slotMaxTime: '19:00:00',
+    businessHours: [
+      { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '09:00', endTime: '13:00' },
+      { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '15:00', endTime: '19:00' },
+    ],
+    allDaySlot: false,
+    editable: false,
+    locale: 'es',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'timeGridWeek,timeGridDay',
+    },
+    events: [],
+    slotLabelFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      meridiem: 'short',
+    },
+    eventTimeFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      meridiem: 'short',
+    },
+  };
 
-  showModal: boolean = false;
-  showDetailsModal: boolean = false;
-  showReprogrammingModal: boolean = false; 
-
-  selectedSession: Session | null = null;
-  therapistPresent: boolean = false;
-  patientPresent: boolean = false;
-
-  newSessionDate: string = '';
-  newStartTime: string = '';
-  newEndTime: string = '';
-  reason: string = '';
-  
-  constructor(private calendarService: CalendarService ){}
+  constructor(private calendarService: CalendarService) {}
 
   ngOnInit(): void {
-    this.onFilterSessions
+    this.loadSessions();
   }
 
-  onFilterSessions() {
-    if (!this.selectedDate) return;
-  
-    const date: Date = new Date(this.selectedDate);
-    this.calendarService.getSessionsByDate(date).subscribe(
-      data => this.sessions = data.length > 0 ? data : [],
-      error => {
-        console.error('Error al obtener sesiones:', error);
-        this.sessions = [];
-      }
-    );
-  }
-  openPresenceModal(session: Session) {
-    this.selectedSession = session;
-    this.therapistPresent = session.therapistPresent;
-    this.patientPresent = session.patientPresent;
-    this.showModal = true;
-  }
-  closeModal() {
-    this.showModal = false;
-  }
-  registerPresence() {
-    if (this.selectedSession) {
-      this.calendarService.presence(this.selectedSession.idSession, this.therapistPresent, this.patientPresent).subscribe(
-        () => {
-          this.closeModal();
-          this.onFilterSessions();
-        },
-        error => console.error('Error al registrar asistencia:', error)
-      );
-    }
-  }
+  loadSessions(): void {
+    const todayDate = new Date().toISOString().split('T')[0];
+    this.calendarService.getSessionsByMonth(todayDate).subscribe({
+      next: (sessions: Session[]) => {
+        console.log('Formato de horas recibidas:', sessions.map(s => s.startTime)); // Validar horas aquí
+        const events = sessions.map(session => {
+          const normalizedStart = session.startTime.trim().replace(/\s+/g, ' '); // Normalizamos hora de inicio
+          const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' '); // Normalizamos hora de fin
+          return {
+            title: `${session.therapistName} - ${session.patientName}`,
+            start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
+            end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
+            backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+            borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+          };
+        });
 
-  getSessionsForHour(hour: string) {
-    return this.sessions.filter(session => this.getFormattedHour(session.startTime) === hour);
+        console.log('Eventos generados:', events);
+        this.calendarOptions = { ...this.calendarOptions, events };
+      },
+      error: err => console.error('Error al cargar sesiones desde el backend:', err),
+    });
   }
+}
 
-  getFormattedHour(time: string): string {
-    const hour = parseInt(time.split(':')[0], 10);
-    return `${hour % 12 || 12} ${hour >= 12 ? 'PM' : 'AM'}`;
-  }
-  openDetailsModal(session: Session) {
-    this.selectedSession = session;
-    this.showDetailsModal = true;    
-  }
-  closeDetailsModal() {
-    this.showDetailsModal = false; 
-  }
-  openReprogrammingModal(session: Session) {
-    this.selectedSession = session;
-    this.newSessionDate = session.sessionDate;
-    this.newStartTime = session.startTime;
-    this.newEndTime = session.endTime;
-    this.reason = '';  
-    this.showReprogrammingModal = true;
-  }
-  closeReprogrammingModal() {
-    this.showReprogrammingModal = false;
-  }
+function convertTimeTo24HourFormat(time: string): string {
+  // Expresión regular mejorada para capturar variaciones de formato
+  const timeRegex = /(\d{1,2}):(\d{2})\s*(a\.?\s?m\.?|p\.?\s?m\.?)/i;
+  const match = time.match(timeRegex);
 
-  sendReprogramming() {
-    if (!this.isValidTime(this.newStartTime) || !this.isValidTime(this.newEndTime)) {
-      return;
-    }
-    if (this.isStartTimeGreaterThanEndTime(this.newStartTime, this.newEndTime)) {
-      return;
-    }
-    if (this.selectedSession) {
-      const reprogrammingData = {
-        sessionDate: this.newSessionDate,
-        startTime: this.newStartTime,
-        endTime: this.newEndTime,
-        reason: this.reason
-      };
+  if (!match) throw new Error(`Formato de hora inválido: ${time}`); // Si no coincide, lanza un error
 
-      this.calendarService.reprogramSession(this.selectedSession.idSession, reprogrammingData).subscribe(
-        () => {
-          this.closeReprogrammingModal();
-          this.onFilterSessions();
-        },
-        error => console.error('Error al reprogramar sesión:', error)
-      );
-    }
-  }
-  isValidTime(time: string): boolean {
-    return time >= '09:00' && time <= '21:00';
-  }
-  isStartTimeGreaterThanEndTime(startTime: string, endTime: string): boolean {
-    return this.convertTimeTo24Hour(startTime) >= this.convertTimeTo24Hour(endTime);
-  }
-  convertTimeTo24Hour(time: string): number {
-    const [hour, minute] = time.split(':').map(num => parseInt(num, 10));
-    const isPM = time.includes('PM');
-    const isAM = time.includes('AM');
+  let [_, hour, minute, meridian] = match; // Extrae las partes de la hora
+  let hour24 = parseInt(hour, 10);
 
-    let hour24 = hour;
-    if (isPM && hour !== 12) hour24 += 12;
-    if (isAM && hour === 12) hour24 = 0;
+  if (meridian.toLowerCase().includes("p") && hour24 < 12) hour24 += 12; // Convertir PM
+  if (meridian.toLowerCase().includes("a") && hour24 === 12) hour24 = 0; // Medianoche en AM
 
-    return hour24 * 60 + minute;
-  }
+  return `${hour24.toString().padStart(2, "0")}:${minute}:00`; // Devuelve en formato 24 horas
 }
