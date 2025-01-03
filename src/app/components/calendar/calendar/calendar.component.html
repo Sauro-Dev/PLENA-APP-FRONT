@@ -11,8 +11,22 @@
           type="date"
           [(ngModel)]="selectedDate"
           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-          (change)="loadSessions()"
+          (change)="onFilterChange()"
         />
+      </div>
+
+      <!-- Selección de terapeuta -->
+      <div>
+        <label for="therapist-select" class="block text-sm font-medium text-gray-700">Seleccionar Terapeuta:</label>
+        <select
+          id="therapist-select"
+          [(ngModel)]="selectedTherapistId"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let therapist of therapists" [value]="therapist.id">{{ therapist.name }}</option>
+        </select>
       </div>
     </div>
   </div>

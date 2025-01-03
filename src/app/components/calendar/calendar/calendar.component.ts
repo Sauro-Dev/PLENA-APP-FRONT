@@ -8,6 +8,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
+import {UsersService} from "../../users/users.service";
 
 @Component({
   selector: 'app-calendar',
@@ -17,6 +18,8 @@ import listPlugin from '@fullcalendar/list';
 })
 export class CalendarComponent implements OnInit {
   selectedDate: string = '';
+  selectedTherapistId: string = '';
+  therapists: Array<{ id: string; name: string }> = [];
   sessions: Session[] = [];
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
@@ -48,33 +51,92 @@ export class CalendarComponent implements OnInit {
     },
   };
 
-  constructor(private calendarService: CalendarService) {}
+  constructor(private calendarService: CalendarService, private usersService: UsersService) {}
 
   ngOnInit(): void {
+    this.selectedDate = new Date().toISOString().split('T')[0];
+    this.loadTherapists();
+    this.loadSessions();
+  }
+
+  onFilterChange(): void {
+    console.log('Cambio en los filtros:', { selectedDate: this.selectedDate, selectedTherapistId: this.selectedTherapistId });
     this.loadSessions();
   }
 
   loadSessions(): void {
-    const todayDate = new Date().toISOString().split('T')[0];
-    this.calendarService.getSessionsByMonth(todayDate).subscribe({
-      next: (sessions: Session[]) => {
-        console.log('Formato de horas recibidas:', sessions.map(s => s.startTime)); // Validar horas aquí
-        const events = sessions.map(session => {
-          const normalizedStart = session.startTime.trim().replace(/\s+/g, ' '); // Normalizamos hora de inicio
-          const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' '); // Normalizamos hora de fin
-          return {
-            title: `${session.therapistName} - ${session.patientName}`,
-            start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
-            end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
-            backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
-            borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
-          };
+    if (this.selectedDate && this.selectedTherapistId) {
+      // Filtro por fecha y terapeuta
+      const date = new Date(this.selectedDate);
+      this.calendarService.getSessionsByDate(date).subscribe({
+        next: (sessionsByDate) => {
+          const filteredSessions = sessionsByDate.filter(
+            (session) => session.therapistId === parseInt(this.selectedTherapistId)
+          );
+          this.updateCalendarEvents(filteredSessions);
+        },
+        error: (err) => console.error('Error al cargar sesiones por fecha y terapeuta:', err),
+      });
+    } else if (this.selectedDate) {
+      // Solo filtro por fecha
+      const date = new Date(this.selectedDate);
+      this.calendarService.getSessionsByDate(date).subscribe({
+        next: (sessions) => this.updateCalendarEvents(sessions),
+        error: (err) => {
+          console.error('Error al cargar sesiones por fecha:', err);
+          if (err.status === 404) {
+            console.warn(`No se encontraron sesiones para la fecha: ${this.selectedDate}`);
+            this.updateCalendarEvents([]); // Limpia el calendario
+          }
+        },
+      });
+    } else if (this.selectedTherapistId) {
+      // Validar si therapistId es un número válido
+      const therapistId = parseInt(this.selectedTherapistId);
+      if (!isNaN(therapistId)) {
+        this.calendarService.getSessionsByTherapist(therapistId).subscribe({
+          next: (sessions) => this.updateCalendarEvents(sessions),
+          error: (err) => console.error('Error al cargar sesiones por terapeuta:', err),
         });
+      } else {
+        console.warn('El therapistId no es válido:', this.selectedTherapistId);
+      }
+    } else {
+      // Sin filtros: cargar sesiones del mes actual
+      const currentMonthDate = new Date(); // Fecha actual para determinar el mes
+      this.calendarService.getSessionsByMonth(currentMonthDate.toISOString().split('T')[0]).subscribe({
+        next: (sessions) => this.updateCalendarEvents(sessions),
+        error: (err) => console.error('Error al cargar sesiones del mes:', err),
+      });
+    }
+  }
 
-        console.log('Eventos generados:', events);
-        this.calendarOptions = { ...this.calendarOptions, events };
+  private updateCalendarEvents(sessions: Session[]): void {
+    const events = sessions.map((session) => {
+      const normalizedStart = session.startTime.trim().replace(/\s+/g, ' '); // Normalizar hora inicio
+      const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');     // Normalizar hora fin
+      return {
+        title: `${session.therapistName} - ${session.patientName}`,
+        start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
+        end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
+        backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+        borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+      };
+    });
+
+    this.calendarOptions = { ...this.calendarOptions, events }; // Actualiza el calendario
+  }
+
+  loadTherapists(): void {
+    this.usersService.getTherapists().subscribe({
+      next: (therapists) => {
+        this.therapists = therapists.map(therapist => ({
+          id: therapist.id,
+          name: therapist.name
+        }));
+        console.log('Terapeutas cargados:', this.therapists);
       },
-      error: err => console.error('Error al cargar sesiones desde el backend:', err),
+      error: (err) => console.error('Error al cargar terapeutas:', err),
     });
   }
 }
