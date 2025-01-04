@@ -1,7 +1,6 @@
 export interface Room {
-    idRoom?: number;
+    idRoom: number;
     name: string;
     address: string;
     isTherapeutic: boolean;
   }
-  
