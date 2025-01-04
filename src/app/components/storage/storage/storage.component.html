@@ -165,6 +165,10 @@
       </tbody>
     </table>
   </div>
+  <!-- Mensaje si no hay materiales -->
+  <div *ngIf="filteredMaterials.length === 0" class="text-center text-gray-500 text-xl mt-8">
+    No se encontraron materiales registrados.
+  </div>
 
   <!-- Paginación -->
   <div class="flex justify-center mt-6 space-x-2">
