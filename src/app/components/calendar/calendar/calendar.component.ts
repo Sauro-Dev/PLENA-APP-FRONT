@@ -19,6 +19,7 @@ import {RoomsService} from "../../rooms/rooms.service";
   standalone: true,
   imports: [CommonModule, FormsModule, FullCalendarModule],
   templateUrl: './calendar.component.html',
+  styleUrls: ['./calendar.component.css'],
 })
 export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
@@ -29,11 +30,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
   selectedRoomId: number | undefined;
   rooms: Array<{ id: number | undefined; name: string }> = [];
   sessions: Session[] = [];
+
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
     initialView: 'timeGridWeek',
+    initialDate: new Date().toISOString().split('T')[0],
     slotMinTime: '09:00:00',
-    slotMaxTime: '19:00:00',
+    slotMaxTime: '20:00:00',
     businessHours: [
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '09:00', endTime: '13:00' },
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '15:00', endTime: '19:00' },
@@ -41,23 +44,46 @@ export class CalendarComponent implements OnInit, OnDestroy {
     allDaySlot: false,
     editable: false,
     locale: 'es',
+    slotDuration: '00:30:00',
+    slotLabelInterval: '01:00:00',
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    },
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    },
+    slotEventOverlap: false,
+    expandRows: true,
+    eventMinHeight: 50,
+    contentHeight: 'auto',
+    height: 'auto',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
       right: 'timeGridWeek,timeGridDay',
     },
     events: [],
-    slotLabelFormat: {
-      hour: 'numeric',
-      minute: '2-digit',
-      meridiem: 'short',
+    hiddenDays: [0], // Ocultar domingos
+    eventMaxStack: undefined, // Sin límite para apilar eventos
+    eventClassNames: 'text-base bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2 whitespace-normal leading-tight',
+    eventDidMount: (info) => {
+      // Personalizar contenido de eventos
+      const patientName = info.event.extendedProps['patientName'];
+      const therapistName = info.event.extendedProps['therapistName'];
+      const roomName = info.event.extendedProps['roomName'];
+
+      info.el.innerHTML = `
+      <div class="flex flex-col h-auto">
+        <span class="font-semibold">Paciente: ${patientName}</span>
+        <span>Terapeuta: ${therapistName}</span>
+        <span>Sala: ${roomName}</span>
+      </div>
+    `;
     },
-    eventTimeFormat: {
-      hour: 'numeric',
-      minute: '2-digit',
-      meridiem: 'short',
-    },
-    hiddenDays: [0],
   };
 
   constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router) {}
@@ -74,7 +100,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.selectedDate = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    this.selectedDate = this.formatDateToDDMMYYYY(today);
+    this.calendarOptions.initialDate = today.toISOString().split('T')[0];
     this.selectedTherapistId = '';
     this.selectedRoomId = undefined;
   }
@@ -187,15 +215,40 @@ export class CalendarComponent implements OnInit, OnDestroy {
       const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');     // Normalizar hora fin
 
       return {
-        title: `Paciente: ${session.patientName}\nTerapeuta: ${session.therapistName}\nSala: ${session.roomName}`,
+        id: session.idSession.toString(),
         start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
         end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
+        extendedProps: {
+          patientName: session.patientName,
+          therapistName: session.therapistName,
+          roomName: session.roomName,
+        },
         backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
         borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+        textColor: '#ffffff',
       };
     });
 
-    this.calendarOptions = { ...this.calendarOptions, events }; // Actualiza el calendario
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      events,
+      eventDidMount: (info) => {
+        // Crear contenido dinámico
+        const patientName = info.event.extendedProps['patientName'];
+        const therapistName = info.event.extendedProps['therapistName'];
+        const roomName = info.event.extendedProps['roomName'];
+
+        const content = `
+        <div class="flex flex-col">
+          <span class="font-semibold">Paciente: ${patientName}</span>
+          <span>Terapeuta: ${therapistName}</span>
+          <span>Sala: ${roomName}</span>
+        </div>
+      `;
+
+        info.el.innerHTML = content; // Sobrescribe el contenido del evento
+      },
+    };
   }
 
   loadTherapists(): void {
@@ -209,6 +262,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error al cargar terapeutas:', err),
     });
+  }
+
+  formatDateToDDMMYYYY(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 }
 

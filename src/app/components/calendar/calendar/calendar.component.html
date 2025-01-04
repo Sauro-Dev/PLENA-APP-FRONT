@@ -45,11 +45,16 @@
     </div>
   </div>
 
-  <!-- Calendario -->
-  <div class="bg-white rounded-lg shadow overflow-hidden">
-    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  <div class="container mx-auto my-4">
+    <!-- Contenedor del Calendario -->
+    <div class="bg-white rounded-lg shadow relative">
+      <full-calendar
+        #calendar
+        [options]="calendarOptions"
+        class="w-full h-full max-h-full"
+      ></full-calendar>
+    </div>
   </div>
-</div>
 
 <!-- Modal si no hay sesiones -->
 <div *ngIf="noSessionsModal" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
@@ -63,4 +68,5 @@
       Cerrar
     </button>
   </div>
+</div>
 </div>
