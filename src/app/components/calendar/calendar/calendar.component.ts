@@ -13,6 +13,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import {UsersService} from "../../users/users.service";
 import {RoomsService} from "../../rooms/rooms.service";
+import {HttpParams} from "@angular/common/http";
 
 @Component({
   selector: 'app-calendar',
@@ -32,6 +33,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
     initialView: 'timeGridWeek',
+    initialDate: new Date().toISOString().split('T')[0],
     slotMinTime: '09:00:00',
     slotMaxTime: '19:00:00',
     businessHours: [
@@ -63,10 +65,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
   constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router) {}
 
   ngOnInit(): void {
-    this.resetFilters();
+    const today = new Date();
     this.loadTherapists();
     this.loadRooms();
-    this.loadSessions();
+    this.onFilterChange();
   }
 
   ngOnDestroy(): void {
@@ -74,80 +76,71 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.selectedDate = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    this.selectedDate = this.formatDateToDDMMYYYY(today);
+    this.calendarOptions.initialDate = today.toISOString().split('T')[0];
     this.selectedTherapistId = '';
     this.selectedRoomId = undefined;
+    this.onFilterChange();
   }
 
   onFilterChange(): void {
-    if (!this.selectedRoomId) {
-      this.selectedRoomId = undefined;
+    // Crear un objeto para almacenar los parámetros
+    let params = new HttpParams();
+
+    // Añadir fecha si existe
+    if (this.selectedDate) {
+      params = params.set('date', this.formatDateToISO(this.selectedDate));
     }
-    this.loadSessions();
+
+    // Añadir therapistId solo si tiene un valor
+    if (this.selectedTherapistId && this.selectedTherapistId !== '') {
+      params = params.set('therapistId', this.selectedTherapistId);
+    }
+
+    // Añadir roomId solo si es un número válido
+    if (typeof this.selectedRoomId === 'number') {
+      params = params.set('roomId', this.selectedRoomId.toString());
+    }
+
+    // Llamar al endpoint filtered
+    this.calendarService.getFilteredSessions(params).subscribe({
+      next: (sessions) => {
+        this.sessions = sessions; // Guarda las sesiones en la propiedad de la clase
+        this.noSessionsModal = sessions.length === 0;
+        this.updateCalendarEvents(sessions);
+      },
+      error: (err) => {
+        console.error('Error al cargar sesiones:', err);
+        this.noSessionsModal = true;
+        this.sessions = [];
+        this.updateCalendarEvents([]);
+      }
+    });
+  }
+
+  private formatDateToISO(date: string): string {
+    if (!date) return '';
+    // Si la fecha ya está en formato ISO, retornarla
+    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
+
+    // Si la fecha está en formato DD-MM-YYYY, convertirla a YYYY-MM-DD
+    const [day, month, year] = date.split('-');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
 
   loadSessions(): void {
-    if (this.selectedRoomId === undefined && this.selectedDate === '' && this.selectedTherapistId === '') {
-      // Caso: Sin ningún filtro -> Cargar sesiones solo por mes
-      this.loadMonthlySessions();
-    } if (this.selectedDate) {
-      // Caso: Filtrar por fecha
-      const date = new Date(this.selectedDate);
-      this.calendarService.getSessionsByDate(date).subscribe({
-        next: (sessions) => {
-          if (sessions.length === 0) {
-            this.noSessionsModal = true; // Mostrar modal si no hay sesiones
-            this.loadMonthlySessions(); // Cargar sesiones por mes como fallback
-          } else {
-            this.noSessionsModal = false;
-            this.updateCalendarEvents(sessions);
-            this.jumpToSelectedDate(this.selectedDate);
-          }
-        },
-        error: (err) => {
-          console.error('Error al cargar sesiones por fecha:', err);
-          if (err.status === 404) {
-            this.noSessionsModal = true; // Mostrar modal si la fecha no tiene sesiones
-            console.warn(`No se encontraron sesiones para la fecha: ${this.selectedDate}`);
-            this.updateCalendarEvents([]); // Limpia el calendario
-            this.loadMonthlySessions(); // Cargar sesiones por mes como fallback
-          }
-        },
-      });
-    } else if (this.selectedRoomId !== undefined) {
-      // Caso: Filtro por sala
-      if (this.selectedRoomId === null) {
-        this.loadMonthlySessions(); // Si el filtro es "todas las salas", cargar sesiones por mes
-      } else {
-        this.calendarService.getSessionsByRoom(this.selectedRoomId).subscribe({
-          next: (sessions) => {
-            if (sessions.length === 0) {
-              this.noSessionsModal = true; // Mostrar modal si no hay sesiones
-            }
-            this.updateCalendarEvents(sessions);
-          },
-          error: (err) => {
-            console.error('Error al cargar sesiones por sala:', err);
-            this.noSessionsModal = true; // Mostrar modal si falla la carga
-            this.updateCalendarEvents([]); // Limpia el calendario
-          },
-        });
-      }
-    } else if (this.selectedTherapistId) {
-      // Caso: Filtro por terapeuta
-      const therapistId = parseInt(this.selectedTherapistId, 10);
-      if (!isNaN(therapistId)) {
-        this.calendarService.getSessionsByTherapist(therapistId).subscribe({
-          next: (sessions) => this.updateCalendarEvents(sessions),
-          error: (err) => console.error('Error al cargar sesiones por terapeuta:', err),
-        });
-      } else {
-        console.warn('El therapistId no es válido:', this.selectedTherapistId);
-      }
-    } else {
-      // Fallback: Si no hay ningún filtro aplicable
-      this.loadMonthlySessions();
-    }
+    this.calendarService.getSessionsByRoom(this.selectedRoomId).subscribe({
+      next: (sessions) => {
+        this.noSessionsModal = sessions.length === 0;
+        this.updateCalendarEvents(sessions);
+      },
+      error: (err) => {
+        console.error('Error al cargar sesiones:', err);
+        this.noSessionsModal = true;
+        this.updateCalendarEvents([]); // Limpia el calendario en caso de error
+      },
+    });
   }
 
   private loadMonthlySessions(): void {
@@ -175,7 +168,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
           id: room.idRoom ?? undefined,
           name: room.name,
         }));
-        console.log('Salas cargadas:', this.rooms);
       },
       error: (err) => console.error('Error al cargar las salas:', err),
     });
@@ -183,8 +175,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   private updateCalendarEvents(sessions: Session[]): void {
     const events = sessions.map((session) => {
-      const normalizedStart = session.startTime.trim().replace(/\s+/g, ' '); // Normalizar hora inicio
-      const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');     // Normalizar hora fin
+      const normalizedStart = session.startTime.trim().replace(/\s+/g, ' ');
+      const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');
 
       return {
         title: `Paciente: ${session.patientName}\nTerapeuta: ${session.therapistName}\nSala: ${session.roomName}`,
@@ -195,7 +187,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       };
     });
 
-    this.calendarOptions = { ...this.calendarOptions, events }; // Actualiza el calendario
+    this.calendarOptions = { ...this.calendarOptions, events };
   }
 
   loadTherapists(): void {
@@ -205,10 +197,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
           id: therapist.id,
           name: therapist.name
         }));
-        console.log('Terapeutas cargados:', this.therapists);
       },
       error: (err) => console.error('Error al cargar terapeutas:', err),
     });
+  }
+
+  formatDateToDDMMYYYY(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 }
 
