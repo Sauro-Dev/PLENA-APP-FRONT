@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import {Router} from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   selectedRoomId: number | undefined;
   rooms: Array<{ id: number | undefined; name: string }> = [];
   sessions: Session[] = [];
+
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
     initialView: 'timeGridWeek',
@@ -60,15 +61,96 @@ export class CalendarComponent implements OnInit, OnDestroy {
       meridiem: 'short',
     },
     hiddenDays: [0],
+    datesSet: (dateInfo) => {
+      const newDate = dateInfo.start;
+      this.selectedDate = this.formatDateForInput(newDate);
+      this.onFilterChange(false, false);
+      this.cdr.detectChanges();
+    },
+    views: {
+      timeGrid: {
+        dayHeaderFormat: {
+          weekday: 'short',
+          day: 'numeric',
+          omitCommas: true
+        },
+        titleFormat: {
+          month: 'long',
+          year: 'numeric'
+        }
+      },
+      timeGridWeek: {
+        dayHeaderFormat: {
+          weekday: 'narrow',
+          day: 'numeric',
+          omitCommas: true
+        },
+        titleFormat: {
+          month: 'long',
+          year: 'numeric'
+        }
+      },
+      timeGridDay: {
+        titleFormat: {
+          month: 'long',
+          year: 'numeric',
+          day: 'numeric',
+          weekday: 'long'
+        }
+      }
+    },
+
+    dayHeaderContent: (arg) => {
+      // Personalizar el formato del encabezado del día
+      const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'short' })
+        .format(arg.date)
+        .toUpperCase()
+        .replace('.', '');
+      const dayNumber = arg.date.getDate();
+      return { html: `${dayName} ${dayNumber}` };
+    },
+
+    titleFormat: () => {
+      const currentDate = new Date();
+      const monthFormat = new Intl.DateTimeFormat('es-ES', { month: 'short' });
+      let month = monthFormat.format(currentDate);
+      month = month.charAt(0).toUpperCase() + month.slice(1).toLowerCase().replace('.', '');
+
+      const nextMonth = new Date(currentDate);
+      nextMonth.setMonth(currentDate.getMonth() + 1);
+
+      if (currentDate.getMonth() !== nextMonth.getMonth()) {
+        const nextMonthStr = monthFormat.format(nextMonth).toLowerCase().replace('.', '');
+        return `${month} - ${nextMonthStr} ${currentDate.getFullYear()}`;
+      }
+
+      return `${month} ${currentDate.getFullYear()}`;
+    },
+
+    buttonText: {
+      today: 'Hoy',
+      week: 'Semana',
+      day: 'Día'
+    },
+
   };
 
-  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router) {}
+  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router,
+              private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     const today = new Date();
+    this.selectedDate = this.formatDateForInput(today);
     this.loadTherapists();
     this.loadRooms();
-    this.onFilterChange();
+
+    setTimeout(() => {
+      this.onFilterChange(false);
+    });
+  }
+
+  private formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   ngOnDestroy(): void {
@@ -84,47 +166,46 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.onFilterChange();
   }
 
-  onFilterChange(): void {
-    // Crear un objeto para almacenar los parámetros
+  onFilterChange(jumpToDate: boolean = true, showModal: boolean = true): void {
     let params = new HttpParams();
 
-    // Añadir fecha si existe
     if (this.selectedDate) {
-      params = params.set('date', this.formatDateToISO(this.selectedDate));
+      params = params.set('date', this.selectedDate);
     }
 
-    // Añadir therapistId solo si tiene un valor
     if (this.selectedTherapistId && this.selectedTherapistId !== '') {
       params = params.set('therapistId', this.selectedTherapistId);
     }
 
-    // Añadir roomId solo si es un número válido
     if (typeof this.selectedRoomId === 'number') {
       params = params.set('roomId', this.selectedRoomId.toString());
     }
 
-    // Llamar al endpoint filtered
     this.calendarService.getFilteredSessions(params).subscribe({
       next: (sessions) => {
-        this.sessions = sessions; // Guarda las sesiones en la propiedad de la clase
-        this.noSessionsModal = sessions.length === 0;
+        this.sessions = sessions;
+        this.noSessionsModal = showModal && sessions.length === 0;
         this.updateCalendarEvents(sessions);
+
+        if (jumpToDate && this.selectedDate) {
+          this.jumpToSelectedDate(this.selectedDate);
+        }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar sesiones:', err);
-        this.noSessionsModal = true;
+        this.noSessionsModal = showModal;
         this.sessions = [];
         this.updateCalendarEvents([]);
+        this.cdr.detectChanges();
       }
     });
   }
 
   private formatDateToISO(date: string): string {
     if (!date) return '';
-    // Si la fecha ya está en formato ISO, retornarla
     if (date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
 
-    // Si la fecha está en formato DD-MM-YYYY, convertirla a YYYY-MM-DD
     const [day, month, year] = date.split('-');
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
@@ -138,7 +219,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error al cargar sesiones:', err);
         this.noSessionsModal = true;
-        this.updateCalendarEvents([]); // Limpia el calendario en caso de error
+        this.updateCalendarEvents([]);
       },
     });
   }
@@ -155,9 +236,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   private jumpToSelectedDate(date: string): void {
     if (this.calendarComponent) {
       const calendarApi = this.calendarComponent.getApi();
-      calendarApi.changeView('timeGridDay', date);
-    } else {
-      console.error('Referencia al calendario no disponible.');
+      const currentView = calendarApi.view.type;
+      calendarApi.gotoDate(date);
+      calendarApi.changeView(currentView);
     }
   }
 
