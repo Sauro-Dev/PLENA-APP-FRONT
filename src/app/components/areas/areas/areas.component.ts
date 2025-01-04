@@ -20,6 +20,7 @@ export class AreasComponent implements OnInit {
   itemsPerPage: number = 10;
   searchQuery: string = '';
   totalPages: number = 10;
+  showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 
   constructor(private areasService: AreasService, private router: Router) {}
 
@@ -100,6 +101,10 @@ export class AreasComponent implements OnInit {
         }
       );
     }
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
   }
 
   protected readonly Math = Math;

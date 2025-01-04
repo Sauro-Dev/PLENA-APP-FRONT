@@ -18,6 +18,7 @@ export class RoomsComponent implements OnInit {
   therapeuticFilter: string = '';
   itemsPerPage: number = 10;
   currentPage: number = 1;
+  showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 
   constructor(private roomsService: RoomsService) {}
 
@@ -59,6 +60,10 @@ export class RoomsComponent implements OnInit {
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
   }
 
   protected readonly Math = Math;
