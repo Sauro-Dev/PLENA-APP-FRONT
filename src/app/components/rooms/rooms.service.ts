@@ -41,10 +41,12 @@ export class RoomsService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<Room>(`${this.apiUrl}/${roomId}`,{headers});
   }
+
+
   updateRoom(id: string, room: Room): Observable<Room> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.put<Room>(`${this.apiUrl}/update/${id}`, room,{headers});
   }
-  
+
 }

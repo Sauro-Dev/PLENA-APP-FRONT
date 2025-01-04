@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Router} from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../calendar.service';
 import { Session } from '../session';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import {FullCalendarComponent} from "@fullcalendar/angular";
+import {ViewChild} from "@angular/core";
 import { CalendarOptions } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import {UsersService} from "../../users/users.service";
+import {RoomsService} from "../../rooms/rooms.service";
 
 @Component({
   selector: 'app-calendar',
@@ -16,10 +20,14 @@ import {UsersService} from "../../users/users.service";
   imports: [CommonModule, FormsModule, FullCalendarModule],
   templateUrl: './calendar.component.html',
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent implements OnInit, OnDestroy {
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   selectedDate: string = '';
+  noSessionsModal: boolean = false;
   selectedTherapistId: string = '';
   therapists: Array<{ id: string; name: string }> = [];
+  selectedRoomId: number | undefined;
+  rooms: Array<{ id: number | undefined; name: string }> = [];
   sessions: Session[] = [];
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
@@ -49,50 +57,85 @@ export class CalendarComponent implements OnInit {
       minute: '2-digit',
       meridiem: 'short',
     },
+    hiddenDays: [0],
   };
 
-  constructor(private calendarService: CalendarService, private usersService: UsersService) {}
+  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router) {}
 
   ngOnInit(): void {
-    this.selectedDate = new Date().toISOString().split('T')[0];
+    this.resetFilters();
     this.loadTherapists();
+    this.loadRooms();
     this.loadSessions();
   }
 
+  ngOnDestroy(): void {
+    this.resetFilters();
+  }
+
+  resetFilters(): void {
+    this.selectedDate = new Date().toISOString().split('T')[0];
+    this.selectedTherapistId = '';
+    this.selectedRoomId = undefined;
+  }
+
   onFilterChange(): void {
-    console.log('Cambio en los filtros:', { selectedDate: this.selectedDate, selectedTherapistId: this.selectedTherapistId });
+    if (!this.selectedRoomId) {
+      this.selectedRoomId = undefined;
+    }
     this.loadSessions();
   }
 
   loadSessions(): void {
-    if (this.selectedDate && this.selectedTherapistId) {
-      // Filtro por fecha y terapeuta
+    if (this.selectedRoomId === undefined && this.selectedDate === '' && this.selectedTherapistId === '') {
+      // Caso: Sin ningún filtro -> Cargar sesiones solo por mes
+      this.loadMonthlySessions();
+    } if (this.selectedDate) {
+      // Caso: Filtrar por fecha
       const date = new Date(this.selectedDate);
       this.calendarService.getSessionsByDate(date).subscribe({
-        next: (sessionsByDate) => {
-          const filteredSessions = sessionsByDate.filter(
-            (session) => session.therapistId === parseInt(this.selectedTherapistId)
-          );
-          this.updateCalendarEvents(filteredSessions);
+        next: (sessions) => {
+          if (sessions.length === 0) {
+            this.noSessionsModal = true; // Mostrar modal si no hay sesiones
+            this.loadMonthlySessions(); // Cargar sesiones por mes como fallback
+          } else {
+            this.noSessionsModal = false;
+            this.updateCalendarEvents(sessions);
+            this.jumpToSelectedDate(this.selectedDate);
+          }
         },
-        error: (err) => console.error('Error al cargar sesiones por fecha y terapeuta:', err),
-      });
-    } else if (this.selectedDate) {
-      // Solo filtro por fecha
-      const date = new Date(this.selectedDate);
-      this.calendarService.getSessionsByDate(date).subscribe({
-        next: (sessions) => this.updateCalendarEvents(sessions),
         error: (err) => {
           console.error('Error al cargar sesiones por fecha:', err);
           if (err.status === 404) {
+            this.noSessionsModal = true; // Mostrar modal si la fecha no tiene sesiones
             console.warn(`No se encontraron sesiones para la fecha: ${this.selectedDate}`);
             this.updateCalendarEvents([]); // Limpia el calendario
+            this.loadMonthlySessions(); // Cargar sesiones por mes como fallback
           }
         },
       });
+    } else if (this.selectedRoomId !== undefined) {
+      // Caso: Filtro por sala
+      if (this.selectedRoomId === null) {
+        this.loadMonthlySessions(); // Si el filtro es "todas las salas", cargar sesiones por mes
+      } else {
+        this.calendarService.getSessionsByRoom(this.selectedRoomId).subscribe({
+          next: (sessions) => {
+            if (sessions.length === 0) {
+              this.noSessionsModal = true; // Mostrar modal si no hay sesiones
+            }
+            this.updateCalendarEvents(sessions);
+          },
+          error: (err) => {
+            console.error('Error al cargar sesiones por sala:', err);
+            this.noSessionsModal = true; // Mostrar modal si falla la carga
+            this.updateCalendarEvents([]); // Limpia el calendario
+          },
+        });
+      }
     } else if (this.selectedTherapistId) {
-      // Validar si therapistId es un número válido
-      const therapistId = parseInt(this.selectedTherapistId);
+      // Caso: Filtro por terapeuta
+      const therapistId = parseInt(this.selectedTherapistId, 10);
       if (!isNaN(therapistId)) {
         this.calendarService.getSessionsByTherapist(therapistId).subscribe({
           next: (sessions) => this.updateCalendarEvents(sessions),
@@ -102,21 +145,49 @@ export class CalendarComponent implements OnInit {
         console.warn('El therapistId no es válido:', this.selectedTherapistId);
       }
     } else {
-      // Sin filtros: cargar sesiones del mes actual
-      const currentMonthDate = new Date(); // Fecha actual para determinar el mes
-      this.calendarService.getSessionsByMonth(currentMonthDate.toISOString().split('T')[0]).subscribe({
-        next: (sessions) => this.updateCalendarEvents(sessions),
-        error: (err) => console.error('Error al cargar sesiones del mes:', err),
-      });
+      // Fallback: Si no hay ningún filtro aplicable
+      this.loadMonthlySessions();
     }
+  }
+
+  private loadMonthlySessions(): void {
+    const currentMonthDate = new Date();
+    const startDate = currentMonthDate.toISOString().split('T')[0];
+    this.calendarService.getSessionsByMonth(startDate).subscribe({
+      next: (sessions) => this.updateCalendarEvents(sessions),
+      error: (err) => console.error('Error al cargar sesiones del mes:', err),
+    });
+  }
+
+  private jumpToSelectedDate(date: string): void {
+    if (this.calendarComponent) {
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.changeView('timeGridDay', date);
+    } else {
+      console.error('Referencia al calendario no disponible.');
+    }
+  }
+
+  private loadRooms(): void {
+    this.roomsService.getRooms().subscribe({
+      next: (rooms) => {
+        this.rooms = rooms.map(room => ({
+          id: room.idRoom ?? undefined,
+          name: room.name,
+        }));
+        console.log('Salas cargadas:', this.rooms);
+      },
+      error: (err) => console.error('Error al cargar las salas:', err),
+    });
   }
 
   private updateCalendarEvents(sessions: Session[]): void {
     const events = sessions.map((session) => {
       const normalizedStart = session.startTime.trim().replace(/\s+/g, ' '); // Normalizar hora inicio
       const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');     // Normalizar hora fin
+
       return {
-        title: `${session.therapistName} - ${session.patientName}`,
+        title: `Paciente: ${session.patientName}\nTerapeuta: ${session.therapistName}\nSala: ${session.roomName}`,
         start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
         end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
         backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',

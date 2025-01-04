@@ -31,6 +31,12 @@ export class CalendarService {
     return this.http.get<Session[]>(`${this.apiUrl}/therapist/${therapistId}`, {headers});
   }
 
+  getSessionsByRoom(roomId: number): Observable<Session[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<Session[]>(`${this.apiUrl}/sessions-byRoom/${roomId}`, { headers });
+  }
+
   presence(sessionId: number, therapistPresent: boolean, patientPresent: boolean): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
