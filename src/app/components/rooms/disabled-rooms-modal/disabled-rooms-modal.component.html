@@ -1,0 +1,47 @@
+<div class="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+  <!-- Modal -->
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <h2 class="text-center text-2xl font-semibold text-blue-800 mb-4">Salas Deshabilitadas</h2>
+
+    <!-- Spinner de carga -->
+    <div *ngIf="isLoading" class="text-center my-4">
+      <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+      <p>Cargando...</p>
+    </div>
+
+    <!-- Lista de salas deshabilitadas -->
+    <div *ngIf="!isLoading">
+      <p *ngIf="disabledRooms.length === 0" class="text-center text-gray-500">
+        No hay salas deshabilitadas.
+      </p>
+
+      <ul *ngIf="disabledRooms.length > 0" class="space-y-2">
+        <li *ngFor="let room of disabledRooms" class="p-4 bg-blue-50 rounded-md shadow">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-blue-800">{{ room.name }}</h3>
+              <p class="text-gray-600">{{ room.address }}</p>
+              <p class="text-sm text-gray-700">Terapéutico: {{ room.isTherapeutic ? 'Sí' : 'No' }}</p>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                title="Habilitar esta sala"
+                (change)="enableRoom(room.id)"
+              />
+              <label class="text-sm text-blue-800 font-semibold">Habilitar sala</label>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex justify-end mt-4">
+      <button
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="onClose()">
+        Guardar y Cerrar
+      </button>
+    </div>
+  </div>
+</div>

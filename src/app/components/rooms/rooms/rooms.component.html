@@ -9,13 +9,26 @@
     Gestión de Ambientes
   </h1>
 
-  <!-- Sección de botones (Agregar Ambiente y Filtros en móvil) -->
-  <div class="flex justify-between items-center mb-8 md:flex-row-reverse flex-row">
+  <!-- Sección de botones (Agregar Ambiente y Ver Salas Deshabilitadas) -->
+  <div class="flex justify-end items-center space-x-4 mb-8">
     <button
-      class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform"
-      [routerLink]="'/rooms/add-room'">
+      [routerLink]="'/rooms/add-room'"
+      class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform">
       <i class="fas fa-user-plus mr-2"></i> Agregar Ambiente
     </button>
+
+    <button
+      (click)="openDisabledRoomsModal()"
+      class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform">
+      <i class="fas fa-ban mr-2"></i> Ver Salas Deshabilitadas
+    </button>
+
+
+  <!-- Modal de salas inhabilitadas -->
+  <app-disabled-rooms-modal
+    *ngIf="showDisabledRoomsModal"
+    (closeModal)="closeDisabledRoomsModal()">
+  </app-disabled-rooms-modal>
 
     <!-- Botón de filtros (Móvil) -->
     <button
@@ -138,3 +151,4 @@
     </button>
   </div>
 </div>
+

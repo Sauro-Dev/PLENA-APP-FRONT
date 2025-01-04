@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RoomsService } from '../rooms.service';
+import {DisabledRoomsModalComponent} from "../disabled-rooms-modal/disabled-rooms-modal.component";
 
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [RouterLink, FormsModule, CommonModule, DisabledRoomsModalComponent],
   templateUrl: './rooms.component.html',
   styleUrl: './rooms.component.css',
 })
@@ -18,7 +19,8 @@ export class RoomsComponent implements OnInit {
   therapeuticFilter: string = '';
   itemsPerPage: number = 10;
   currentPage: number = 1;
-  showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
+  showFilters: boolean = false;
+  showDisabledRoomsModal: boolean = false;
 
   constructor(private roomsService: RoomsService) {}
 
@@ -35,11 +37,20 @@ export class RoomsComponent implements OnInit {
   }
 
   onFilter(): void {
-    const isTherapeutic = this.therapeuticFilter === 'yes';
-    this.roomsService.getRoomsByTherapeutic(isTherapeutic).subscribe((data) => {
-      this.filteredRooms = data;
-      this.paginate();
-    });
+    if (this.therapeuticFilter === '') {
+      // Si no hay filtro, cargar todas las salas
+      this.roomsService.getRooms().subscribe((data) => {
+        this.filteredRooms = [...data];
+        this.paginate();
+      });
+    } else {
+      // Filtrar basado en el estado terapéutico
+      const isTherapeutic = this.therapeuticFilter === 'yes';
+      this.roomsService.getRoomsByTherapeutic(isTherapeutic).subscribe((data) => {
+        this.filteredRooms = data;
+        this.paginate();
+      });
+    }
   }
 
   onSearch(): void {
@@ -60,6 +71,15 @@ export class RoomsComponent implements OnInit {
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();
+  }
+
+  openDisabledRoomsModal(): void {
+    this.showDisabledRoomsModal = true;
+  }
+
+  closeDisabledRoomsModal(): void {
+    this.showDisabledRoomsModal = false;
+    this.loadRooms();
   }
 
   toggleFilters(): void {
