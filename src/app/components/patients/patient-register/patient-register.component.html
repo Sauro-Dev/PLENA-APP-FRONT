@@ -133,18 +133,30 @@
       <div *ngFor="let session of sessionDates.controls; let i = index" [formGroupName]="i" class="mb-5">
         <label class="block text-lg font-medium text-gray-700">Fecha {{ i + 1 }}</label>
         <input type="date" formControlName="sessionDate" (change)="onSessionChange(i)"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800" />
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+               [ngClass]="{'border-red-500': session.get('sessionDate')?.invalid && session.get('sessionDate')?.touched}" />
+        <div class="mt-1 text-sm text-red-600"
+             *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched">
+          No se pueden programar sesiones los domingos
+        </div>
 
         <div class="flex gap-5">
           <div class="w-1/2">
             <label class="block text-lg font-medium text-gray-700">Hora de Inicio</label>
             <input type="time" formControlName="startTime" (change)="onSessionChange(i)"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800" />
+                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                   [ngClass]="{'border-red-500': session.get('startTime')?.invalid && session.get('startTime')?.touched}" />
+            <div class="mt-1 text-sm text-red-600"
+                 *ngIf="session.get('startTime')?.errors?.['invalidTimeRange'] && session.get('startTime')?.touched">
+              El horario de atención es de 9:00 AM a 1:00 PM y de 3:00 PM a 7:00 PM
+            </div>
           </div>
           <div class="w-1/2">
             <label class="block text-lg font-medium text-gray-700">Hora de Fin</label>
-            <input type="time" formControlName="endTime" (change)="onSessionChange(i)"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800" />
+            <div class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+              {{ session.value.startTime ? format12Hours(addMinutes(session.value.startTime, 50)) : '-- : -- --' }}
+            </div>
+            <input type="hidden" formControlName="endTime" />
           </div>
         </div>
 
@@ -152,20 +164,30 @@
           <div class="w-1/2">
             <label class="block text-lg font-medium text-gray-700">Sala</label>
             <select formControlName="room"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-              <option [value]="null" disabled>Seleccione una sala</option>
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                    [ngClass]="{'border-red-500': session.get('room')?.invalid && session.get('room')?.touched}">
+              <option [ngValue]="null">Seleccione una sala</option>
               <option *ngFor="let room of rooms" [value]="room.idRoom">{{ room.name }}</option>
             </select>
+            <div class="mt-1 text-sm text-red-600"
+                 *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
+              No hay salas disponibles para el horario seleccionado
+            </div>
           </div>
           <div class="w-1/2">
             <label class="block text-lg font-medium text-gray-700">Terapeuta</label>
             <select formControlName="therapist"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-              <option [value]="null" disabled>Seleccione un terapeuta</option>
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                    [ngClass]="{'border-red-500': session.get('therapist')?.invalid && session.get('therapist')?.touched}">
+              <option [ngValue]="null">Seleccione un terapeuta</option>
               <option *ngFor="let therapist of therapistsMap.get(i) || []" [value]="therapist.id">
                 {{ therapist.name }}
               </option>
             </select>
+            <div class="mt-1 text-sm text-red-600"
+                 *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists']">
+              No hay terapeutas disponibles para el horario seleccionado
+            </div>
           </div>
         </div>
       </div>
@@ -253,8 +275,8 @@
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10">
       <button type="button" (click)="onSubmit()" class="px-5 py-2 rounded-lg text-xl" [ngClass]="{
-          'bg-blue-800 hover:bg-blue-700 text-white': patientForm.valid,
-          'bg-gray-500 text-gray-300 cursor-not-allowed': patientForm.invalid
+       'bg-blue-800 hover:bg-blue-700 text-white': patientForm.valid,
+       'bg-gray-500 text-gray-300 cursor-not-allowed': patientForm.invalid
         }" [disabled]="patientForm.invalid">
         Guardar
       </button>
