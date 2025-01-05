@@ -3,5 +3,5 @@ export interface Room {
     name: string;
     address: string;
     isTherapeutic: boolean;
+    enabled: boolean;
   }
-  

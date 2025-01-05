@@ -58,4 +58,10 @@ export class RoomsService {
     return this.http.put<string>(`${this.apiUrl}/enable/${roomId}`, {}, { headers });
   }
 
+  disableRoom(roomId: number): Observable<string> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<string>(`${this.apiUrl}/disable/${roomId}`, {}, { headers });
+  }
+
 }

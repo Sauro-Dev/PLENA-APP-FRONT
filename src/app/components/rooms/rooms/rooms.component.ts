@@ -38,13 +38,11 @@ export class RoomsComponent implements OnInit {
 
   onFilter(): void {
     if (this.therapeuticFilter === '') {
-      // Si no hay filtro, cargar todas las salas
       this.roomsService.getRooms().subscribe((data) => {
         this.filteredRooms = [...data];
         this.paginate();
       });
     } else {
-      // Filtrar basado en el estado terapéutico
       const isTherapeutic = this.therapeuticFilter === 'yes';
       this.roomsService.getRoomsByTherapeutic(isTherapeutic).subscribe((data) => {
         this.filteredRooms = data;
