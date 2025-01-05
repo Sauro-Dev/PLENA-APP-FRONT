@@ -1,42 +1,55 @@
 <form [formGroup]="areaForm" (ngSubmit)="openConfirmModal()" class="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-  <!-- Nombre del Área -->
-  <div class="mb-4">
-    <label for="name" class="block text-gray-700 font-bold mb-2">Nombre del Área</label>
-    <input id="name" type="text" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      formControlName="name" />
-    <div *ngIf="areaForm.get('name')?.invalid && (areaForm.get('name')?.dirty || areaForm.get('name')?.touched)"
-      class="text-red-500 text-sm mt-1">
-      <div *ngIf="areaForm.get('name')?.errors?.['required']">El nombre del área es requerido.</div>
-      <div *ngIf="areaForm.get('name')?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</div>
-    </div>
-  </div>
-
-  <!-- Descripción -->
-  <div class="mb-4">
-    <label for="description" class="block text-gray-700 font-bold mb-2">Descripción</label>
-    <textarea id="description" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      formControlName="description" rows="4"></textarea>
-    <div
-      *ngIf="areaForm.get('description')?.invalid && (areaForm.get('description')?.dirty || areaForm.get('description')?.touched)"
-      class="text-red-500 text-sm mt-1">
-      <div *ngIf="areaForm.get('description')?.errors?.['required']">La descripción es requerida.</div>
-      <div *ngIf="areaForm.get('description')?.errors?.['maxlength']">La descripción no debe exceder los 500 caracteres.
+  <form [formGroup]="areaForm" (ngSubmit)="openConfirmModal()" class="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
+    <!-- Nombre del Área -->
+    <div class="mb-4">
+      <label for="name" class="block text-gray-700 font-bold mb-2">Nombre del Área</label>
+      <input id="name" type="text" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+             formControlName="name" />
+      <div *ngIf="areaForm.get('name')?.invalid && (areaForm.get('name')?.dirty || areaForm.get('name')?.touched)"
+           class="text-red-500 text-sm mt-1">
+        <div *ngIf="areaForm.get('name')?.errors?.['required']">El nombre del área es requerido.</div>
+        <div *ngIf="areaForm.get('name')?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</div>
       </div>
     </div>
-  </div>
 
-  <!-- Botones -->
-  <div class="flex gap-5 justify-center">
-    <button type="submit" [disabled]="areaForm.invalid"
-      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-      Guardar Cambios
-    </button>
-    <button type="button" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg text-lg hover:bg-gray-400 transition"
-      (click)="openCancelModal()">
-      Cancelar
-    </button>
-  </div>
-</form>
+    <!-- Descripción -->
+    <div class="mb-4">
+      <label for="description" class="block text-gray-700 font-bold mb-2">Descripción</label>
+      <textarea id="description" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                formControlName="description" rows="4"></textarea>
+      <div
+        *ngIf="areaForm.get('description')?.invalid && (areaForm.get('description')?.dirty || areaForm.get('description')?.touched)"
+        class="text-red-500 text-sm mt-1">
+        <div *ngIf="areaForm.get('description')?.errors?.['required']">La descripción es requerida.</div>
+        <div *ngIf="areaForm.get('description')?.errors?.['maxlength']">La descripción no debe exceder los 500 caracteres.
+        </div>
+      </div>
+    </div>
+
+    <!-- Campo "Habilitada" -->
+    <div class="mb-4">
+      <label for="enabled" class="block text-gray-700 font-bold mb-2">Habilitada</label>
+      <input
+        id="enabled"
+        type="checkbox"
+        class="h-5 w-5 text-blue-500 rounded focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+        formControlName="enabled"
+      />
+      <span class="ml-2 text-gray-700">¿El área está habilitada?</span>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-5 justify-center">
+      <button type="submit" [disabled]="areaForm.invalid"
+              class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+        Guardar Cambios
+      </button>
+      <button type="button" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg text-lg hover:bg-gray-400 transition"
+              (click)="openCancelModal()">
+        Cancelar
+      </button>
+    </div>
+  </form>
 
 <!-- Modal Confirmación Guardar -->
 <div *ngIf="showConfirmModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">

@@ -1,5 +1,5 @@
-import { Component, Inject, inject, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AreasService } from '../areas.service';
 import {
   FormBuilder,
@@ -31,6 +31,7 @@ export class AreaEditComponent implements OnInit {
     this.areaForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
+      enabled: [true],
     });
   }
 
@@ -47,6 +48,7 @@ export class AreaEditComponent implements OnInit {
         this.areaForm.patchValue({
           name: data.name,
           description: data.description,
+          enabled: data.enabled,
         });
       },
       (error) => {
