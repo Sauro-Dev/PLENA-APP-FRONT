@@ -70,16 +70,21 @@ export class AreaEditComponent implements OnInit {
   }
 
   confirmEdit(): void {
-    const updatedArea = this.areaForm.value;
-    this.areaService.update(this.areaId, updatedArea).subscribe(
-      () => {
-        this.closeConfirmModal();
-        this.location.back();
-      },
-      (error) => {
-        console.error('Error al actualizar el área:', error);
-      }
-    );
+    if (this.areaForm.valid) {
+      const updatedArea = this.areaForm.value;
+
+      this.areaService.update(this.areaId, updatedArea).subscribe(
+        () => {
+          this.location.back();
+        },
+        (error) => {
+          console.error('Error al actualizar el área:', error);
+        }
+      );
+    } else {
+      console.warn('El formulario no es válido. Verifica los campos.');
+      this.areaForm.markAllAsTouched();
+    }
   }
 
   openCancelModal(): void {

@@ -1,23 +1,24 @@
-<section class="flex flex-col items-center mt-6 px-4 w-full max-w-4xl mx-auto">
+<section class="flex flex-col items-center my-6 px-4 w-full max-w-4xl mx-auto">
   <!-- Contenedor principal -->
-  <div class="bg-white shadow-lg rounded-lg p-6 w-full divide-y divide-gray-300 space-y-6">
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full divide-y divide-gray-300">
+
     <!-- Encabezado principal -->
     <div>
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center">
         <div>
           <h1 class="text-3xl font-bold text-gray-800">{{ room?.name }}</h1>
-          <p class="mt-2 text-lg text-gray-500">
+          <p class="mt-2 text-lg text-gray-500 flex items-center">
             <i class="ti ti-map-pin mr-2"></i> Dirección: {{ room?.address }}
           </p>
-          <p class="mt-1 text-lg text-gray-500">
+          <p class="mt-1 text-lg text-gray-500 flex items-center">
             <i class="ti ti-heart-rate-monitor mr-2"></i> Terapéutico: {{ room?.isTherapeutic ? 'Sí' : 'No' }}
           </p>
         </div>
 
         <!-- Estado de la sala -->
-        <div>
+        <div class="mt-4 md:mt-0">
           <span
-            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow"
             [ngClass]="room?.enabled ? 'bg-green-500' : 'bg-red-500'"
           >
             <i [class]="room?.enabled ? 'ti ti-toggle-right' : 'ti ti-toggle-left'" class="text-2xl"></i>
@@ -27,18 +28,18 @@
       </div>
 
       <!-- Botón para editar -->
-      <div class="mt-4 text-right">
+      <div class="mt-4 text-center md:text-right">
         <a
           [routerLink]="['/rooms/edit-room', room?.idRoom]"
-          class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full shadow hover:bg-blue-200 transition duration-200 text-base font-medium flex items-center gap-2 justify-center"
+          class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition duration-200 inline-flex items-center justify-center gap-2"
         >
           <i class="ti ti-pencil"></i> Editar Ambiente
         </a>
       </div>
     </div>
 
-    <!-- Filtros (ajustados en tamaño y diseño) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Filtros de búsqueda -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
       <!-- Filtrar por estado -->
       <div>
         <label class="block text-lg font-medium text-gray-700 mb-1">Filtrar por estado</label>
@@ -73,29 +74,29 @@
     </div>
 
     <!-- Tabla de materiales -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border">
+    <div class="overflow-x-auto py-6">
+      <table class="min-w-full bg-white border shadow-sm">
         <thead class="bg-gray-100 text-gray-700">
         <tr>
-          <th class="py-2 px-4 border-b">Nombre</th>
-          <th class="py-2 px-4 border-b">Estado</th>
-          <th class="py-2 px-4 border-b">Stock</th>
-          <th class="py-2 px-4 border-b">Completo</th>
-          <th class="py-2 px-4 border-b">Acciones</th>
+          <th class="py-3 px-4 border-b text-left">Nombre</th>
+          <th class="py-3 px-4 border-b text-left">Estado</th>
+          <th class="py-3 px-4 border-b text-left">Stock</th>
+          <th class="py-3 px-4 border-b text-left">Completo</th>
+          <th class="py-3 px-4 border-b text-left">Acciones</th>
         </tr>
         </thead>
         <tbody>
         <!-- Mostrar materiales asignados -->
-        <tr *ngFor="let material of filteredMaterials">
-          <td class="py-2 px-4 border-b">{{ material.nombre }}</td>
-          <td class="py-2 px-4 border-b">{{ material.estado }}</td>
-          <td class="py-2 px-4 border-b">{{ material.stock }}</td>
-          <td class="py-2 px-4 border-b">
+        <tr *ngFor="let material of filteredMaterials" class="hover:bg-gray-100 transition">
+          <td class="py-3 px-4 border-b">{{ material.nombre }}</td>
+          <td class="py-3 px-4 border-b">{{ material.estado }}</td>
+          <td class="py-3 px-4 border-b">{{ material.stock }}</td>
+          <td class="py-3 px-4 border-b">
             {{ material.esCompleto ? 'Sí' : 'No' }}
           </td>
-          <td class="py-2 px-4 border-b">
+          <td class="py-3 px-4 border-b">
             <button
-              class="bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition duration-200"
+              class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition duration-200"
               *ngIf="material.idMaterial"
               (click)="unassignMaterial(material.idMaterial)"
             >
@@ -106,7 +107,7 @@
 
         <!-- Mostrar mensaje cuando no hay materiales -->
         <tr *ngIf="filteredMaterials.length === 0">
-          <td colspan="5" class="py-4 px-6 text-center text-gray-600 border-b">
+          <td colspan="5" class="py-6 px-6 text-center text-gray-600 border-b">
             No hay materiales asignados a este ambiente.
           </td>
         </tr>
@@ -114,11 +115,11 @@
       </table>
     </div>
 
-    <!-- Botones adicionales (reposicionados) -->
-    <div class="flex justify-between gap-4 mt-8">
+    <!-- Botones adicionales -->
+    <div class="flex flex-col md:flex-row md:justify-between gap-4 mt-6">
       <!-- Asignar materiales -->
       <button
-        class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full shadow hover:bg-blue-200 transition duration-200"
+        class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition duration-200 w-full md:w-auto"
         (click)="openAssignModal()"
       >
         Asignar Materiales
@@ -127,7 +128,7 @@
       <!-- Volver a Ambientes -->
       <a
         [routerLink]="['/rooms']"
-        class="bg-gray-100 text-gray-700 px-6 py-3 rounded-full shadow hover:bg-gray-200 transition duration-200"
+        class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg shadow hover:bg-gray-200 transition duration-200 w-full md:w-auto"
       >
         Volver a Ambientes
       </a>
@@ -137,7 +138,7 @@
   <!-- Modal para asignar materiales -->
   <div
     *ngIf="isAssignModalOpen"
-    class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
   >
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
       <h2 class="text-2xl font-bold text-gray-800 mb-4">Asignar Materiales</h2>
@@ -156,7 +157,7 @@
             <td class="py-2 px-4 border-b">{{ material.nombre }}</td>
             <td class="py-2 px-4 border-b">
               <button
-                class="bg-green-100 text-green-700 px-4 py-1 rounded-full hover:bg-green-200 transition duration-200"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition duration-200"
                 (click)="assignMaterial(material.idMaterial, room?.idRoom!)"
               >
                 Asignar
@@ -168,7 +169,7 @@
       </div>
       <div class="flex justify-end gap-4 mt-4">
         <button
-          class="bg-gray-100 text-gray-700 px-6 py-3 rounded-full shadow hover:bg-gray-200 transition duration-200"
+          class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg shadow hover:bg-gray-200 transition duration-200"
           (click)="closeAssignModal()"
         >
           Cerrar

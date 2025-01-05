@@ -22,15 +22,14 @@ export class DisabledInterventionAreasModalComponent implements OnInit {
 
   loadDisabledAreas(): void {
     this.isLoading = true;
-
-    // Llamada al servicio para obtener las áreas deshabilitadas
     this.areasService.getDisabledAreas().subscribe(
       (data) => {
-        this.disabledAreas = data;
+        this.disabledAreas = data || [];
         this.isLoading = false;
       },
       (error) => {
         console.error('Error al obtener las áreas deshabilitadas:', error);
+        this.disabledAreas = [];
         this.isLoading = false;
       }
     );
