@@ -5,10 +5,13 @@ export interface RegisterPatient {
   paternalSurname: string;
   maternalSurname: string;
   dni: string;
-  birthDate: string;
-  age: number;
+  birthdate: string; // Changed to string to match backend
   presumptiveDiagnosis: string;
+  status: boolean;
   idPlan: number;
   tutors: Tutor[];
-  status: boolean;
+  therapistId: number;
+  roomId: number;
+  startTime: string;
+  firstWeekDates: string[];
 }
