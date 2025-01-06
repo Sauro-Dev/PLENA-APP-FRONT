@@ -128,9 +128,9 @@
             <input
               type="date"
               [(ngModel)]="patient!.birthDate"
-              name="birthDate"
-              required
-              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+            name="birthDate"
+            required
+            class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
             />
             <i class="ti ti-calendar text-2xl px-3 text-gray-500"></i>
           </div>
@@ -140,6 +140,19 @@
           >
             Obligatorio.
           </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-lg font-medium text-gray-700">Estado</label>
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            [(ngModel)]="patient!.status"
+            name="status"
+            class="w-5 h-5 border-gray-300 rounded"
+          />
+          <span class="ml-2 text-lg text-gray-600">Activo</span>
         </div>
       </div>
 

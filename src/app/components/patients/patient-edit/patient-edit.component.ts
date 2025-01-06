@@ -43,11 +43,12 @@ export class PatientEditComponent implements OnInit {
           paternalSurname: data.paternalSurname,
           maternalSurname: data.maternalSurname || '',
           dni: data.dni || '',
-          birthDate: new Date(data.birthdate),
+          birthDate: data.birthdate || '',
           age: data.age,
           presumptiveDiagnosis: data.presumptiveDiagnosis || '',
           idPlan: data.idPlan || 0,
           tutors: data.tutors || [],
+          status: data.status
         };
         this.isLoading = false;
       },
@@ -68,13 +69,11 @@ export class PatientEditComponent implements OnInit {
       paternalSurname: this.patient.paternalSurname.trim(),
       maternalSurname: this.patient.maternalSurname.trim(),
       dni: this.patient.dni.trim(),
-      // Usamos formato 'YYYY-MM-DD'
-      birthdate: this.patient.birthDate instanceof Date
-        ? this.patient.birthDate.toISOString().split('T')[0]
-        : this.patient.birthDate, // Si ya es string, lo enviamos tal cual
+      birthdate: this.patient.birthDate.trim(),
       presumptiveDiagnosis: this.patient.presumptiveDiagnosis?.trim() || null,
       idPlan: this.patient.idPlan,
       tutors: this.patient.tutors,
+      status: this.patient.status
     };
 
     this.isSaving = true;

@@ -5,9 +5,10 @@ export interface RegisterPatient {
   paternalSurname: string;
   maternalSurname: string;
   dni: string;
-  birthDate: Date;
+  birthDate: string;
   age: number;
   presumptiveDiagnosis: string;
   idPlan: number;
   tutors: Tutor[];
+  status: boolean;
 }
