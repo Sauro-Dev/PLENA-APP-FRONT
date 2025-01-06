@@ -117,7 +117,7 @@ export class PatientRegisterComponent implements OnInit {
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
     const date = new Date(control.value);
-    const minDate = new Date('2000-01-01');
+    const minDate = new Date('1920-01-01');
     const maxDate = new Date('2025-01-01');
 
     if (date < minDate || date > maxDate) {
