@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EvaluationDocumentService } from './evaluation-document.service';
+import { EvaluationDocumentService} from "../evaluation-document.service";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'app-patients-history',
   standalone: true,
   templateUrl: './patients-history.component.html',
-  styleUrls: ['./patients-history.component.css']
+  styleUrls: ['./patients-history.component.css'],
+  imports: [CommonModule]
 })
 export class PatientsHistoryComponent implements OnInit {
   patient: any;
