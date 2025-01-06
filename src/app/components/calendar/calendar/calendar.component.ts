@@ -40,6 +40,10 @@ import {Room} from "../room";
       min-height: 45px;
       line-height: 30px;
       background-color: transparent;
+      transition: background-color 0.2s;
+    }
+    .day-header:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
   `]
 })
@@ -216,10 +220,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
 
   ngAfterViewInit(): void {
-    this.initializeCalendar();
-  }
-
-  private initializeCalendar(): void {
     if (this.calendarInitialized) return;
 
     this.ngZone.runOutsideAngular(() => {
@@ -230,6 +230,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           this.onFilterChange(false);
           this.calendarInitialized = true;
+
+          document.addEventListener('click', (e: Event) => {
+            const target = e.target as HTMLElement;
+            const dayHeader = target.closest('.day-header');
+
+            if (dayHeader) {
+              const date = dayHeader.getAttribute('data-date');
+              if (date && this.calendarComponent) {
+                const calendarApi = this.calendarComponent.getApi();
+                calendarApi.changeView('timeGridDay', date);
+                this.cdr.detectChanges();
+              }
+            }
+          });
+
           this.cdr.detectChanges();
         });
       });
