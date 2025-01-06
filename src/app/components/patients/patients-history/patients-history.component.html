@@ -1,0 +1,89 @@
+<div class="space-y-6">
+  <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">
+    Historial del Paciente
+  </h1>
+</div>
+
+<div *ngIf="isLoading" class="text-center">
+  <p>Cargando historial del paciente...</p>
+</div>
+
+<div *ngIf="!isLoading && patient && history" class="space-y-4">
+  <h2 class="text-2xl font-semibold">Información del Paciente</h2>
+  <p><strong>Nombre:</strong> {{ patient.name }}</p>
+  <p><strong>Edad:</strong> {{ patient.age }}</p>
+  <p><strong>Género:</strong> {{ patient.gender }}</p>
+
+  <h2 class="text-2xl font-semibold mt-4">Historial Médico</h2>
+  <ul>
+    <li *ngFor="let record of history">
+      <p><strong>Fecha:</strong> {{ record.date }}</p>
+      <p><strong>Descripción:</strong> {{ record.description }}</p>
+    </li>
+  </ul>
+</div>
+
+<div *ngIf="!isLoading && (!patient || !history)" class="text-center">
+  <p>No se encontró el historial del paciente.</p>
+</div>
+
+<!-- Contenedor central -->
+<div class="container mx-auto mt-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-20">
+    <!-- Documentos de Evaluación -->
+    <div class="border p-4 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4 text-center">Documentos de Evaluación</h2>
+      <!-- Tabla de documentos de evaluación -->
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead>
+        <tr>
+          <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
+          <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Documento 1</td>
+          <td class="px-6 py-4 whitespace-nowrap">01/01/2023</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Documento 2</td>
+          <td class="px-6 py-4 whitespace-nowrap">02/01/2023</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Documento 3</td>
+          <td class="px-6 py-4 whitespace-nowrap">03/01/2023</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Reportes -->
+    <div class="border p-4 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4 text-center">Reportes</h2>
+      <!-- Tabla de reportes -->
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead>
+        <tr>
+          <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reporte</th>
+          <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Reporte 1</td>
+          <td class="px-6 py-4 whitespace-nowrap">01/01/2023</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Reporte 2</td>
+          <td class="px-6 py-4 whitespace-nowrap">02/01/2023</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">Reporte 3</td>
+          <td class="px-6 py-4 whitespace-nowrap">03/01/2023</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
