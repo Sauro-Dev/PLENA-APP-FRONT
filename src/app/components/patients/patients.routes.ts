@@ -25,4 +25,10 @@ export default [
       import('./patient-edit/patient-edit.component').then((m) => m.PatientEditComponent),
     data: { breadcrumb: 'Editar Paciente' },
   },
+  {
+    path: 'history/:id',
+    loadComponent: () =>
+      import('./patients-history/patients-history.component').then((m) => m.PatientsHistoryComponent),
+    data: { breadcrumb: 'Historial del Paciente' },
+  },
 ] as Routes;
