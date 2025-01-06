@@ -5,6 +5,6 @@ export interface Material {
   stock: number;
   esCompleto: boolean;
   esSoporte: boolean;
-  estado: string;  
+  estado: string;
   fechaAlta?: string;
 }

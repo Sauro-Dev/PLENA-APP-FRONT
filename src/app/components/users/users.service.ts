@@ -96,4 +96,10 @@ export class UsersService {
 
     return this.http.put<void>(`${this.apiUrl}/update-password`, credentials, { headers });
   }
+
+  getTherapists(): Observable<{ id: string; name: string }[]> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<{ id: string; name: string }[]>(`${this.apiUrl}/all-therapists`, { headers });
+  }
 }

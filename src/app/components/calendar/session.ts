@@ -1,5 +1,6 @@
 export interface Session {
     idSession: number;
+    therapistId: number;
     sessionDate: string;
     startTime: string;
     endTime: string;
@@ -10,4 +11,4 @@ export interface Session {
     therapistPresent: boolean;
     patientPresent: boolean;
   }
-  
+

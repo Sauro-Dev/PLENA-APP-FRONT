@@ -1,117 +1,107 @@
-<div class="container">
-  <!-- Sección de filtros -->
-  <div class="filter-section">
-    <div class="date-filter-container">
-      <!-- Selector de fecha -->
-      <div class="date-picker">
-        <label for="date-picker">Seleccionar Fecha:</label>
-        <input id="date-picker" type="date" [(ngModel)]="selectedDate" class="form-control"
-          (change)="onFilterSessions()">
+<div class="container mx-auto my-4 px-4">
+  <!-- Filtros -->
+  <div class="mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Filtrar Sesiones</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Selección de fecha -->
+      <div>
+        <label for="date-picker" class="block text-sm font-medium text-gray-700">Seleccionar Fecha:</label>
+        <input
+          id="date-picker"
+          type="date"
+          [(ngModel)]="selectedDate"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          (change)="onFilterChange(true, true)"
+        />
       </div>
 
-    </div>
+      <!-- Selección de terapeuta -->
+      <div>
+        <label for="therapist-select" class="block text-sm font-medium text-gray-700">Seleccionar Terapeuta:</label>
+        <select
+          id="therapist-select"
+          [(ngModel)]="selectedTherapistId"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          (change)="onFilterChange(true, true)"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let therapist of therapists" [value]="therapist.id">{{ therapist.name }}</option>
+        </select>
+      </div>
 
-    <div class="patients-list" *ngIf="sessions.length > 0">
-      <h3>Pacientes presentes:</h3>
-      <ul>
-        <li *ngFor="let session of sessions">
-          <p *ngIf="session.patientPresent"><strong>Paciente:</strong> {{ session.patientName }}</p>
-        </li>
-      </ul>
+      <!-- Filtro por sala -->
+      <div>
+        <label for="room-select" class="block text-sm font-medium text-gray-700">Seleccionar Sala:</label>
+        <select
+          id="room-select"
+          [(ngModel)]="selectedRoomId"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          (change)="onFilterChange(true, true)"
+        >
+          <option [ngValue]="undefined">Todas</option>
+          <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
+        </select>
+      </div>
     </div>
-
   </div>
 
-  <!-- Calendario de sesiones -->
-  <div class="calendar" *ngIf="sessions.length > 0; else noSessions">
-    <h2>Sesiones del {{ selectedDate | date: 'longDate' }}</h2>
+  <div class="container mx-auto my-4">
+    <!-- Contenedor del Calendario -->
+    <div class="bg-white rounded-lg shadow relative">
+      <full-calendar
+        #calendar
+        [options]="calendarOptions"
+        class="w-full h-full max-h-full [&_.fc-col-header-cell-cushion]:uppercase [&_.fc-toolbar-title]:capitalize"
+      ></full-calendar>
+    </div>
+  </div>
 
-    <div class="calendar-column">
-      <div class="calendar-cell" *ngFor="let hour of hours">
-        <div class="hour-label">{{ hour }}</div>
-        <div class="sessions">
-          <div class="session" *ngFor="let session of getSessionsForHour(hour)">
-            <p>{{ session.therapistName }}</p>
-            <div class="session-buttons">
-              <button (click)="openPresenceModal(session)" class="presence">Registrar Asistencia</button>
-              <button (click)="openDetailsModal(session)" class="details">Detalles</button>
-            </div>
-          </div>
+  <!-- Modal de detalles del evento -->
+  <div *ngIf="showEventModal && selectedEvent"
+       class="fixed inset-0 flex items-center justify-center z-50 bg-gray-800/50">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-w-[90vw]">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-900">Detalles de la Sesión</h3>
+        <button
+          (click)="showEventModal = false"
+          class="text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Paciente:</span>
+          <span class="text-gray-900">{{selectedEvent.patientName}}</span>
+        </div>
+
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Terapeuta:</span>
+          <span class="text-gray-900">{{selectedEvent.therapistName}}</span>
+        </div>
+
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Sala:</span>
+          <span class="text-gray-900">{{selectedEvent.roomName}}</span>
+        </div>
+
+        <div class="flex items-center">
+          <span class="font-medium text-gray-700 w-24">Horario:</span>
+          <span class="text-gray-900">{{selectedEvent.startTime}} - {{selectedEvent.endTime}}</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Mensaje cuando no hay sesiones -->
-  <ng-template #noSessions>
-    <h3>No hay sesiones para esta fecha</h3>
-  </ng-template>
-</div>
-
-<!-- Modal de Registro de Asistencia -->
-<div *ngIf="showModal" class="modal presence-modal">
-  <div class="modal-content">
-    <h3>Registrar Asistencia para la Sesión de {{ selectedSession?.therapistName }}</h3>
-    <div class="form-group">
-      <label for="therapistPresent">¿El terapeuta está presente?</label>
-      <input id="therapistPresent" type="checkbox" [(ngModel)]="therapistPresent">
-    </div>
-    <div class="form-group">
-      <label for="patientPresent">¿El paciente está presente?</label>
-      <input id="patientPresent" type="checkbox" [(ngModel)]="patientPresent">
-    </div>
-    <div class="button-group">
-      <button (click)="registerPresence()" class="btn-register">Registrar Asistencia</button>
-      <button (click)="closeModal()" class="btn-cancel">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de Detalles de Sesión -->
-<div *ngIf="showDetailsModal" class="modal details-modal">
-  <div class="modal-content">
-    <h3>Detalles de la Sesión</h3>
-    <p><strong>Paciente:</strong> {{ selectedSession?.patientName }}</p>
-    <p><strong>Terapeuta:</strong> {{ selectedSession?.therapistName }}</p>
-    <p><strong>Fecha de la sesión:</strong> {{ selectedSession?.sessionDate | date: 'longDate' }}</p>
-    <p><strong>Reprogramada:</strong> {{ selectedSession?.rescheduled ? 'Sí' : 'No' }}</p>
-    <p><strong>¿Terapeuta presente?:</strong> {{ selectedSession?.therapistPresent ? 'Sí' : 'No' }}</p>
-
-    <button (click)="openReprogrammingModal(selectedSession)" class="btn-details"
-      *ngIf="selectedSession">Reprogramar</button>
-    <div class="button-group">
-      <button (click)="closeDetailsModal()" class="btn-cancel">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="showReprogrammingModal" class="modal reprogramming-modal">
-  <div class="modal-content">
-    <h3>Detalles de Reprogramación</h3>
-    <p><strong>Paciente:</strong> {{ selectedSession?.patientName }}</p>
-    <p><strong>Terapeuta:</strong> {{ selectedSession?.therapistName }}</p>
-    <p><strong>Fecha Original de la Sesión:</strong> {{ selectedSession?.sessionDate | date: 'longDate' }}</p>
-    <p><strong>Reprogramada:</strong> {{ selectedSession?.rescheduled ? 'Sí' : 'No' }}</p>
-    <div class="form-group">
-      <label for="newSessionDate">Nueva Fecha:</label>
-      <input id="newSessionDate" type="date" [(ngModel)]="newSessionDate" class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="newStartTime">Hora de Inicio:</label>
-      <input id="newStartTime" type="time" [(ngModel)]="newStartTime" class="form-control" min="09:00" max="21:00">
-    </div>
-    <div class="form-group">
-      <label for="newEndTime">Hora de Fin:</label>
-      <input id="newEndTime" type="time" [(ngModel)]="newEndTime" class="form-control" min="09:00" max="21:00">
-    </div>
-    <div class="form-group">
-      <label for="reason">Motivo de la reprogramación:</label>
-      <textarea id="reason" [(ngModel)]="reason" class="form-control reason-textarea" rows="4" placeholder="Explique brevemente el motivo de la reprogramación..."></textarea>
-    </div>
-
-    <div class="button-group">
-      <button (click)="sendReprogramming()" class="btn-details">Confirmar Reprogramación</button>
-      <button (click)="closeReprogrammingModal()" class="btn-cancel">Cerrar</button>
+      <div class="mt-6 flex justify-end">
+        <button
+          (click)="showEventModal = false"
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
   </div>
 </div>
