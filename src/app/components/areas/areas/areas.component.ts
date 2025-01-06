@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AreasService } from '../areas.service';
 import { FormsModule } from '@angular/forms';
 import {DisabledInterventionAreasModalComponent} from "../disabled-intervention-areas-modal/disabled-intervention-areas-modal.component";
+import {Material} from "../../storage/material";
 
 @Component({
   selector: 'app-areas',
@@ -16,7 +17,8 @@ export class AreasComponent implements OnInit {
   areas: any[] = [];
   filteredAreas: any[] = [];
   currentPage: number = 1;
-  itemsPerPage: number = 10;
+  paginatedAreas: any[] = [];
+  itemsPerPage: number = 12;
   searchQuery: string = '';
   totalPages: number = 10;
   showFilters: boolean = false;
@@ -32,7 +34,8 @@ export class AreasComponent implements OnInit {
     this.areasService.getAreas().subscribe(
       (data) => {
         this.areas = data;
-        this.applyFilters();
+        this.filteredAreas = [...this.areas];
+        this.paginate();
       },
       (error) => {
         console.error('Error al obtener las áreas de intervención', error);
@@ -40,43 +43,27 @@ export class AreasComponent implements OnInit {
     );
   }
 
-  applyFilters(): void {
-    let filtered = this.areas;
-
-    // Lógica de filtrado por búsqueda global
-    if (this.searchQuery) {
-      filtered = filtered.filter(
-        (area) =>
-          area.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          area.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    }
-
-    this.filteredAreas = filtered;
-    this.totalPages = Math.ceil(this.filteredAreas.length / this.itemsPerPage);
-    this.updatePage();
-  }
-
   onSearch(): void {
     this.currentPage = 1;
-    this.applyFilters();
+    this.filteredAreas = this.areas.filter(
+      (area) =>
+        area.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        area.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
+    this.paginate();
   }
 
   paginate(): void {
-    this.currentPage = 1;
-    this.applyFilters();
-  }
-
-  updatePage(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.filteredAreas = this.filteredAreas.slice(startIndex, endIndex);
+    const startIndex = (this.currentPage - 1) * Number(this.itemsPerPage);
+    const endIndex = startIndex + Number(this.itemsPerPage);
+    this.paginatedAreas = this.filteredAreas.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
+    const totalPages = Math.ceil(this.filteredAreas.length / this.itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
       this.currentPage = page;
-      this.updatePage();
+      this.paginate();
     }
   }
 

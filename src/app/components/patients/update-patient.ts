@@ -1,6 +1,6 @@
 import { Tutor } from './tutor';
 
-export interface RegisterPatient {
+export interface UpdatePatient {
   name: string;
   paternalSurname: string;
   maternalSurname: string;
@@ -11,8 +11,4 @@ export interface RegisterPatient {
   status: boolean;
   idPlan: number;
   tutors: Tutor[];
-  therapistId: number;
-  roomId: number;
-  startTime: string;
-  firstWeekDates: string[];
 }

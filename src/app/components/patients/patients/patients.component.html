@@ -48,8 +48,8 @@
         [(ngModel)]="itemsPerPage"
         (change)="onItemsPerPageChange()"
       >
-        <option value="10">10 pacientes</option>
-        <option value="20">20 pacientes</option>
+        <option value="12">12 pacientes</option>
+        <option value="24">24 pacientes</option>
       </select>
     </div>
   </div>
@@ -60,10 +60,10 @@
   </div>
 
   <!-- Grid de Pacientes -->
-  <div *ngIf="filteredPatients.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+  <div *ngIf="paginatedPatients.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     <!-- Iteración para generar tarjetas de pacientes -->
     <div
-      *ngFor="let patient of filteredPatients"
+      *ngFor="let patient of paginatedPatients"
       class="bg-white shadow-lg rounded-2xl p-4 text-center transition-transform duration-200 hover:scale-[1.03] space-y-4"
     >
       <!-- Indicador de estado -->

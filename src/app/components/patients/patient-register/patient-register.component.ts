@@ -90,6 +90,15 @@ export class PatientRegisterComponent implements OnInit {
       this.updateDatePickers(value);
     });
 
+    // Inicializar rooms como array vacío
+    this.rooms = [];
+
+    // Si hay un plan seleccionado, actualizar los date pickers
+    const selectedPlan = this.patientForm.get('idPlan')?.value;
+    if (selectedPlan) {
+      this.updateDatePickers(selectedPlan);
+    }
+
     this.patientForm.get('dni')?.valueChanges.subscribe(() => {
       if (this.patientForm.get('dni')?.touched) {
         this.patientForm.updateValueAndValidity();
@@ -100,10 +109,6 @@ export class PatientRegisterComponent implements OnInit {
       if (this.tutors.controls.some((control) => control.get('dni')?.touched)) {
         this.patientForm.updateValueAndValidity();
       }
-    });
-
-    this.patientService.getAllRooms().subscribe((rooms) => {
-      this.rooms = rooms;
     });
   }
 
@@ -117,7 +122,7 @@ export class PatientRegisterComponent implements OnInit {
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
     const date = new Date(control.value);
-    const minDate = new Date('2000-01-01');
+    const minDate = new Date('1920-01-01');
     const maxDate = new Date('2025-01-01');
 
     if (date < minDate || date > maxDate) {
@@ -218,20 +223,82 @@ export class PatientRegisterComponent implements OnInit {
     return this.fb.group({
       room: ['', Validators.required],
       therapist: ['', Validators.required],
-      sessionDate: ['', Validators.required],
-      startTime: ['', Validators.required],
-      endTime: ['', Validators.required],
+      sessionDate: ['', [Validators.required, this.dateValidator.bind(this)]],
+      startTime: ['', [Validators.required, this.timeRangeValidator()]],
+      endTime: ['']
     });
+  }
+
+  dateValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+
+    // Usamos UTC+0 para evitar problemas con zonas horarias
+    const date = new Date(control.value + 'T12:00:00Z');
+    const dayOfWeek = date.getUTCDay();
+
+    if (dayOfWeek === 0) {
+      console.warn('Las sesiones no se pueden programar los domingos');
+      return { invalidDay: true };
+    }
+
+    return null;
+  }
+  calculateEndTime24Hours(startTime: string): string {
+    if (!startTime) return '';
+
+    const [hours, minutes] = startTime.split(':').map(Number);
+    let endHours = hours;
+    let endMinutes = minutes + 50; // Agregamos 50 minutos
+
+    // Ajustamos si los minutos superan 60
+    if (endMinutes >= 60) {
+      endHours += 1;
+      endMinutes -= 60;
+    }
+
+    // Agregamos 1 hora
+    endHours += 1;
+
+    // Aseguramos que las horas no excedan las 24
+    if (endHours >= 24) {
+      endHours -= 24;
+    }
+
+    // Formateamos la hora para que siempre tenga dos dígitos
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+  }
+
+  format12Hours(time: string): string {
+    if (!time) return '-- : --';
+
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'p. m.' : 'a. m.';
+    let displayHours = hours % 12;
+    displayHours = displayHours === 0 ? 12 : displayHours;
+
+    // Aseguramos que los números tengan dos dígitos
+    const formattedHours = displayHours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    return `${formattedHours} : ${formattedMinutes} ${period}`;
+  }
+
+  addMinutes(time: string, minutes: number): string {
+    if (!time) return '';
+
+    const [hours, mins] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, mins + minutes);
+
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   }
 
   addTutor(): void {
     this.tutors.push(this.createTutor());
   }
 
-  removeTutor(index: number): void {
-    if (this.tutors.length > 1) {
-      this.tutors.removeAt(index);
-    }
+  removeTutor(index: number) {
+    this.tutors.removeAt(index);
   }
 
   addSessionDate(): void {
@@ -245,26 +312,89 @@ export class PatientRegisterComponent implements OnInit {
   }
 
   onSessionChange(index: number): void {
-    const session = this.sessionDates.at(index).value;
-    const { sessionDate, startTime, endTime } = session;
+    const session = this.sessionDates.at(index);
+    const startTime = session.get('startTime')?.value;
+    const sessionDate = session.get('sessionDate')?.value;
 
-    if (sessionDate && startTime && endTime) {
-      this.patientService
-        .getAvailableTherapists(sessionDate, startTime, endTime)
-        .subscribe(
-          (therapists) => {
-            this.therapistsMap.set(index, therapists);
-          },
-          () => {
-            // Manejo de error silencioso
+    if (sessionDate && startTime) {
+      // Guardamos el formato de 24 horas en el formulario para enviar al backend
+      const endTime24 = this.calculateEndTime24Hours(startTime);
+      session.get('endTime')?.setValue(endTime24, { emitEvent: false });
+
+      // Solo actualizamos la lista de terapeutas disponibles
+      this.patientService.getAvailableTherapists(sessionDate, startTime, endTime24).subscribe({
+        next: (therapists) => {
+          this.therapistsMap.set(index, therapists);
+          if (therapists.length === 0) {
+            session.get('therapist')?.setErrors({ noAvailableTherapists: true });
           }
-        );
+        },
+        error: (error) => {
+          console.error('Error al obtener terapeutas', error);
+          session.get('therapist')?.setErrors({ serverError: true });
+        }
+      });
+
+      // Solo actualizamos la lista de salas disponibles
+      this.patientService.getAvailableRooms(sessionDate, startTime, endTime24).subscribe({
+        next: (rooms) => {
+          this.rooms = rooms; // Solo actualizamos la lista
+          if (rooms.length === 0) {
+            session.get('room')?.setErrors({ noAvailableRooms: true });
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener salas', error);
+          session.get('room')?.setErrors({ serverError: true });
+        }
+      });
     }
   }
+
+  timeRangeValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+
+      const time = control.value;
+      const [hours, minutes] = time.split(':').map(Number);
+      const inputTime = new Date();
+      inputTime.setHours(hours, minutes);
+
+      // Horario de mañana: 9:00 AM - 1:00 PM
+      const morningStart = new Date();
+      morningStart.setHours(9, 0);
+      const morningEnd = new Date();
+      morningEnd.setHours(13, 0);
+
+      // Horario de tarde: 3:00 PM - 7:00 PM
+      const afternoonStart = new Date();
+      afternoonStart.setHours(15, 0);
+      const afternoonEnd = new Date();
+      afternoonEnd.setHours(19, 0);
+
+      const isInMorningShift = inputTime >= morningStart && inputTime < morningEnd;
+      const isInAfternoonShift = inputTime >= afternoonStart && inputTime < afternoonEnd;
+
+      if (!isInMorningShift && !isInAfternoonShift) {
+        return { invalidTimeRange: true };
+      }
+
+      return null;
+    };
+  }
+
+  private isValidDay(date: Date): boolean {
+    // getDay() devuelve 0 para domingo, 1 para lunes, ..., 6 para sábado
+    // Por lo tanto, solo domingo (0) es inválido
+    return date.getDay() !== 0;
+  }
+
 
   onSubmit(): void {
     if (this.patientForm.valid) {
       this.openRegisterModal();
+    } else {
+      console.error('Formulario inválido');
     }
   }
 
@@ -311,21 +441,46 @@ export class PatientRegisterComponent implements OnInit {
     if (this.patientForm.valid) {
       const formValue = this.patientForm.value;
 
-      formValue.tutors = formValue.tutors.map((tutor: any) => ({
-        fullName: tutor.fullName,
-        dni: tutor.dni,
-        phone: tutor.phone,
-      }));
+      const formattedTutors = {
+        tutor: formValue.tutors.map((tutor: any) => ({
+          fullName: tutor.fullName,
+          dni: tutor.dni,
+          phone: tutor.phone,
+        }))
+      };
 
-      this.patientService.createPatient(formValue).subscribe(
+      if (formattedTutors.tutor.length === 0) {
+        console.error('Debe haber al menos un tutor');
+        return;
+      }
+
+      const birthdate = new Date(formValue.birthdate).toISOString().split('T')[0]; // Convert to ISO format
+      const firstWeekDates = formValue.sessionDates.map((session: any) => session.sessionDate);
+
+      const registerPatientData = {
+        name: formValue.name,
+        paternalSurname: formValue.paternalSurname,
+        maternalSurname: formValue.maternalSurname,
+        dni: formValue.dni,
+        birthdate: birthdate,
+        presumptiveDiagnosis: formValue.presumptiveDiagnosis,
+        status: formValue.status,
+        idPlan: Number(formValue.idPlan), // Convert to number
+        ...formattedTutors, // Spread the formatted tutors object
+        therapistId: Number(formValue.sessionDates[0]?.therapist), // Convert to number
+        roomId: Number(formValue.sessionDates[0]?.room), // Convert to number
+        startTime: formValue.sessionDates[0]?.startTime,
+        firstWeekDates: firstWeekDates.map((date: any) => new Date(date).toISOString().split('T')[0]) // Convert to ISO format
+      };
+
+      console.log('Datos a enviar:', registerPatientData); // Verify data in console
+
+      this.patientService.createPatient(registerPatientData).subscribe(
         () => {
           this.router.navigate(['/patients']);
         },
         (error) => {
           console.error('Error al registrar paciente:', error);
-          if (error.status === 200) {
-            this.router.navigate(['/patients']);
-          }
         }
       );
     }

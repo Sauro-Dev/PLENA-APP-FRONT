@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../enviroment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RegisterPatient } from './register-patient';
+
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,22 @@ export class PatientsService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any[]>(`${this.apiUrl}/all`, { headers });
   }
-  createPatient(data: RegisterPatient): Observable<any> {
+
+  createPatient(data: {
+    therapistId: number;
+    birthdate: string;
+    paternalSurname: any;
+    firstWeekDates: any;
+    maternalSurname: any;
+    roomId: number;
+    tutor: any;
+    idPlan: number;
+    presumptiveDiagnosis: any;
+    name: any;
+    startTime: any;
+    dni: any;
+    status: any
+  }): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -26,15 +41,6 @@ export class PatientsService {
       responseType: 'json' as 'json',
     });
   }
-  createSession(sessionData: any): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(
-      `${environment.apiUrl}/sessions/register`,
-      sessionData,
-      { headers }
-    );
-  }
 
   getAllRooms(): Observable<any[]> {
     const token = localStorage.getItem('token');
@@ -42,27 +48,18 @@ export class PatientsService {
     return this.http.get<any[]>(`${environment.apiUrl}/rooms/all`, { headers });
   }
 
-  getAvailableTherapists(
-    sessionDate: string,
-    startTime: string,
-    endTime: string,
-    role?: string
-  ): Observable<any[]> {
+  getAvailableTherapists(sessionDate: string, startTime: string, endTime: string): Observable<any[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    let params: any = { sessionDate, startTime, endTime };
-
-    if (role) {
-      params.role = role;
-    }
-
-    return this.http.get<any[]>(
-      `${environment.apiUrl}/sessions/available-therapists`,
-      { params, headers }
-    );
+    return this.http.get<any[]>(`${environment.apiUrl}/sessions/available-therapists`, {params: { sessionDate, startTime, endTime }, headers});
   }
-  
+
+  getAvailableRooms(sessionDate: string, startTime: string, endTime: string): Observable<any[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/sessions/available-rooms`, { params: { sessionDate, startTime, endTime }, headers });
+  }
+
   getPatientById(patientId: number): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
@@ -91,6 +88,20 @@ export class PatientsService {
         tutors: JSON.stringify(tutors),
       },
       headers,
+    });
+  }
+
+  checkSessionAvailability(sessionDate: string, startTime: string, roomId: number, therapistId: number): Observable<any> {
+    const params = {
+      sessionDate,
+      startTime,
+      roomId: roomId.toString(),
+      therapistId: therapistId.toString()
+    };
+
+    return this.http.get<any>(`${this.apiUrl}/validate-session`, {
+      params,
+      headers: new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('token')}`)
     });
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RoomsService } from '../rooms.service';
 import {DisabledRoomsModalComponent} from "../disabled-rooms-modal/disabled-rooms-modal.component";
+import {Material} from "../../storage/material";
 
 @Component({
   selector: 'app-rooms',
@@ -17,8 +18,9 @@ export class RoomsComponent implements OnInit {
   filteredRooms: any[] = [];
   searchQuery: string = '';
   therapeuticFilter: string = '';
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 12;
   currentPage: number = 1;
+  paginatedRooms: any[] = [];
   showFilters: boolean = false;
   showDisabledRoomsModal: boolean = false;
 
@@ -32,23 +34,22 @@ export class RoomsComponent implements OnInit {
     this.roomsService.getRooms().subscribe((data) => {
       this.rooms = data;
       this.filteredRooms = [...this.rooms];
+      this.currentPage = 1;
       this.paginate();
     });
   }
 
   onFilter(): void {
+    this.currentPage = 1;
     if (this.therapeuticFilter === '') {
-      this.roomsService.getRooms().subscribe((data) => {
-        this.filteredRooms = [...data];
-        this.paginate();
-      });
+      this.filteredRooms = [...this.rooms];
     } else {
       const isTherapeutic = this.therapeuticFilter === 'yes';
-      this.roomsService.getRoomsByTherapeutic(isTherapeutic).subscribe((data) => {
-        this.filteredRooms = data;
-        this.paginate();
-      });
+      this.filteredRooms = this.rooms.filter(room =>
+        room.isTherapeutic === isTherapeutic
+      );
     }
+    this.paginate();
   }
 
   onSearch(): void {
@@ -59,11 +60,9 @@ export class RoomsComponent implements OnInit {
   }
 
   paginate(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.filteredRooms = this.filteredRooms.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
+    const startIndex = (this.currentPage - 1) * Number(this.itemsPerPage);
+    const endIndex = startIndex + Number(this.itemsPerPage);
+    this.paginatedRooms = this.filteredRooms.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {

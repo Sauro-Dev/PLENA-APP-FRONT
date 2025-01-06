@@ -131,8 +131,8 @@
         class="border border-gray-300 rounded-xl w-full px-4 py-3 focus:ring-2 focus:ring-blue-500"
         [(ngModel)]="itemsPerPage"
         (change)="onItemsPerPageChange()">
-        <option value="10">10 usuarios</option>
-        <option value="20">20 usuarios</option>
+        <option value="12">12 usuarios</option>
+        <option value="24">24 usuarios</option>
       </select>
     </div>
   </div>
@@ -143,7 +143,7 @@
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
   >
     <div
-      *ngFor="let user of filteredUsers"
+      *ngFor="let user of paginatedUsers"
       class="bg-white shadow-lg rounded-2xl p-4 text-center transition-transform duration-200 hover:scale-[1.03] space-y-4"
     >
       <!-- Estado visual -->
