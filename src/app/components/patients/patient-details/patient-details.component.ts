@@ -55,4 +55,14 @@ export class PatientDetailsComponent implements OnInit {
     }
     this.router.navigate(['/patients/edit', this.patient.idPatient]);
   }
+
+  // Método para redirigir al historial médico en una nueva pestaña
+  viewMedicalHistory(): void {
+    if (!this.patient) {
+      console.error('El paciente no está cargado.');
+      return;
+    }
+    const url = `/patients/history/${this.patient.idPatient}`;
+    window.open(url, '_blank');
+  }
 }
