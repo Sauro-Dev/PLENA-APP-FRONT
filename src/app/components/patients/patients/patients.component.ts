@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { PatientsService } from "../patients.service";
 import { FormsModule } from "@angular/forms";
 import {filter} from "rxjs/operators";
+import {Material} from "../../storage/material";
 
 @Component({
   selector: 'app-patients',
@@ -20,6 +21,7 @@ export class PatientsComponent implements OnInit {
   searchQuery: string = '';
   itemsPerPage: number = 12;
   currentPage: number = 1;
+  paginatedPatients: any[] = [];
   showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 
   constructor(private patientService: PatientsService, private router: Router) {}
@@ -65,19 +67,12 @@ export class PatientsComponent implements OnInit {
   // Paginación
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-
-    const paginatedPatients = this.filteredPatients.slice(startIndex, endIndex);
-
-    if (paginatedPatients.length === 0 && this.currentPage > 1) {
-      this.currentPage = 1;
-      this.paginate();
-    } else {
-      this.filteredPatients = paginatedPatients;
-    }
+    this.paginatedPatients = this.filteredPatients.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
   }
 
-  // Función para cambiar de página
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();

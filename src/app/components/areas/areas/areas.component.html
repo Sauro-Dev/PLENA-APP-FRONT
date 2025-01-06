@@ -30,12 +30,12 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <!-- Campo de búsqueda -->
       <div class="md:col-span-3">
-        <label for="buscar" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+        <label for="buscar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
         <div class="relative">
           <input
-            id="buscar"
+            id="buscar-escritorio"
             type="text"
-            class="border border-gray-300 rounded-xl w-full md:w-1/2 py-3 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="border border-gray-300 rounded-xl w-full md:w-1/2 py-3 pl-14"
             [(ngModel)]="searchQuery"
             (input)="onSearch()"
             placeholder="Buscar por nombre"
@@ -63,7 +63,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     <!-- Tarjeta de área -->
     <div
-      *ngFor="let area of filteredAreas"
+      *ngFor="let area of paginatedAreas"
       class="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between transition-transform duration-200 hover:scale-[1.03] space-y-4"
     >
       <!-- Indicador de estado -->

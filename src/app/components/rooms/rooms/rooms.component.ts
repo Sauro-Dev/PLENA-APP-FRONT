@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RoomsService } from '../rooms.service';
 import {DisabledRoomsModalComponent} from "../disabled-rooms-modal/disabled-rooms-modal.component";
+import {Material} from "../../storage/material";
 
 @Component({
   selector: 'app-rooms',
@@ -19,6 +20,7 @@ export class RoomsComponent implements OnInit {
   therapeuticFilter: string = '';
   itemsPerPage: number = 12;
   currentPage: number = 1;
+  paginatedRooms: any[] = [];
   showFilters: boolean = false;
   showDisabledRoomsModal: boolean = false;
 
@@ -60,7 +62,7 @@ export class RoomsComponent implements OnInit {
 
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.filteredRooms = this.filteredRooms.slice(
+    this.paginatedRooms = this.filteredRooms.slice(
       startIndex,
       startIndex + this.itemsPerPage
     );

@@ -6,6 +6,7 @@ import { UsersService } from "../users.service";
 import { FormsModule } from "@angular/forms";
 import { AuthService } from "../../auth/auth.service";
 import {filter} from "rxjs/operators";
+import {Material} from "../../storage/material";
 
 @Component({
   selector: 'app-users',
@@ -22,6 +23,7 @@ export class UsersComponent implements OnInit {
   sortOrder: string = 'asc';
   itemsPerPage: number = 12;
   currentPage: number = 1;
+  paginatedUsers: any[] = [];
   showAdminModal: boolean = false;
   adminUsername: string = '';
   newUsername: string = '';
@@ -185,15 +187,10 @@ export class UsersComponent implements OnInit {
 
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    const paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
-
-    if (paginatedUsers.length === 0 && this.currentPage > 1) {
-      this.currentPage = 1;
-      this.paginate();
-    } else {
-      this.filteredUsers = paginatedUsers;
-    }
+    this.paginatedUsers = this.filteredUsers.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
   }
 
   goToPage(page: number): void {
