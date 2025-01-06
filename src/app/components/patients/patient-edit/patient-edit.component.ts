@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PatientsService } from '../patients.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RegisterPatient } from '../register-patient';
+import { UpdatePatient } from '../update-patient';
 import { CommonModule } from '@angular/common';
 import { Tutor } from '../tutor';
 
@@ -14,7 +14,7 @@ import { Tutor } from '../tutor';
   imports: [FormsModule, CommonModule, ReactiveFormsModule],
 })
 export class PatientEditComponent implements OnInit {
-  patient: RegisterPatient | null = null;
+  patient: UpdatePatient | null = null;
   isLoading: boolean = true;
   isSaving: boolean = false;
   showSaveModal: boolean = false;
@@ -43,16 +43,12 @@ export class PatientEditComponent implements OnInit {
           paternalSurname: data.paternalSurname,
           maternalSurname: data.maternalSurname || '',
           dni: data.dni || '',
-          birthdate: data.birthdate || '',
+          birthDate: data.birthdate || '',
           age: data.age,
           presumptiveDiagnosis: data.presumptiveDiagnosis || '',
           idPlan: data.idPlan || 0,
           tutors: data.tutors || [],
-          status: data.status,
-          therapistId: data.therapistId || 0,
-          roomId: data.roomId || 0,
-          startTime: data.startTime || '',
-          firstWeekDates: data.firstWeekDates || []
+          status: data.status
         };
         this.isLoading = false;
       },
@@ -73,7 +69,7 @@ export class PatientEditComponent implements OnInit {
       paternalSurname: this.patient.paternalSurname.trim(),
       maternalSurname: this.patient.maternalSurname.trim(),
       dni: this.patient.dni.trim(),
-      birthDate: this.patient.birthdate.trim(),
+      birthdate: this.patient.birthDate.trim(),
       presumptiveDiagnosis: this.patient.presumptiveDiagnosis?.trim() || null,
       idPlan: this.patient.idPlan,
       tutors: this.patient.tutors,
