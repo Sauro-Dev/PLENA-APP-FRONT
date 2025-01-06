@@ -3,46 +3,52 @@
   <div class="bg-white shadow-lg rounded-lg p-6 w-full">
     <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Editar Ambiente</h1>
 
-    <form [formGroup]="roomForm" (ngSubmit)="openSaveModal()" class="space-y-4">
+    <form [formGroup]="roomForm" (ngSubmit)="openSaveModal()" class="space-y-6">
       <!-- Nombre del Ambiente -->
-      <div
-        class="flex items-center border rounded-lg shadow-sm p-3"
-        [ngClass]="{
-          'border-gray-300 bg-gray-50': !roomForm.get('name')?.value,
-          'border-blue-500 bg-blue-50': roomForm.get('name')?.value
-        }"
-      >
-        <i class="ti ti-building text-2xl text-gray-500 mr-3"></i>
-        <label for="name" class="font-medium text-gray-700">Nombre del Ambiente:</label>
-        <input
-          id="name"
-          type="text"
-          class="ml-auto outline-none bg-transparent text-gray-800"
-          formControlName="name"
-          placeholder="Nombre del Ambiente"
-        />
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="name" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Nombre del Ambiente:
+        </label>
+        <div class="flex items-center space-x-3 px-4 py-3">
+          <i class="ti ti-building text-2xl text-gray-500"></i>
+          <input
+            id="name"
+            type="text"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none placeholder-gray-400"
+            placeholder="Escribe el nombre del ambiente"
+            formControlName="name"
+          />
+        </div>
+        <div *ngIf="roomForm.get('name')?.invalid && (roomForm.get('name')?.dirty || roomForm.get('name')?.touched)"
+             class="text-red-500 text-sm px-4 mt-1">
+          <div *ngIf="roomForm.get('name')?.errors?.['required']">El nombre del ambiente es requerido.</div>
+          <div *ngIf="roomForm.get('name')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</div>
+        </div>
       </div>
 
       <!-- Dirección -->
-      <div
-        class="flex items-start border rounded-lg shadow-sm p-3"
-        [ngClass]="{
-          'border-gray-300 bg-gray-50': !roomForm.get('address')?.value,
-          'border-blue-500 bg-blue-50': roomForm.get('address')?.value
-        }"
-      >
-        <i class="ti ti-map-pin text-2xl text-gray-500 mr-3"></i>
-        <label for="address" class="font-medium text-gray-700">Dirección:</label>
-        <textarea
-          id="address"
-          class="ml-auto w-full bg-transparent text-gray-800 outline-none"
-          formControlName="address"
-          placeholder="Dirección del ambiente"
-        ></textarea>
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="address" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Dirección:
+        </label>
+        <div class="flex items-start space-x-3 px-4 py-3">
+          <i class="ti ti-map-pin text-2xl text-gray-500"></i>
+          <textarea
+            id="address"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none placeholder-gray-400 resize-none"
+            placeholder="Escribe la dirección del ambiente"
+            formControlName="address"
+            rows="3"
+          ></textarea>
+        </div>
+        <div *ngIf="roomForm.get('address')?.invalid && (roomForm.get('address')?.dirty || roomForm.get('address')?.touched)"
+             class="text-red-500 text-sm px-4 mt-1">
+          <div *ngIf="roomForm.get('address')?.errors?.['required']">La dirección es requerida.</div>
+        </div>
       </div>
 
       <!-- Es Terapéutico -->
-      <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+      <div class="flex items-center border rounded-lg shadow-sm p-3 focus-within:ring focus-within:ring-blue-500">
         <i class="ti ti-heart-rate-monitor text-2xl text-gray-500 mr-3"></i>
         <label for="isTherapeutic" class="font-medium text-gray-700">¿Es Terapéutico?</label>
         <input
@@ -53,10 +59,10 @@
         />
       </div>
 
-      <!-- Habilitada -->
-      <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+      <!-- Campo "Habilitada" -->
+      <div class="flex items-center border rounded-lg shadow-sm p-3 focus-within:ring focus-within:ring-blue-500">
         <i class="ti ti-toggle-right text-2xl text-gray-500 mr-3"></i>
-        <label for="enabled" class="font-medium text-gray-700">¿Esta sala está habilitada?</label>
+        <label for="enabled" class="font-medium text-gray-700">¿Está habilitada?</label>
         <input
           id="enabled"
           type="checkbox"
@@ -71,7 +77,8 @@
         <!-- Botón Guardar -->
         <button
           type="submit"
-          class="bg-blue-100 text-blue-700 px-8 py-4 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200 w-full md:w-auto text-center"
+          class="bg-blue-600 hover:bg-blue-700 text-white flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+          [disabled]="roomForm.invalid"
         >
           Guardar Cambios
         </button>
@@ -79,7 +86,7 @@
         <button
           type="button"
           (click)="openCancelModal()"
-          class="bg-gray-100 text-gray-700 px-8 py-4 rounded-full text-base font-medium hover:bg-gray-200 transition duration-200 w-full md:w-auto"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium transition"
         >
           Cancelar
         </button>
