@@ -35,6 +35,7 @@ export class PatientsComponent implements OnInit {
       (data) => {
         this.patients = data || [];
         this.filteredPatients = [...this.patients];
+        this.paginate();
       },
       (error) => {
         console.error('Error al obtener los pacientes:', error);
@@ -61,6 +62,7 @@ export class PatientsComponent implements OnInit {
 
   // Función de cambio de número de ítems por página
   onItemsPerPageChange(): void {
+    this.currentPage = 1;
     this.paginate();
   }
 

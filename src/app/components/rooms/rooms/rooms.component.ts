@@ -34,23 +34,22 @@ export class RoomsComponent implements OnInit {
     this.roomsService.getRooms().subscribe((data) => {
       this.rooms = data;
       this.filteredRooms = [...this.rooms];
+      this.currentPage = 1;
       this.paginate();
     });
   }
 
   onFilter(): void {
+    this.currentPage = 1;
     if (this.therapeuticFilter === '') {
-      this.roomsService.getRooms().subscribe((data) => {
-        this.filteredRooms = [...data];
-        this.paginate();
-      });
+      this.filteredRooms = [...this.rooms];
     } else {
       const isTherapeutic = this.therapeuticFilter === 'yes';
-      this.roomsService.getRoomsByTherapeutic(isTherapeutic).subscribe((data) => {
-        this.filteredRooms = data;
-        this.paginate();
-      });
+      this.filteredRooms = this.rooms.filter(room =>
+        room.isTherapeutic === isTherapeutic
+      );
     }
+    this.paginate();
   }
 
   onSearch(): void {
@@ -61,11 +60,9 @@ export class RoomsComponent implements OnInit {
   }
 
   paginate(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedRooms = this.filteredRooms.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
+    const startIndex = (this.currentPage - 1) * Number(this.itemsPerPage);
+    const endIndex = startIndex + Number(this.itemsPerPage);
+    this.paginatedRooms = this.filteredRooms.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {

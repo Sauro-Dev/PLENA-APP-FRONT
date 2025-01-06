@@ -82,7 +82,7 @@
 
   <!-- Tarjetas de Ambientes -->
   <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4 bg-gray-100 rounded-xl shadow-md">
-    <div *ngFor="let room of filteredRooms"
+    <div *ngFor="let room of paginatedRooms"
          class="bg-white shadow-md rounded-xl px-6 py-4 text-center border border-gray-300 hover:shadow-lg transition duration-200 transform hover:scale-105 space-y-4">
       <!-- Estado visual y Nombre centrados -->
       <div class="flex flex-col items-center">

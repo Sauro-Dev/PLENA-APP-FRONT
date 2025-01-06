@@ -138,33 +138,29 @@ export class UsersComponent implements OnInit {
       (data) => {
         this.users = data;
         this.filteredUsers = [...this.users];
+        this.paginate();
       },
       (error) => {
         if (error.status === 403) {
-          console.error('Acceso denegado: Se requiere rol ADMIN');
           this.router.navigate(['/login']);
-        } else {
-          console.error('Error fetching users', error);
         }
       }
     );
   }
 
   onSearch(): void {
+    this.currentPage = 1;
     this.filteredUsers = this.users.filter(user =>
       user.username.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
-    this.currentPage = 1;
     this.paginate();
   }
 
   onFilter(): void {
-    if (this.selectedRole) {
-      this.filteredUsers = this.users.filter(user => user.role === this.selectedRole);
-    } else {
-      this.filteredUsers = [...this.users];
-    }
     this.currentPage = 1;
+    this.filteredUsers = this.selectedRole
+      ? this.users.filter(user => user.role === this.selectedRole)
+      : [...this.users];
     this.paginate();
   }
 
@@ -186,11 +182,9 @@ export class UsersComponent implements OnInit {
   }
 
   paginate(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedUsers = this.filteredUsers.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
+    const startIndex = (this.currentPage - 1) * Number(this.itemsPerPage);
+    const endIndex = startIndex + Number(this.itemsPerPage);
+    this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
