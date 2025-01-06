@@ -7,6 +7,7 @@ export interface RegisterPatient {
   dni: string;
   birthdate: string; // Changed to string to match backend
   presumptiveDiagnosis: string;
+  age: number;
   status: boolean;
   idPlan: number;
   tutors: Tutor[];

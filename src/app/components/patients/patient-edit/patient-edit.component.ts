@@ -43,12 +43,16 @@ export class PatientEditComponent implements OnInit {
           paternalSurname: data.paternalSurname,
           maternalSurname: data.maternalSurname || '',
           dni: data.dni || '',
-          birthDate: data.birthdate || '',
+          birthdate: data.birthdate || '',
           age: data.age,
           presumptiveDiagnosis: data.presumptiveDiagnosis || '',
           idPlan: data.idPlan || 0,
           tutors: data.tutors || [],
-          status: data.status
+          status: data.status,
+          therapistId: data.therapistId || 0,
+          roomId: data.roomId || 0,
+          startTime: data.startTime || '',
+          firstWeekDates: data.firstWeekDates || []
         };
         this.isLoading = false;
       },
@@ -69,7 +73,7 @@ export class PatientEditComponent implements OnInit {
       paternalSurname: this.patient.paternalSurname.trim(),
       maternalSurname: this.patient.maternalSurname.trim(),
       dni: this.patient.dni.trim(),
-      birthdate: this.patient.birthDate.trim(),
+      birthDate: this.patient.birthdate.trim(),
       presumptiveDiagnosis: this.patient.presumptiveDiagnosis?.trim() || null,
       idPlan: this.patient.idPlan,
       tutors: this.patient.tutors,
