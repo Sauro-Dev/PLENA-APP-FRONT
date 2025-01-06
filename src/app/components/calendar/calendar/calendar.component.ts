@@ -459,17 +459,29 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   getAvailableHours(): string[] {
-    if (!this.selectedEvent || !this.rescheduleForm.sessionDate) return this.getAllHours();
+    if (!this.selectedEvent || !this.rescheduleForm.sessionDate) {
+      return [];
+    }
 
-    if (this.rescheduleForm.sessionDate === this.selectedEvent.sessionDate) {
-      const [currentHour] = this.selectedEvent.startTime.split(':');
-      const currentHourNum = this.convertTo24Hour(currentHour);
+    const originalSessionTime = this.selectedEvent.startTime;
+    const originalHour = this.convertTo24Hour(originalSessionTime);
 
-      return this.getAllHours().filter(time => {
-        const [hour] = time.split(':');
-        const hourNum = parseInt(hour);
-        return hourNum > currentHourNum;
+    const selectedDate = new Date(this.rescheduleForm.sessionDate);
+    const originalSessionDate = new Date(this.selectedEvent.sessionDate);
+
+    const selectedDateOnly = new Date(selectedDate).setHours(0,0,0,0);
+    const originalDateOnly = new Date(originalSessionDate).setHours(0,0,0,0);
+
+    if (selectedDateOnly === originalDateOnly) {
+      const availableHours = this.getAllHours().filter(time => {
+        const hour = parseInt(time.split(':')[0]);
+        if (originalHour >= 15) {
+          return hour > originalHour;
+        }
+        return hour > originalHour;
       });
+
+      return availableHours;
     }
 
     return this.getAllHours();
@@ -488,20 +500,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private convertTo24Hour(hour: string): number {
-    const match = hour.match(/(\d+)(?::(\d+))?\s*(am|pm)?/i);
-    if (!match) return 0;
 
-    let hours = parseInt(match[1]);
-    const period = match[3]?.toLowerCase();
+  private convertTo24Hour(time: string): number {
+    const cleanTime = time.trim().toLowerCase();
+    const isPM = cleanTime.includes('p');
+    const [hourStr] = cleanTime.split(':');
+    let hour = parseInt(hourStr);
 
-    if (period === 'pm' && hours !== 12) {
-      hours += 12;
-    } else if (period === 'am' && hours === 12) {
-      hours = 0;
+    if (isPM && hour !== 12) {
+      hour += 12;
+    } else if (!isPM && hour === 12) {
+      hour = 0;
     }
 
-    return hours;
+    console.log(`Converting ${time} to 24h format: ${hour}`);
+    return hour;
   }
 
   loadAvailableResources(): void {
@@ -596,8 +609,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   getMinDate(): string {
-    if (!this.selectedEvent) return '';
-    return this.selectedEvent.sessionDate;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.formatDateForInput(today);
   }
 
   get hasValidRescheduleForm(): boolean {
