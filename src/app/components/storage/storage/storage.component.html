@@ -1,32 +1,23 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
   <h1 class="text-3xl font-semibold text-center text-blue-900 mb-6 block md:hidden">
-    Gestión de Materiales
+    Gestión de Inventario
   </h1>
 
   <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
-    Gestión de Materiales
+    Gestión de Inventario
   </h1>
 
-  <!-- Botón Agregar Material (Escritorio) -->
-  <div class="hidden md:flex justify-end mb-6">
+  <!-- Sección de botones (Agregar Material y Filtros en móvil) -->
+  <div class="flex justify-between items-center mb-8 md:flex-row-reverse flex-row">
     <button
-      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+      class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform"
       [routerLink]="'/storage/material-register'">
-      <i class="fas fa-plus-circle mr-2"></i> Agregar Material
-    </button>
-  </div>
-
-  <!-- Botón Agregar Material y Filtros (Móvil) -->
-  <div class="flex justify-between items-center mb-6 md:hidden">
-    <button
-      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
-      [routerLink]="'/storage/material-register'">
-      <i class="fas fa-plus-circle mr-2"></i> Agregar Material
+      <i class="fas fa-user-plus mr-2"></i> Agregar Material
     </button>
 
-    <!-- Botón de filtros (Móvil) -->
+    <!-- Filtros (Móvil) -->
     <button
-      class="flex items-center bg-white border border-blue-600 text-blue-600 px-4 py-3 rounded-lg shadow-md hover:bg-blue-50 active:scale-95 transition-all ml-4"
+      class="flex items-center bg-white border border-blue-600 text-blue-600 px-4 py-3 rounded-lg shadow-md hover:bg-blue-50 active:scale-95 transition-all md:hidden ml-4"
       (click)="toggleFilters()">
       <i class="fas fa-filter text-lg"></i>
     </button>
@@ -165,24 +156,28 @@
       </tbody>
     </table>
   </div>
+  <!-- Mensaje si no hay materiales -->
+  <div *ngIf="filteredMaterials.length === 0" class="text-center text-gray-500 text-xl mt-8">
+    No se encontraron materiales registrados.
+  </div>
 
   <!-- Paginación -->
   <div class="flex justify-center mt-6 space-x-2">
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
       (click)="goToPage(1)" [disabled]="currentPage === 1">
       &lt;&lt;
     </button>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
       (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
       &lt;
     </button>
     <span class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">{{ currentPage }}</span>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
       (click)="goToPage(currentPage + 1)"
       [disabled]="currentPage >= Math.ceil(filteredMaterials.length / itemsPerPage)">
       &gt;
     </button>
-    <button class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
       (click)="goToPage(Math.ceil(filteredMaterials.length / itemsPerPage))"
       [disabled]="currentPage >= Math.ceil(filteredMaterials.length / itemsPerPage)">
       &gt;&gt;

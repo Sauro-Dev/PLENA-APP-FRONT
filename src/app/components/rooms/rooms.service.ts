@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Room } from './room';
 import { environment } from '../../enviroment';
-import { Material } from '../storage/material';
 
 @Injectable({
   providedIn: 'root',
@@ -41,12 +40,28 @@ export class RoomsService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<Room>(`${this.apiUrl}/${roomId}`,{headers});
   }
-
-
   updateRoom(id: string, room: Room): Observable<Room> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.put<Room>(`${this.apiUrl}/update/${id}`, room,{headers});
+  }
+
+  getDisabledRooms(): Observable<Room[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<Room[]>(`${this.apiUrl}/disabled`, { headers });
+  }
+
+  enableRoom(roomId: number): Observable<string> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<string>(`${this.apiUrl}/enable/${roomId}`, {}, { headers });
+  }
+
+  disableRoom(roomId: number): Observable<string> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put<string>(`${this.apiUrl}/disable/${roomId}`, {}, { headers });
   }
 
 }

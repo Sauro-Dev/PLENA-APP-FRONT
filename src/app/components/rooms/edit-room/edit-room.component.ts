@@ -21,6 +21,7 @@ export class EditRoomComponent implements OnInit {
   roomForm: FormGroup;
   showSaveModal: boolean = false;
   showCancelModal: boolean = false;
+  enabled: boolean = true;
 
   private roomService = inject(RoomsService);
   private fb = inject(FormBuilder);
@@ -51,12 +52,30 @@ export class EditRoomComponent implements OnInit {
           address: data.address,
           isTherapeutic: data.isTherapeutic,
         });
+        this.enabled = data.enabled;
       },
       (error) => {
         console.error('Error al cargar el ambiente:', error);
       }
     );
   }
+
+  changeRoomStatus(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+
+    if (checked) {
+      this.roomService.enableRoom(Number(this.IdRoom)).subscribe(() => {
+        this.enabled = true;
+        console.log('Sala habilitada correctamente.');
+      });
+    } else {
+      this.roomService.disableRoom(Number(this.IdRoom)).subscribe(() => {
+        this.enabled = false;
+        console.log('Sala deshabilitada correctamente.');
+      });
+    }
+  }
+
 
   openSaveModal(): void {
     this.showSaveModal = true;

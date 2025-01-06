@@ -1,4 +1,4 @@
-<div class="container mx-auto p-8 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-3xl shadow-xl mt-12">
+<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
   <!-- Título Principal (versión móvil) -->
   <h1 class="text-3xl font-semibold text-center text-blue-900 mb-6 block md:hidden">
     Gestión de Usuarios
@@ -144,28 +144,53 @@
   >
     <div
       *ngFor="let user of filteredUsers"
-      class="bg-white shadow-lg rounded-3xl p-6 text-center transition-transform duration-200 hover:scale-105"
+      class="bg-white shadow-lg rounded-2xl p-4 text-center transition-transform duration-200 hover:scale-[1.03] space-y-4"
     >
-      <!-- Indicador de Rol -->
+      <!-- Estado visual -->
       <div
-        class="w-10 h-10 rounded-full mx-auto mb-4"
+        class="w-8 h-8 rounded-full mx-auto"
         [ngClass]="{
-          'bg-red-500': user.role === 'ADMIN',
-          'bg-blue-500': user.role === 'THERAPIST',
-          'bg-green-500': user.role === 'SECRETARY'
-        }"
+      'bg-green-500': user.enabled,
+      'bg-red-500': !user.enabled
+    }"
       ></div>
 
-      <h3 class="text-2xl font-semibold text-blue-800">
+      <!-- Nombre del Usuario -->
+      <h3 class="text-xl font-semibold text-blue-800">
         {{ user.username }}
       </h3>
-      <p class="text-lg text-gray-600">{{ user.role }}</p>
-      <p class="mt-2 text-gray-500">☎ {{ user.phone }}</p>
-      <p class="text-gray-500">DNI: {{ user.dni }}</p>
 
+      <!-- Separador -->
+      <hr class="border-gray-300 mt-2">
+
+      <!-- Información del Usuario -->
+      <div class="space-y-3 text-left">
+        <!-- Rol -->
+        <div class="flex items-center">
+          <i class="ti ti-users text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">Rol:</span>
+          <span class="ml-2 text-gray-800">{{ user.role }}</span>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="flex items-center">
+          <i class="ti ti-phone text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">Teléfono:</span>
+          <span class="ml-2 text-gray-800">{{ user.phone }}</span>
+        </div>
+
+        <!-- DNI -->
+        <div class="flex items-center">
+          <i class="ti ti-id text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">DNI:</span>
+          <span class="ml-2 text-gray-800">{{ user.dni }}</span>
+        </div>
+      </div>
+
+      <!-- Botones -->
       <a
         [routerLink]="['/users/details', user.id]"
-        class="block mt-4 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200 transition duration-200"
+        class="block mt-4 bg-blue-100 text-blue-700 px-3 py-2 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
       >
         Ver Detalles
       </a>
@@ -173,36 +198,25 @@
   </div>
 
   <!-- Paginación -->
-  <div class="flex justify-center items-center mt-12 space-x-4">
-    <button
-      class="px-4 py-2 rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-300 disabled:cursor-not-allowed"
-      (click)="goToPage(1)"
-      [disabled]="currentPage === 1"
-    >
-      <i class="fas fa-angle-double-left"></i>
+  <div class="flex justify-center mt-6 space-x-2">
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+            (click)="goToPage(1)" [disabled]="currentPage === 1">
+      &lt;&lt;
     </button>
-    <button
-      class="px-4 py-2 rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-300 disabled:cursor-not-allowed"
-      (click)="goToPage(currentPage - 1)"
-      [disabled]="currentPage === 1"
-    >
-      <i class="fas fa-angle-left"></i>
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+            (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+      &lt;
     </button>
-    <span class="text-lg font-medium text-blue-800">
-      {{ currentPage }}
-    </span>
-    <button
-      class="px-4 py-2 rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-300 disabled:cursor-not-allowed"
-      (click)="goToPage(currentPage + 1)"
-      [disabled]="currentPage >= Math.ceil(filteredUsers.length / itemsPerPage)"
-    >
-      <i class="fas fa-angle-right"></i>
+    <span class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">{{ currentPage }}</span>
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage >= Math.ceil(filteredUsers.length / itemsPerPage)">
+      &gt;
     </button>
-    <button
-      class="px-4 py-2 rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-all duration-300 disabled:cursor-not-allowed"
-      (click)="goToPage(Math.ceil(filteredUsers.length / itemsPerPage))"
-    >
-      <i class="fas fa-angle-double-right"></i>
+    <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+            (click)="goToPage(Math.ceil(filteredUsers.length / itemsPerPage))"
+            [disabled]="currentPage >= Math.ceil(filteredUsers.length / itemsPerPage)">
+      &gt;&gt;
     </button>
   </div>
 </div>

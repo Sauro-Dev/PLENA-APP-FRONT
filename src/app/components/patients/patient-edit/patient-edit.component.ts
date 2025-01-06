@@ -61,17 +61,22 @@ export class PatientEditComponent implements OnInit {
     if (!this.patient) {
       return;
     }
+
     const updateData = {
       idPatient: this.route.snapshot.params['id'],
-      name: this.patient.name,
-      paternalSurname: this.patient.paternalSurname,
-      maternalSurname: this.patient.maternalSurname,
-      dni: this.patient.dni,
-      birthdate: this.patient.birthDate,
-      presumptiveDiagnosis: this.patient.presumptiveDiagnosis,
+      name: this.patient.name.trim(),
+      paternalSurname: this.patient.paternalSurname.trim(),
+      maternalSurname: this.patient.maternalSurname.trim(),
+      dni: this.patient.dni.trim(),
+      // Usamos formato 'YYYY-MM-DD'
+      birthdate: this.patient.birthDate instanceof Date
+        ? this.patient.birthDate.toISOString().split('T')[0]
+        : this.patient.birthDate, // Si ya es string, lo enviamos tal cual
+      presumptiveDiagnosis: this.patient.presumptiveDiagnosis?.trim() || null,
       idPlan: this.patient.idPlan,
       tutors: this.patient.tutors,
     };
+
     this.isSaving = true;
     this.patientsService
       .updatePatient(this.route.snapshot.params['id'], updateData)

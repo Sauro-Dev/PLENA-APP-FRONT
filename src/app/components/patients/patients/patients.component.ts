@@ -4,6 +4,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { PatientsService } from "../patients.service";
 import { FormsModule } from "@angular/forms";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-patients',
@@ -14,11 +15,12 @@ import { FormsModule } from "@angular/forms";
 })
 export class PatientsComponent implements OnInit {
   patients: any[] = [];
-  
+
   filteredPatients: any[] = [];
   searchQuery: string = '';
   itemsPerPage: number = 10;
   currentPage: number = 1;
+  showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 
   constructor(private patientService: PatientsService, private router: Router) {}
 
@@ -29,7 +31,7 @@ export class PatientsComponent implements OnInit {
   loadPatients(): void {
     this.patientService.getPatients().subscribe(
       (data) => {
-        this.patients = data || []; 
+        this.patients = data || [];
         this.filteredPatients = [...this.patients];
       },
       (error) => {
@@ -81,5 +83,10 @@ export class PatientsComponent implements OnInit {
     this.paginate();
   }
 
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+
   protected readonly Math = Math;
+  protected readonly filter = filter;
 }

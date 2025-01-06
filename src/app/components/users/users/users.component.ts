@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { UsersService } from "../users.service";
 import { FormsModule } from "@angular/forms";
 import { AuthService } from "../../auth/auth.service";
+import {filter} from "rxjs/operators";
 
 @Component({
   selector: 'app-users',
@@ -205,4 +206,5 @@ export class UsersComponent implements OnInit {
   }
 
   protected readonly Math = Math;
+  protected readonly filter = filter;
 }
