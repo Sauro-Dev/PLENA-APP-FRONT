@@ -1,43 +1,63 @@
 <section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
   <form [formGroup]="areaForm" (ngSubmit)="openRegisterModal()">
-    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Área de Intervención</h1>
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+      <!-- Título -->
+      <h1 class="text-3xl font-bold mb-10 text-center text-gray-800">Registrar Área de Intervención</h1>
 
-    <!-- Nombre del Área -->
-    <div class="mb-5 relative">
-      <label for="name" class="block text-lg font-medium text-gray-700">Nombre del Área</label>
-      <input id="name" type="text"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        [ngClass]="{'border-red-500': areaForm.get('name')?.invalid && areaForm.get('name')?.touched}"
-        formControlName="name" placeholder="Nombre del Área" maxlength="100" />
-      <p *ngIf="areaForm.get('name')?.invalid && areaForm.get('name')?.touched" class="mt-1 text-sm text-red-600">
-        El nombre del área es requerido y debe tener entre 3 y 100 caracteres.
-      </p>
-    </div>
+      <!-- Nombre del Área -->
+      <div class="mb-5 relative">
+        <label for="name" class="block text-lg font-medium text-gray-700">Nombre del Área</label>
+        <input
+          id="name"
+          type="text"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          [ngClass]="{'border-red-500': areaForm.get('name')?.invalid && areaForm.get('name')?.touched}"
+          formControlName="name"
+          placeholder="Nombre del Área"
+          maxlength="100"
+        />
+        <p *ngIf="areaForm.get('name')?.invalid && areaForm.get('name')?.touched" class="mt-1 text-sm text-red-600">
+          El nombre del área es requerido y debe tener entre 3 y 100 caracteres.
+        </p>
+      </div>
 
-    <!-- Descripción -->
-    <div class="mb-5 relative">
-      <label for="description" class="block text-lg font-medium text-gray-700">Descripción</label>
-      <textarea id="description"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        [ngClass]="{'border-red-500': areaForm.get('description')?.invalid && areaForm.get('description')?.touched}"
-        formControlName="description" placeholder="Descripción del Área" rows="3" maxlength="500"></textarea>
-      <p *ngIf="areaForm.get('description')?.invalid && areaForm.get('description')?.touched"
-        class="mt-1 text-sm text-red-600">
-        La descripción es requerida y debe tener entre 10 y 500 caracteres.
-      </p>
-    </div>
+      <!-- Descripción -->
+      <div class="mb-5 relative">
+        <label for="description" class="block text-lg font-medium text-gray-700">Descripción</label>
+        <textarea
+          id="description"
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          [ngClass]="{'border-red-500': areaForm.get('description')?.invalid && areaForm.get('description')?.touched}"
+          formControlName="description"
+          placeholder="Descripción del Área"
+          rows="3"
+          maxlength="500"
+        ></textarea>
+        <p *ngIf="areaForm.get('description')?.invalid && areaForm.get('description')?.touched"
+           class="mt-1 text-sm text-red-600">
+          La descripción es requerida y debe tener entre 10 y 500 caracteres.
+        </p>
+      </div>
 
-    <!-- Botones -->
-    <div class="flex gap-5 justify-center mt-10 mb-10">
-      <button type="submit"
-        class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl transition duration-300 ease-in-out"
-        [disabled]="areaForm.invalid" [ngClass]="{'bg-gray-500 text-gray-300 cursor-not-allowed': areaForm.invalid}">
-        Guardar
-      </button>
-      <button type="button" (click)="openCancelModal()"
-        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400 transition duration-300 ease-in-out">
-        Cancelar
-      </button>
+      <!-- Botones -->
+      <div class="flex flex-col items-center gap-4 mt-8 md:flex-row md:justify-center">
+        <!-- Botón Guardar -->
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+          [disabled]="areaForm.invalid"
+        >
+          Guardar
+        </button>
+        <!-- Botón Cancelar -->
+        <button
+          type="button"
+          (click)="openCancelModal()"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium transition"
+        >
+          Cancelar
+        </button>
+      </div>
     </div>
   </form>
 
@@ -47,10 +67,18 @@
       <h2 class="text-xl font-bold mb-4">¿Registrar esta área?</h2>
       <p class="mb-6 text-gray-600">Confirma si deseas registrar el área con los datos ingresados.</p>
       <div class="flex justify-center gap-4">
-        <button (click)="confirmRegister()"
-          class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Confirmar</button>
-        <button (click)="closeRegisterModal()"
-          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
+        <button
+          (click)="confirmRegister()"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500"
+        >
+          Confirmar
+        </button>
+        <button
+          (click)="closeRegisterModal()"
+          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
   </div>
@@ -61,10 +89,18 @@
       <h2 class="text-xl font-bold mb-4">¿Cancelar el registro?</h2>
       <p class="mb-6 text-gray-600">Todos los datos ingresados se perderán.</p>
       <div class="flex justify-center gap-4">
-        <button (click)="confirmCancel()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">Sí,
-          cancelar</button>
-        <button (click)="closeCancelModal()"
-          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Volver</button>
+        <button
+          (click)="confirmCancel()"
+          class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500"
+        >
+          Sí, cancelar
+        </button>
+        <button
+          (click)="closeCancelModal()"
+          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400"
+        >
+          Volver
+        </button>
       </div>
     </div>
   </div>
