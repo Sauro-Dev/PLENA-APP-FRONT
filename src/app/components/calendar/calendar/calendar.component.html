@@ -51,8 +51,57 @@
       <full-calendar
         #calendar
         [options]="calendarOptions"
-        class="w-full h-full max-h-full"
+        class="w-full h-full max-h-full [&_.fc-col-header-cell-cushion]:uppercase [&_.fc-toolbar-title]:capitalize"
       ></full-calendar>
+    </div>
+  </div>
+
+  <!-- Modal de detalles del evento -->
+  <div *ngIf="showEventModal && selectedEvent"
+       class="fixed inset-0 flex items-center justify-center z-50 bg-gray-800/50">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-w-[90vw]">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-900">Detalles de la Sesión</h3>
+        <button
+          (click)="showEventModal = false"
+          class="text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Paciente:</span>
+          <span class="text-gray-900">{{selectedEvent.patientName}}</span>
+        </div>
+
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Terapeuta:</span>
+          <span class="text-gray-900">{{selectedEvent.therapistName}}</span>
+        </div>
+
+        <div class="flex items-center border-b border-gray-100 pb-2">
+          <span class="font-medium text-gray-700 w-24">Sala:</span>
+          <span class="text-gray-900">{{selectedEvent.roomName}}</span>
+        </div>
+
+        <div class="flex items-center">
+          <span class="font-medium text-gray-700 w-24">Horario:</span>
+          <span class="text-gray-900">{{selectedEvent.startTime}} - {{selectedEvent.endTime}}</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button
+          (click)="showEventModal = false"
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
   </div>
 </div>

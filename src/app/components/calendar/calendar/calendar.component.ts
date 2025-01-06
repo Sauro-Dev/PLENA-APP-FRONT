@@ -1,5 +1,4 @@
 import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
-import {Router} from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../calendar.service';
@@ -14,7 +13,7 @@ import listPlugin from '@fullcalendar/list';
 import {UsersService} from "../../users/users.service";
 import {RoomsService} from "../../rooms/rooms.service";
 import {HttpParams} from "@angular/common/http";
-
+import esLocale from '@fullcalendar/core/locales/es';
 @Component({
   selector: 'app-calendar',
   standalone: true,
@@ -37,13 +36,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
     initialDate: new Date().toISOString().split('T')[0],
     slotMinTime: '09:00:00',
     slotMaxTime: '19:00:00',
+    height: 'auto',
     businessHours: [
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '09:00', endTime: '13:00' },
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '15:00', endTime: '19:00' },
     ],
     allDaySlot: false,
     editable: false,
-    locale: 'es',
+    locale: {
+      ...esLocale,
+      buttonText: {
+        today: 'Hoy',
+        week: 'Semana',
+        day: 'Día'
+      }
+    },
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
@@ -61,47 +68,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
       meridiem: 'short',
     },
     hiddenDays: [0],
+
     datesSet: (dateInfo) => {
       const newDate = dateInfo.start;
       this.selectedDate = this.formatDateForInput(newDate);
       this.onFilterChange(false, false);
       this.cdr.detectChanges();
     },
-    views: {
-      timeGrid: {
-        dayHeaderFormat: {
-          weekday: 'short',
-          day: 'numeric',
-          omitCommas: true
-        },
-        titleFormat: {
-          month: 'long',
-          year: 'numeric'
-        }
-      },
-      timeGridWeek: {
-        dayHeaderFormat: {
-          weekday: 'narrow',
-          day: 'numeric',
-          omitCommas: true
-        },
-        titleFormat: {
-          month: 'long',
-          year: 'numeric'
-        }
-      },
-      timeGridDay: {
-        titleFormat: {
-          month: 'long',
-          year: 'numeric',
-          day: 'numeric',
-          weekday: 'long'
-        }
-      }
-    },
 
     dayHeaderContent: (arg) => {
-      // Personalizar el formato del encabezado del día
       const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'short' })
         .format(arg.date)
         .toUpperCase()
@@ -110,21 +85,27 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return { html: `${dayName} ${dayNumber}` };
     },
 
-    titleFormat: () => {
-      const currentDate = new Date();
-      const monthFormat = new Intl.DateTimeFormat('es-ES', { month: 'short' });
-      let month = monthFormat.format(currentDate);
-      month = month.charAt(0).toUpperCase() + month.slice(1).toLowerCase().replace('.', '');
+    titleFormat: (info) => {
+      const start = info.date.marker;
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
 
-      const nextMonth = new Date(currentDate);
-      nextMonth.setMonth(currentDate.getMonth() + 1);
+      const formatMonth = (date: Date) => {
+        return new Intl.DateTimeFormat('es-ES', {
+          month: 'long'
+        }).format(date).replace(' de ', ' ');
+      };
 
-      if (currentDate.getMonth() !== nextMonth.getMonth()) {
-        const nextMonthStr = monthFormat.format(nextMonth).toLowerCase().replace('.', '');
-        return `${month} - ${nextMonthStr} ${currentDate.getFullYear()}`;
+      if (start.getMonth() !== end.getMonth()) {
+        const startMonth = formatMonth(start);
+        const endMonth = formatMonth(end);
+        if (start.getFullYear() !== end.getFullYear()) {
+          return `${startMonth} ${start.getFullYear()} - ${endMonth} ${end.getFullYear()}`;
+        }
+        return `${startMonth} - ${endMonth} ${start.getFullYear()}`;
       }
 
-      return `${month} ${currentDate.getFullYear()}`;
+      return `${formatMonth(start)} ${start.getFullYear()}`;
     },
 
     buttonText: {
@@ -132,10 +113,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
       week: 'Semana',
       day: 'Día'
     },
-
   };
 
-  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService, private router: Router,
+  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService,
               private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -202,37 +182,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     });
   }
 
-  private formatDateToISO(date: string): string {
-    if (!date) return '';
-    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
-
-    const [day, month, year] = date.split('-');
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  }
-
-  loadSessions(): void {
-    this.calendarService.getSessionsByRoom(this.selectedRoomId).subscribe({
-      next: (sessions) => {
-        this.noSessionsModal = sessions.length === 0;
-        this.updateCalendarEvents(sessions);
-      },
-      error: (err) => {
-        console.error('Error al cargar sesiones:', err);
-        this.noSessionsModal = true;
-        this.updateCalendarEvents([]);
-      },
-    });
-  }
-
-  private loadMonthlySessions(): void {
-    const currentMonthDate = new Date();
-    const startDate = currentMonthDate.toISOString().split('T')[0];
-    this.calendarService.getSessionsByMonth(startDate).subscribe({
-      next: (sessions) => this.updateCalendarEvents(sessions),
-      error: (err) => console.error('Error al cargar sesiones del mes:', err),
-    });
-  }
-
   private jumpToSelectedDate(date: string): void {
     if (this.calendarComponent) {
       const calendarApi = this.calendarComponent.getApi();
@@ -260,15 +209,47 @@ export class CalendarComponent implements OnInit, OnDestroy {
       const normalizedEnd = session.endTime.trim().replace(/\s+/g, ' ');
 
       return {
-        title: `Paciente: ${session.patientName}\nTerapeuta: ${session.therapistName}\nSala: ${session.roomName}`,
+        title: `${session.patientName}`,
         start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
         end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
         backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
         borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
+        extendedProps: {
+          patientName: session.patientName,
+          therapistName: session.therapistName,
+          roomName: session.roomName,
+          startTime: normalizedStart,
+          endTime: normalizedEnd
+        } as EventDetails,
+        classNames: ['cursor-pointer', 'event-with-time'],
       };
     });
 
-    this.calendarOptions = { ...this.calendarOptions, events };
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      events,
+      eventContent: (arg) => {
+        return {
+          html: `
+            <div class="event-content p-1">
+              <div class="font-medium">${arg.event.title}</div>
+            </div>
+          `
+        };
+      },
+      eventClick: (info) => {
+        const props = info.event.extendedProps as EventDetails;
+        this.selectedEvent = {
+          patientName: props.patientName,
+          therapistName: props.therapistName,
+          roomName: props.roomName,
+          startTime: props.startTime,
+          endTime: props.endTime
+        };
+        this.showEventModal = true;
+        this.cdr.detectChanges();
+      }
+    };
   }
 
   loadTherapists(): void {
@@ -289,20 +270,36 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   }
+
+  selectedEvent: {
+    patientName: string;
+    therapistName: string;
+    roomName: string;
+    startTime: string;
+    endTime: string;
+  } | null = null;
+  showEventModal: boolean = false;
+}
+
+interface EventDetails {
+  patientName: string;
+  therapistName: string;
+  roomName: string;
+  startTime: string;
+  endTime: string;
 }
 
 function convertTimeTo24HourFormat(time: string): string {
-  // Expresión regular mejorada para capturar variaciones de formato
   const timeRegex = /(\d{1,2}):(\d{2})\s*(a\.?\s?m\.?|p\.?\s?m\.?)/i;
   const match = time.match(timeRegex);
 
-  if (!match) throw new Error(`Formato de hora inválido: ${time}`); // Si no coincide, lanza un error
+  if (!match) throw new Error(`Formato de hora inválido: ${time}`);
 
-  let [_, hour, minute, meridian] = match; // Extrae las partes de la hora
+  let [_, hour, minute, meridian] = match;
   let hour24 = parseInt(hour, 10);
 
-  if (meridian.toLowerCase().includes("p") && hour24 < 12) hour24 += 12; // Convertir PM
-  if (meridian.toLowerCase().includes("a") && hour24 === 12) hour24 = 0; // Medianoche en AM
+  if (meridian.toLowerCase().includes("p") && hour24 < 12) hour24 += 12;
+  if (meridian.toLowerCase().includes("a") && hour24 === 12) hour24 = 0;
 
-  return `${hour24.toString().padStart(2, "0")}:${minute}:00`; // Devuelve en formato 24 horas
+  return `${hour24.toString().padStart(2, "0")}:${minute}:00`;
 }

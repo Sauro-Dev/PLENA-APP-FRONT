@@ -1,65 +1,26 @@
-/* Mantener los estilos existentes y agregar/modificar estos */
-.fc-timegrid-slot {
-  height: auto !important;
-  min-height: 45px !important; /* Ajustar a un valor más pequeño */
-  display: flex;
-  align-items: center;
-}
-
-.fc-timegrid-slot-label {
-  vertical-align: middle !important;
-}
-
-/* Ajustar el estilo del encabezado "Hora de Inicio" */
-.fc-timegrid-slot-label-frame {
+::ng-deep .event-content {
+  overflow: hidden;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100%;
 }
 
-/* Ajustar el espacio del contenedor de eventos */
-.fc-timegrid-event-harness {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
+::ng-deep .fc-event {
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-/* Mejorar la visualización de los eventos */
-.fc-timegrid-event {
-  min-height: 40px !important;
-  margin: 1px 0 !important;
-  padding: 4px !important;
+::ng-deep .fc-event:hover {
+  transform: scale(1.02);
 }
 
-/* Asegurar que el contenedor principal tenga altura adecuada */
-.fc-view-harness {
-  height: auto !important;
-  min-height: 600px !important;
+::ng-deep .fc-event-title {
+  font-weight: 500;
+  margin-bottom: 2px;
 }
 
-/* Ajustar el espacio entre las columnas de tiempo */
-.fc-timegrid-cols {
-  min-height: inherit;
-}
-
-.fc-timegrid-axis-frame {
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-}
-
-.fc-timegrid-axis.fc-scrollgrid-shrink {
-  text-align: center !important;
-}
-
-.fc .fc-col-header-cell-cushion {
-  text-transform: uppercase;
-}
-
-/* Para el título del mes */
-.fc .fc-toolbar-title {
-  text-transform: capitalize;
+::ng-deep .fc-event-time {
+  font-size: 0.75rem;
+  opacity: 0.75;
 }
