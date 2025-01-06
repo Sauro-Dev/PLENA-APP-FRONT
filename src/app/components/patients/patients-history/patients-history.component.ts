@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PatientsService } from '../patients.service';
+import { EvaluationDocumentService } from './evaluation-document.service';
 
 @Component({
   selector: 'app-patients-history',
@@ -9,36 +9,73 @@ import { PatientsService } from '../patients.service';
   styleUrls: ['./patients-history.component.css']
 })
 export class PatientsHistoryComponent implements OnInit {
-  patient: any = null;
-  history: any = null;
-  isLoading: boolean = true;
+  patient: any;
+  history: any[] = [];
+  documents: any[] = [];
+  isLoading = true;
 
-  constructor(
-    private route: ActivatedRoute,
-    private patientsService: PatientsService
-  ) {}
+  constructor(private evaluationDocumentService: EvaluationDocumentService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const id = +params['id']; // El signo + convierte el id a número
-      if (id) {
-        this.loadPatientHistory(id);
-      } else {
-        console.error('ID de paciente no proporcionado.');
-      }
-    });
+    this.loadPatientHistory();
   }
 
-  loadPatientHistory(id: number): void {
-    this.patientsService.getPatientById(id).subscribe(
-      (data: any) => {
-        this.patient = data.patient;
-        this.history = data.history;
+  loadPatientHistory(): void {
+    const patientId = this.route.snapshot.params['id'];
+    this.evaluationDocumentService.getDocumentsByPatientId(patientId).subscribe(
+      (documents) => {
+        this.documents = documents;
         this.isLoading = false;
       },
-      (error: any) => {
-        console.error('Error al cargar el historial del paciente:', error);
+      (error) => {
+        console.error('Error fetching documents', error);
         this.isLoading = false;
+      }
+    );
+  }
+
+  downloadDocument(documentId: number): void {
+    this.evaluationDocumentService.download(documentId).subscribe(
+      (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'document.pdf';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error('Error downloading document', error);
+      }
+    );
+  }
+
+  getDocumentById(documentId: number): void {
+    this.evaluationDocumentService.getById(documentId).subscribe(
+      (document) => {
+        console.log('Document:', document);
+        // Handle the document as needed
+      },
+      (error) => {
+        console.error('Error fetching document', error);
+      }
+    );
+  }
+
+  addDocument(): void {
+    const newDocument = {
+      name: 'Nuevo Documento',
+      description: 'Descripción del nuevo documento',
+      documentType: 'Tipo de Documento'
+    };
+    const file = new File([''], 'dummy.pdf'); // Archivo de ejemplo, reemplazar según sea necesario
+
+    this.evaluationDocumentService.create(newDocument, file).subscribe(
+      (document) => {
+        this.documents.push(document);
+      },
+      (error) => {
+        console.error('Error creando documento', error);
       }
     );
   }
