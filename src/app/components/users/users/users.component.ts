@@ -20,7 +20,7 @@ export class UsersComponent implements OnInit {
   searchQuery: string = '';
   selectedRole: string = '';
   sortOrder: string = 'asc';
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 12;
   currentPage: number = 1;
   showAdminModal: boolean = false;
   adminUsername: string = '';

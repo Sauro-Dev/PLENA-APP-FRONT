@@ -17,7 +17,7 @@ export class RoomsComponent implements OnInit {
   filteredRooms: any[] = [];
   searchQuery: string = '';
   therapeuticFilter: string = '';
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 12;
   currentPage: number = 1;
   showFilters: boolean = false;
   showDisabledRoomsModal: boolean = false;

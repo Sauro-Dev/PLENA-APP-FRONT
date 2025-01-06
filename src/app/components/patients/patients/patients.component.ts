@@ -18,7 +18,7 @@ export class PatientsComponent implements OnInit {
 
   filteredPatients: any[] = [];
   searchQuery: string = '';
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 12;
   currentPage: number = 1;
   showFilters: boolean = false;  // Nuevo para manejar el desplegable de filtros en móvil
 

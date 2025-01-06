@@ -16,7 +16,7 @@ export class AreasComponent implements OnInit {
   areas: any[] = [];
   filteredAreas: any[] = [];
   currentPage: number = 1;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 12;
   searchQuery: string = '';
   totalPages: number = 10;
   showFilters: boolean = false;
