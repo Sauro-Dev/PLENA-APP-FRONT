@@ -3,6 +3,8 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Session } from './session';
 import { environment } from '../../enviroment';
+import {Therapist} from "./therapist";
+import {Room} from "./room";
 
 @Injectable({
   providedIn: 'root',
@@ -59,6 +61,32 @@ export class CalendarService {
   getFilteredSessions(params: HttpParams): Observable<Session[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<Session[]>(`${this.apiUrl}/filtered`, { headers, params });
+    return this.http.get<Session[]>(`${this.apiUrl}/filtered`, { headers, params })
+  }
+
+  getAvailableTherapists(
+    sessionDate: string,
+    startTime: string,
+    endTime: string
+  ): Observable<Therapist[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<Therapist[]>(
+      `${this.apiUrl}/available-therapists?sessionDate=${sessionDate}&startTime=${startTime}&endTime=${endTime}`,
+      { headers }
+    );
+  }
+
+  getAvailableRooms(
+    sessionDate: string,
+    startTime: string,
+    endTime: string
+  ): Observable<Room[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<Room[]>(
+      `${this.apiUrl}/available-rooms?sessionDate=${sessionDate}&startTime=${startTime}&endTime=${endTime}`,
+      { headers }
+    );
   }
 }

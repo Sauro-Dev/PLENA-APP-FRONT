@@ -1,12 +1,12 @@
-import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CalendarService } from '../calendar.service';
-import { Session } from '../session';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import {FullCalendarComponent} from "@fullcalendar/angular";
-import {ViewChild} from "@angular/core";
-import { CalendarOptions } from '@fullcalendar/core';
+import {ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {CalendarService} from '../calendar.service';
+import {Session} from '../session';
+import {EventDetails} from "../event-details";
+import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
+import { CalendarOptions, DateSelectArg, DayHeaderContentArg } from '@fullcalendar/core';
+import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
@@ -14,24 +14,74 @@ import {UsersService} from "../../users/users.service";
 import {RoomsService} from "../../rooms/rooms.service";
 import {HttpParams} from "@angular/common/http";
 import esLocale from '@fullcalendar/core/locales/es';
+import {Therapist} from "../therapist";
+import {Room} from "../room";
+
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [CommonModule, FormsModule, FullCalendarModule],
   templateUrl: './calendar.component.html',
+  encapsulation: ViewEncapsulation.None,
+  styles: [`
+    .fc-col-header-cell {
+      padding: 0 !important;
+    }
+    .fc-col-header-cell-cushion {
+      padding: 0 !important;
+      width: 100%;
+      height: 100%;
+    }
+    .day-header {
+      padding: 8px;
+      width: 100%;
+      height: 100%;
+      display: block;
+      min-height: 45px;
+      line-height: 30px;
+      background-color: transparent;
+    }
+  `]
 })
 export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
+  handleDateClick = (selectInfo: DateSelectArg) => {
+    if (this.calendarComponent) {
+      const calendarApi = this.calendarComponent.getApi();
+      calendarApi.changeView('timeGridDay', selectInfo.start);
+    }
+  };
+
   selectedDate: string = '';
   noSessionsModal: boolean = false;
   selectedTherapistId: string = '';
   therapists: Array<{ id: string; name: string }> = [];
   selectedRoomId: number | undefined;
-  rooms: Array<{ id: number | undefined; name: string }> = [];
+  rooms: Array<{ idRoom: number | undefined; name: string }> = [];
   sessions: Session[] = [];
+  selectedEvent: EventDetails | null = null;
+  showEventModal: boolean = false;
+  isUpdatingAttendance: boolean = false;
+  isRescheduling: boolean = false;
+  availableTherapists: Therapist[] = [];
+  availableRooms: Room[] = [];
+
+  rescheduleForm = {
+    sessionDate: '',
+    startTime: '',
+    therapistId: '',
+    roomId: '',
+    reason: ''
+  };
+
+  attendanceForm = {
+    therapistPresent: false,
+    patientPresent: false
+  };
 
   calendarOptions: CalendarOptions = {
-    plugins: [timeGridPlugin, dayGridPlugin, listPlugin],
+    plugins: [timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
     initialDate: new Date().toISOString().split('T')[0],
     slotMinTime: '09:00:00',
@@ -47,7 +97,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ...esLocale,
       buttonText: {
         today: 'Hoy',
-        week: 'Semana',
+        week: 'Seaman',
         day: 'Día'
       }
     },
@@ -57,6 +107,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       right: 'timeGridWeek,timeGridDay',
     },
     events: [],
+    selectable: true,
+    select: undefined,
     slotLabelFormat: {
       hour: 'numeric',
       minute: '2-digit',
@@ -68,7 +120,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       meridiem: 'short',
     },
     hiddenDays: [0],
-
     datesSet: (dateInfo) => {
       const newDate = dateInfo.start;
       this.selectedDate = this.formatDateForInput(newDate);
@@ -76,13 +127,36 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     },
 
-    dayHeaderContent: (arg) => {
+    dayHeaderContent: (arg: DayHeaderContentArg) => {
       const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'short' })
         .format(arg.date)
         .toUpperCase()
         .replace('.', '');
       const dayNumber = arg.date.getDate();
-      return { html: `${dayName} ${dayNumber}` };
+      return {
+        html: `
+      <div class="day-header cursor-pointer" data-date="${this.formatDateForInput(arg.date)}">
+        <div class="w-full h-full flex items-center justify-center">
+          ${dayName} ${dayNumber}
+        </div>
+      </div>
+    `
+      };
+    },
+
+    customButtons: {
+      today: {
+        text: 'Hoy',
+        click: () => {
+          const today = new Date();
+          this.selectedDate = this.formatDateForInput(today);
+          if (this.calendarComponent) {
+            const calendarApi = this.calendarComponent.getApi();
+            calendarApi.today();
+            this.onFilterChange(true);
+          }
+        }
+      }
     },
 
     titleFormat: (info) => {
@@ -115,17 +189,50 @@ export class CalendarComponent implements OnInit, OnDestroy {
     },
   };
 
-  constructor(private calendarService: CalendarService, private usersService: UsersService, private roomsService: RoomsService,
-              private cdr: ChangeDetectorRef) {}
+  calendarInitialized = false;
+
+  constructor(
+    private calendarService: CalendarService,
+    private usersService: UsersService,
+    private roomsService: RoomsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit(): void {
     const today = new Date();
     this.selectedDate = this.formatDateForInput(today);
-    this.loadTherapists();
-    this.loadRooms();
+  }
 
-    setTimeout(() => {
+  private loadInitialData(): void {
+    this.loadTherapists().then(() => {
+      return this.loadRooms();
+    }).then(() => {
       this.onFilterChange(false);
+    }).catch(error => {
+      console.error('Error loading initial data:', error);
+    });
+  }
+
+
+  ngAfterViewInit(): void {
+    this.initializeCalendar();
+  }
+
+  private initializeCalendar(): void {
+    if (this.calendarInitialized) return;
+
+    this.ngZone.runOutsideAngular(() => {
+      Promise.all([
+        this.loadTherapists(),
+        this.loadRooms()
+      ]).then(() => {
+        this.ngZone.run(() => {
+          this.onFilterChange(false);
+          this.calendarInitialized = true;
+          this.cdr.detectChanges();
+        });
+      });
     });
   }
 
@@ -150,7 +257,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     let params = new HttpParams();
 
     if (this.selectedDate) {
-      params = params.set('date', this.selectedDate);
+      if (this.calendarComponent && this.calendarComponent.getApi().view.type === 'timeGridWeek') {
+        const view = this.calendarComponent.getApi().view;
+        params = params.set('startDate', this.formatDateForInput(view.activeStart));
+        params = params.set('endDate', this.formatDateForInput(view.activeEnd));
+      } else {
+        params = params.set('date', this.selectedDate);
+      }
     }
 
     if (this.selectedTherapistId && this.selectedTherapistId !== '') {
@@ -191,15 +304,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadRooms(): void {
-    this.roomsService.getRooms().subscribe({
-      next: (rooms) => {
-        this.rooms = rooms.map(room => ({
-          id: room.idRoom ?? undefined,
-          name: room.name,
-        }));
-      },
-      error: (err) => console.error('Error al cargar las salas:', err),
+  private loadRooms(): Promise<void> {
+    return new Promise((resolve) => {
+      this.roomsService.getRooms().subscribe({
+        next: (rooms) => {
+          this.rooms = rooms.map(room => ({
+            idRoom: room.idRoom,
+            name: room.name,
+          }));
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error al cargar las salas:', err);
+          resolve();
+        }
+      });
     });
   }
 
@@ -210,8 +329,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
       return {
         title: `${session.patientName}`,
-        start: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedStart)}`,
-        end: `${session.sessionDate}T${convertTimeTo24HourFormat(normalizedEnd)}`,
+        start: `${session.sessionDate}T${this.convertTimeTo24HourFormat(normalizedStart)}`,
+        end: `${session.sessionDate}T${this.convertTimeTo24HourFormat(normalizedEnd)}`,
         backgroundColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
         borderColor: session.rescheduled ? '#fbbf24' : '#3b82f6',
         extendedProps: {
@@ -219,7 +338,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
           therapistName: session.therapistName,
           roomName: session.roomName,
           startTime: normalizedStart,
-          endTime: normalizedEnd
+          endTime: normalizedEnd,
+          sessionDate: session.sessionDate,
+          therapistId: session.therapistId,
+          sessionId: session.idSession,
+          therapistPresent: session.therapistPresent,
+          patientPresent: session.patientPresent,
+          rescheduled: session.rescheduled,
+          reason: session.reason || ''
         } as EventDetails,
         classNames: ['cursor-pointer', 'event-with-time'],
       };
@@ -231,36 +357,35 @@ export class CalendarComponent implements OnInit, OnDestroy {
       eventContent: (arg) => {
         return {
           html: `
-            <div class="event-content p-1">
-              <div class="font-medium">${arg.event.title}</div>
-            </div>
-          `
+           <div class="event-content p-1">
+             <div class="font-medium">${arg.event.title}</div>
+           </div>
+         `
         };
       },
       eventClick: (info) => {
-        const props = info.event.extendedProps as EventDetails;
-        this.selectedEvent = {
-          patientName: props.patientName,
-          therapistName: props.therapistName,
-          roomName: props.roomName,
-          startTime: props.startTime,
-          endTime: props.endTime
-        };
+        this.selectedEvent = info.event.extendedProps as EventDetails;
         this.showEventModal = true;
         this.cdr.detectChanges();
       }
     };
   }
 
-  loadTherapists(): void {
-    this.usersService.getTherapists().subscribe({
-      next: (therapists) => {
-        this.therapists = therapists.map(therapist => ({
-          id: therapist.id,
-          name: therapist.name
-        }));
-      },
-      error: (err) => console.error('Error al cargar terapeutas:', err),
+  private loadTherapists(): Promise<void> {
+    return new Promise((resolve) => {
+      this.usersService.getTherapists().subscribe({
+        next: (therapists) => {
+          this.therapists = therapists.map(therapist => ({
+            id: therapist.id,
+            name: therapist.name
+          }));
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error al cargar terapeutas:', err);
+          resolve();
+        }
+      });
     });
   }
 
@@ -271,35 +396,218 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return `${day}-${month}-${year}`;
   }
 
-  selectedEvent: {
-    patientName: string;
-    therapistName: string;
-    roomName: string;
-    startTime: string;
-    endTime: string;
-  } | null = null;
-  showEventModal: boolean = false;
-}
+  private convertTimeTo24HourFormat(time: string): string {
+    const timeRegex = /(\d{1,2}):(\d{2})\s*(a\.?\s?m\.?|p\.?\s?m\.?)/i;
+    const match = time.match(timeRegex);
 
-interface EventDetails {
-  patientName: string;
-  therapistName: string;
-  roomName: string;
-  startTime: string;
-  endTime: string;
-}
+    if (!match) throw new Error(`Formato de hora inválido: ${time}`);
 
-function convertTimeTo24HourFormat(time: string): string {
-  const timeRegex = /(\d{1,2}):(\d{2})\s*(a\.?\s?m\.?|p\.?\s?m\.?)/i;
-  const match = time.match(timeRegex);
+    let [_, hour, minute, meridian] = match;
+    let hour24 = parseInt(hour, 10);
 
-  if (!match) throw new Error(`Formato de hora inválido: ${time}`);
+    if (meridian.toLowerCase().includes("p") && hour24 < 12) hour24 += 12;
+    if (meridian.toLowerCase().includes("a") && hour24 === 12) hour24 = 0;
 
-  let [_, hour, minute, meridian] = match;
-  let hour24 = parseInt(hour, 10);
+    return `${hour24.toString().padStart(2, "0")}:${minute}:00`;
+  }
 
-  if (meridian.toLowerCase().includes("p") && hour24 < 12) hour24 += 12;
-  if (meridian.toLowerCase().includes("a") && hour24 === 12) hour24 = 0;
+  openAttendanceForm(): void {
+    if (this.selectedEvent) {
+      this.attendanceForm = {
+        therapistPresent: this.selectedEvent.therapistPresent,
+        patientPresent: this.selectedEvent.patientPresent
+      };
+      this.isUpdatingAttendance = true;
+    }
+  }
 
-  return `${hour24.toString().padStart(2, "0")}:${minute}:00`;
+  saveAttendance(): void {
+    if (this.selectedEvent) {
+      this.calendarService.presence(
+        this.selectedEvent.sessionId,
+        this.attendanceForm.therapistPresent,
+        this.attendanceForm.patientPresent
+      ).subscribe({
+        next: () => {
+          this.isUpdatingAttendance = false;
+          this.onFilterChange(false);
+          this.closeModal();
+        },
+        error: (error: Error) => {
+          console.error('Error al marcar asistencia:', error);
+        }
+      });
+    }
+  }
+
+  openRescheduleForm(): void {
+    if (this.selectedEvent && !this.selectedEvent.therapistPresent && !this.selectedEvent.patientPresent) {
+      const [hours, minutes] = this.selectedEvent.startTime.split(':');
+      const nextDay = new Date(this.selectedEvent.sessionDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      this.rescheduleForm = {
+        sessionDate: this.selectedEvent.sessionDate,
+        startTime: '',
+        therapistId: this.selectedEvent.therapistId.toString(),
+        roomId: '',
+        reason: ''
+      };
+      this.loadAvailableResources();
+      this.isRescheduling = true;
+    }
+  }
+
+  getAvailableHours(): string[] {
+    if (!this.selectedEvent || !this.rescheduleForm.sessionDate) return this.getAllHours();
+
+    if (this.rescheduleForm.sessionDate === this.selectedEvent.sessionDate) {
+      const [currentHour] = this.selectedEvent.startTime.split(':');
+      const currentHourNum = this.convertTo24Hour(currentHour);
+
+      return this.getAllHours().filter(time => {
+        const [hour] = time.split(':');
+        const hourNum = parseInt(hour);
+        return hourNum > currentHourNum;
+      });
+    }
+
+    return this.getAllHours();
+  }
+
+  private getAllHours(): string[] {
+    return [
+      '09:00',
+      '10:00',
+      '11:00',
+      '12:00',
+      '15:00',
+      '16:00',
+      '17:00',
+      '18:00'
+    ];
+  }
+
+  private convertTo24Hour(hour: string): number {
+    const match = hour.match(/(\d+)(?::(\d+))?\s*(am|pm)?/i);
+    if (!match) return 0;
+
+    let hours = parseInt(match[1]);
+    const period = match[3]?.toLowerCase();
+
+    if (period === 'pm' && hours !== 12) {
+      hours += 12;
+    } else if (period === 'am' && hours === 12) {
+      hours = 0;
+    }
+
+    return hours;
+  }
+
+  loadAvailableResources(): void {
+    if (this.rescheduleForm.sessionDate && this.rescheduleForm.startTime) {
+      const [hours, minutes] = this.rescheduleForm.startTime.split(':');
+      const startTimeDate = new Date(this.rescheduleForm.sessionDate);
+      startTimeDate.setHours(parseInt(hours), parseInt(minutes));
+
+      const endTimeDate = new Date(startTimeDate.getTime() + 50 * 60000);
+
+      this.calendarService.getAvailableTherapists(
+        this.rescheduleForm.sessionDate,
+        startTimeDate.toTimeString().slice(0, 8),
+        endTimeDate.toTimeString().slice(0, 8)
+      ).subscribe({
+        next: (therapists: Therapist[]) => {
+          this.availableTherapists = therapists.map((therapist: Therapist) => ({
+            id: therapist.id,
+            name: therapist.name
+          }));
+        },
+        error: (error: Error) => {
+          console.error('Error al cargar terapeutas:', error);
+        }
+      });
+
+      this.calendarService.getAvailableRooms(
+        this.rescheduleForm.sessionDate,
+        startTimeDate.toTimeString().slice(0, 8),
+        endTimeDate.toTimeString().slice(0, 8)
+      ).subscribe({
+        next: (rooms: Room[]) => {
+          this.availableRooms = rooms.map((room: Room) => ({
+            idRoom: room.idRoom,
+            name: room.name
+          }));
+        },
+        error: (error: Error) => {
+          console.error('Error al cargar salas:', error);
+        }
+      });
+    }
+  }
+
+  closeModal(): void {
+    this.showEventModal = false;
+    this.isUpdatingAttendance = false;
+    this.isRescheduling = false;
+    this.selectedEvent = null;
+    this.cdr.detectChanges();
+  }
+
+  public canShowRescheduleButton(): boolean {
+    if (!this.selectedEvent) return false;
+    return !this.selectedEvent.therapistPresent && !this.selectedEvent.patientPresent;
+  }
+
+  public saveReschedule(): void {
+    if (this.selectedEvent) {
+      this.calendarService.reprogramSession(
+        this.selectedEvent.sessionId,
+        {
+          idSession: this.selectedEvent.sessionId,
+          sessionDate: this.rescheduleForm.sessionDate,
+          startTime: this.rescheduleForm.startTime,
+          therapistId: parseInt(this.rescheduleForm.therapistId),
+          roomId: parseInt(this.rescheduleForm.roomId),
+          reason: this.rescheduleForm.reason
+        }
+      ).subscribe({
+        next: () => {
+          this.isRescheduling = false;
+          this.onFilterChange(false);
+          this.closeModal();
+        },
+        error: (error: Error) => {
+          console.error('Error al reprogramar sesión:', error);
+        }
+      });
+    }
+  }
+
+  isValidTime(time: string): boolean {
+    if (!time) return false;
+    const [hours] = time.split(':');
+    const hour = parseInt(hours, 10);
+
+    const isMorningHour = hour >= 9 && hour < 13;
+    const isAfternoonHour = hour >= 15 && hour < 19;
+
+    return isMorningHour || isAfternoonHour;
+  }
+
+  getMinDate(): string {
+    if (!this.selectedEvent) return '';
+    return this.selectedEvent.sessionDate;
+  }
+
+  get hasValidRescheduleForm(): boolean {
+    return !!(
+      this.rescheduleForm.sessionDate &&
+      this.rescheduleForm.startTime &&
+      this.isValidTime(this.rescheduleForm.startTime) &&
+      this.rescheduleForm.therapistId &&
+      this.rescheduleForm.roomId &&
+      this.rescheduleForm.reason
+    );
+  }
 }
