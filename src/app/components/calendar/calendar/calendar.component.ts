@@ -478,25 +478,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    const originalSessionTime = this.selectedEvent.startTime;
-    const originalHour = this.convertTo24Hour(originalSessionTime);
+    const today = new Date();
+    const currentHour = today.getHours();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    const selectedDate = new Date(this.rescheduleForm.sessionDate);
-    const originalSessionDate = new Date(this.selectedEvent.sessionDate);
+    const [year, month, day] = this.rescheduleForm.sessionDate.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
 
-    const selectedDateOnly = new Date(selectedDate).setHours(0,0,0,0);
-    const originalDateOnly = new Date(originalSessionDate).setHours(0,0,0,0);
-
-    if (selectedDateOnly === originalDateOnly) {
-      const availableHours = this.getAllHours().filter(time => {
+    if (todayDate.getTime() === selectedDate.getTime()) {
+      return this.getAllHours().filter(time => {
         const hour = parseInt(time.split(':')[0]);
-        if (originalHour >= 15) {
-          return hour > originalHour;
-        }
-        return hour > originalHour;
+        return hour > currentHour;
       });
-
-      return availableHours;
     }
 
     return this.getAllHours();
@@ -528,7 +521,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       hour = 0;
     }
 
-    console.log(`Converting ${time} to 24h format: ${hour}`);
     return hour;
   }
 
