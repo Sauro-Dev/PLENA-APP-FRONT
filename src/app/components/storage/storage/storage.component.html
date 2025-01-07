@@ -110,53 +110,56 @@
     </div>
   </div>
 
-  <!-- Tabla de materiales -->
-  <div class="overflow-x-auto md:overflow-hidden bg-white rounded-lg shadow overflow-y-auto relative">
-    <table class="border-collapse table-auto w-full whitespace-nowrap bg-white table-striped relative">
+  <div class="overflow-x-auto md:overflow-hidden bg-white rounded-xl shadow-lg">
+    <table class="w-full">
       <thead>
-      <tr class="text-left">
-        <th
-          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-          Acciones</th>
-        <th
-          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-          ID Material</th>
-        <th
-          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-          Nombre</th>
-        <th
-          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-          Stock</th>
-        <th
-          class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">
-          Estado</th>
+      <tr class="bg-blue-50">
+        <th class="px-6 py-4 text-left text-sm font-semibold text-blue-900">Acciones</th>
+        <th class="px-6 py-4 text-left text-sm font-semibold text-blue-900">ID</th>
+        <th class="px-6 py-4 text-left text-sm font-semibold text-blue-900">Nombre</th>
+        <th class="px-6 py-4 text-left text-sm font-semibold text-blue-900">Stock</th>
+        <th class="px-6 py-4 text-left text-sm font-semibold text-blue-900">Estado</th>
       </tr>
       </thead>
-      <tbody>
-      <tr *ngFor="let material of paginatedMaterials" class="hover:bg-gray-100">
-        <td class="border-b border-gray-200 px-6 py-4">
+      <tbody class="divide-y divide-gray-100">
+      <tr *ngFor="let material of paginatedMaterials" class="hover:bg-blue-50 transition duration-150">
+        <td class="px-6 py-4">
           <div class="flex items-center space-x-3">
-            <button (click)="navigateToEdit(material.idMaterial)" class="text-blue-500 hover:text-blue-700">
-              <i class="fas fa-pencil-alt"></i>
+            <button (click)="navigateToEdit(material.idMaterial)"
+                    class="text-blue-600 hover:text-blue-800 transition-colors">
+              <i class="fas fa-edit"></i>
             </button>
-            <button (click)="delete(material.idMaterial)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash-alt"></i>
+            <button (click)="delete(material.idMaterial)"
+                    class="text-red-600 hover:text-red-800 transition-colors">
+              <i class="fas fa-trash"></i>
             </button>
             <button [routerLink]="['/storage/material-details', material.idMaterial]"
-                    class="text-green-500 hover:text-green-700">
+                    class="text-green-600 hover:text-green-800 transition-colors">
               <i class="fas fa-eye"></i>
             </button>
           </div>
         </td>
-        <td class="border-b border-gray-200 px-6 py-4">{{ material.idMaterial }}</td>
-        <td class="border-b border-gray-200 px-6 py-4">{{ material.nombre }}</td>
-        <td class="border-b border-gray-200 px-6 py-4">{{ material.stock }}</td>
-        <td class="border-b border-gray-200 px-6 py-4">{{ material.estado }}</td>
+        <td class="px-6 py-4">{{material.idMaterial}}</td>
+        <td class="px-6 py-4">{{material.nombre}}</td>
+        <td class="px-6 py-4">{{material.stock}}</td>
+        <td class="px-6 py-4">
+            <span [ngClass]="{
+              'px-3 py-1 rounded-full text-xs font-medium': true,
+              'bg-blue-100 text-blue-800': material.estado === 'NUEVO',
+              'bg-green-100 text-green-800': material.estado === 'BUENO',
+              'bg-yellow-100 text-yellow-800': material.estado === 'REGULAR',
+              'bg-orange-100 text-orange-800': material.estado === 'DESGASTADO',
+              'bg-red-100 text-red-800': material.estado === 'ROTO'
+            }">
+              {{material.estado}}
+            </span>
+        </td>
       </tr>
       </tbody>
     </table>
   </div>
-  <!-- Mensaje si no hay materiales -->
+
+  <!-- Mensaje sin resultados -->
   <div *ngIf="filteredMaterials.length === 0" class="text-center text-gray-500 text-xl mt-8">
     No se encontraron materiales registrados.
   </div>
