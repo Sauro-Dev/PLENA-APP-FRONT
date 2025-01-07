@@ -170,15 +170,11 @@
               <!-- Selector de Minutos -->
               <select
                 [formControl]="getMinuteControl(i)"
-                (change)="updateTime(i)"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-                <option value="" disabled>Minutos</option>
-                <option value="00">00</option>
-                <option value="10" *ngIf="getHourControl(i).value !== '18'">10</option>
-                <option value="20" *ngIf="getHourControl(i).value !== '18'">20</option>
-                <option value="30" *ngIf="getHourControl(i).value !== '18'">30</option>
-                <option value="40" *ngIf="getHourControl(i).value !== '18'">40</option>
-                <option value="50" *ngIf="getHourControl(i).value !== '18'">50</option>
+                (change)="updateTime(i)" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
+              <option value="" disabled>Minutos</option>
+              <option *ngFor="let minute of minuteOptionsMap.get(i) || []" [value]="minute">
+                {{ minute }}
+              </option>
               </select>
             </div>
             <div class="mt-1 text-sm text-red-600" *ngIf="session.get('startTime')?.errors?.['invalidTimeRange'] && session.get('startTime')?.touched">
@@ -216,7 +212,7 @@
               </ng-container>
             </select>
             <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
-              No hay salas disponibles para el horario seleccionado
+              No hay salas disponibles
             </div>
           </div>
 
@@ -225,15 +221,21 @@
             <label class="block text-lg font-medium text-gray-700">Terapeuta</label>
             <select
               formControlName="therapist"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-              [ngClass]="{'border-red-500': session.get('therapist')?.invalid && session.get('therapist')?.touched}">
-              <option [ngValue]="null">Seleccione un terapeuta</option>
-              <option *ngFor="let therapist of therapistsMap.get(i) || []" [value]="therapist.id">
-                {{ therapist.name }}
-              </option>
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
+              <!-- Opción Predeterminada -->
+              <option [ngValue]="null" disabled>Seleccione un terapeuta</option>
+              <!-- Opciones dinámicas de Terapeutas -->
+              <ng-container *ngIf="therapistsMap.get(i) as therapists">
+                <option *ngFor="let therapist of therapists" [value]="therapist.id">
+                  {{ therapist.name }}
+                </option>
+              </ng-container>
             </select>
-            <div class="mt-1 text-sm text-red-600" *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists']">
-              No hay terapeutas disponibles para el horario seleccionado
+            <div
+              class="mt-1 text-sm text-red-600"
+              *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists'] && session.get('sessionDate')?.value && session.get('startTime')?.value"
+            >
+              No hay terapeutas disponibles.
             </div>
           </div>
         </div>

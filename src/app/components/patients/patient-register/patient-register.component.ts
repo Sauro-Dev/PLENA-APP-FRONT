@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -32,16 +32,19 @@ export class PatientRegisterComponent implements OnInit {
   roomsMap = new Map<number, any[]>(); // Un mapa que asocia cada sesión con su lista de salas disponibles
   therapistsMap: Map<number, any[]> = new Map();
 
+
   patientForm!: FormGroup;
   isDateTimePickerVisible: number = 0;
   showRegisterModal: boolean = false;
   showCancelModal: boolean = false;
+  minuteOptionsMap: Map<number, string[]> = new Map(); // Opciones de minutos por índice
   timeControls: Map<number, { hour: FormControl, minute: FormControl }> = new Map();
 
   constructor(
     private fb: FormBuilder,
     private patientService: PatientsService,
-    private router: Router
+    private router: Router,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -205,6 +208,31 @@ export class PatientRegisterComponent implements OnInit {
 
       return null;
     };
+  }
+
+  updateMinuteOptions(index: number, hour: number): void {
+    const controls = this.timeControls.get(index);
+    if (!controls) return;
+
+    const currentMinute = controls.minute.value; // Minuto actual
+
+    if (hour === 12 || hour === 18) {
+      // Si es 12 PM o 6 PM, solo "00" es permitido
+      this.minuteOptionsMap.set(index, ['00']);
+      // Solo forzamos a "00" si no ha sido seleccionado ya
+      if (currentMinute !== '00') {
+        controls.minute.setValue('00', { emitEvent: false });
+      }
+    } else {
+      // En otros horarios permitimos intervalos de 10 minutos
+      const options = ['00', '10', '20', '30', '40', '50'];
+      this.minuteOptionsMap.set(index, options);
+
+      // Validar si el minuto actual sigue siendo válido
+      if (!options.includes(currentMinute)) {
+        controls.minute.setValue('00', { emitEvent: false }); // Reinicia a 00 si es inválido
+      }
+    }
   }
 
   checkDuplicateDNI(
@@ -391,54 +419,50 @@ export class PatientRegisterComponent implements OnInit {
     const startTime = session.get('startTime')?.value;
     const sessionDate = session.get('sessionDate')?.value;
 
-    // Si no hay fecha u hora seleccionada, no hacemos nada
-    if (!sessionDate || !startTime) return;
+    if (!sessionDate || !startTime) return; // Si no hay fecha u hora seleccionada, no hacemos nada
 
-    // Guardamos temporalmente la sala seleccionada para esta sesión
-    const selectedRoom = session.get('room')?.value;
-
+    const selectedRoom = session.get('room')?.value; // Sala seleccionada
     const endTime24 = this.calculateEndTime24Hours(startTime); // Calculamos la hora de fin automáticamente
     session.get('endTime')?.setValue(endTime24, { emitEvent: false });
 
-    // Obtenemos las salas disponibles para esta sesión
-    this.patientService.getAvailableRooms(sessionDate, startTime, endTime24).subscribe({
-      next: (rooms) => {
-        this.roomsMap.set(index, rooms); // Actualiza las salas disponibles SOLO para esta sesión
+    // Obtener salas disponibles
+    this.patientService
+      .getAvailableRooms(sessionDate, startTime, endTime24)
+      .subscribe({
+        next: (rooms) => {
+          this.roomsMap.set(index, rooms); // Actualizar el mapa de salas disponibles para esta sesión
+          if (selectedRoom && !rooms.some((room) => room.idRoom === selectedRoom)) {
+            session.get('room')?.setValue(null); // Restablecer sala si ya no está disponible
+          }
 
-        // Preservar la sala seleccionada si sigue estando disponible
-        if (selectedRoom && rooms.some((room) => room.idRoom === selectedRoom)) {
-          session.get('room')?.setValue(selectedRoom, { emitEvent: false });
-        } else {
-          // Si no está disponible, forzamos al usuario a seleccionar una nueva
-          session.get('room')?.setValue(null, { emitEvent: false });
-        }
+          if (rooms.length === 0) {
+            session.get('room')?.setErrors({ noAvailableRooms: true });
+          } else {
+            session.get('room')?.setErrors(null);
+          }
+        },
+        error: (err) => {
+          console.error('Error al cargar salas disponibles:', err);
+        },
+      });
 
-        // Validar si no hay salas disponibles
-        if (rooms.length === 0) {
-          session.get('room')?.setErrors({ noAvailableRooms: true });
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener salas', error);
-        session.get('room')?.setErrors({ serverError: true });
-      }
-    });
+    // Obtener terapeutas disponibles
+    this.patientService
+      .getAvailableTherapists(sessionDate, startTime, endTime24)
+      .subscribe({
+        next: (therapists) => {
+          this.therapistsMap.set(index, therapists); // Actualizar el mapa de terapeutas disponibles para esta sesión
 
-    // Obtenemos los terapeutas disponibles para esta sesión
-    this.patientService.getAvailableTherapists(sessionDate, startTime, endTime24).subscribe({
-      next: (therapists) => {
-        this.therapistsMap.set(index, therapists); // Actualiza los terapeutas SOLO para esta sesión
-
-        // Validar si no hay terapeutas disponibles
-        if (therapists.length === 0) {
-          session.get('therapist')?.setErrors({ noAvailableTherapists: true });
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener terapeutas', error);
-        session.get('therapist')?.setErrors({ serverError: true });
-      }
-    });
+          if (therapists.length === 0) {
+            session.get('therapist')?.setErrors({ noAvailableTherapists: true });
+          } else {
+            session.get('therapist')?.setErrors(null);
+          }
+        },
+        error: (err) => {
+          console.error('Error al cargar terapeutas disponibles:', err);
+        },
+      });
   }
 
 
@@ -593,8 +617,8 @@ export class PatientRegisterComponent implements OnInit {
 
   initializeTimeControls(index: number): void {
     this.timeControls.set(index, {
-      hour: new FormControl(''), // Hora inicial vacía
-      minute: new FormControl('') // Minutos iniciales vacíos
+      hour: new FormControl('', Validators.required), // Hora inicial vacía, pero no null
+      minute: new FormControl('', Validators.required) // Minutos iniciales vacíos, pero no null
     });
 
     const session = this.sessionDates.at(index);
@@ -603,34 +627,45 @@ export class PatientRegisterComponent implements OnInit {
     if (currentTime) {
       const [hours, minutes] = currentTime.split(':').map(Number);
       const controls = this.timeControls.get(index)!;
-      controls.hour.setValue(hours.toString().padStart(2, '0'));
-      controls.minute.setValue(minutes.toString().padStart(2, '0'));
+      controls.hour.setValue(hours.toString().padStart(2, '0'), { emitEvent: false });
+      controls.minute.setValue(minutes.toString().padStart(2, '0'), { emitEvent: false });
     }
   }
 
-  updateTime(index: number) {
+  updateTime(index: number): void {
     const controls = this.timeControls.get(index);
     const session = this.sessionDates.at(index);
-    if (!controls || !controls.hour.value) return;
 
-    let hour = parseInt(controls.hour.value, 10);
-    let minute = parseInt(controls.minute.value || '0', 10);
+    if (!controls || !controls.hour.value) return; // Asegurarse de que los controles están inicializados
 
-    // Asegurar que la hora esté dentro del rango permitido
-    if (hour === 18) {
-      minute = 0; // Limitar minutos a 00 cuando es las 6 PM
-      controls.minute.setValue('00');
-    } else if (hour > 18) {
-      controls.hour.setValue('18'); // Establecer máximo en 6 PM
-      controls.minute.setValue('00');
-      hour = 18;
-      minute = 0;
+    // Obtener y validar hora y minutos seleccionados
+    let hour = parseInt(controls.hour.value ?? '', 10);
+    let minute = parseInt(controls.minute.value ?? '', 10);
+
+    if (isNaN(hour)) hour = 0;
+    if (isNaN(minute)) minute = 0;
+
+    // Validar que los minutos sean correctos para la hora seleccionada
+    this.updateMinuteOptions(index, hour);
+
+    // Corregir si los minutos han cambiado automáticamente
+    if (minute === undefined || isNaN(minute)) {
+      minute = 0; // Valor por defecto
     }
 
+    // Si la hora es mayor a 6 PM, corregir a las 6:00 PM
+    if (hour > 18) {
+      hour = 18;
+      minute = 0;
+      controls.hour.setValue('18', { emitEvent: false });
+      controls.minute.setValue('00', { emitEvent: false });
+    }
 
-
+    // Formatear hora final y actualizar `startTime` en el formulario
     const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    session.get('startTime')?.setValue(time);
+    session.get('startTime')?.setValue(time); // Actualizamos el valor directamente
+
+    this.cdRef.detectChanges();
     this.onSessionChange(index);
   }
 
