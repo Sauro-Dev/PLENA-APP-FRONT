@@ -65,13 +65,14 @@ export class DetailsRoomComponent implements OnInit {
   }
 
   //Metodo para cargar los materiales que no estan asignados a ninguna sala
-  loadUnassignedMaterials(): void{
+  loadUnassignedMaterials(): void {
     this.storageService.getUnassignedMaterials().subscribe(
-      (data) =>{
+      (data) => {
         this.unassignedMaterials = data;
       },
-      (error)=>{
-        console.error('Error al cargar los materiales que no estan asignados', error);
+      (error) => {
+        console.error('Error al cargar los materiales no asignados', error);
+        alert('Error al cargar los materiales no asignados. Por favor, intenta nuevamente.');
       }
     );
   }
@@ -84,6 +85,7 @@ export class DetailsRoomComponent implements OnInit {
         const roomId = this.route.snapshot.paramMap.get('idRoom');
         if (roomId) {
           this.loadAssignedMaterials(roomId);
+          this.loadUnassignedMaterials();
         }
       },
       (error) => {
@@ -92,17 +94,20 @@ export class DetailsRoomComponent implements OnInit {
     );
   }
   // Metodo para asignar un material
-  assignMaterial(materialId: string, roomId: number): void{
+  assignMaterial(materialId: string, roomId: number): void {
     this.storageService.assignMaterialToRoom(materialId, roomId).subscribe(
       () => {
         const roomIdFromRoute = this.route.snapshot.paramMap.get('idRoom');
         if (roomIdFromRoute) {
           this.loadAssignedMaterials(roomIdFromRoute);
+
+          // Actualiza la lista de materiales no asignados en la caché
+          this.unassignedMaterials = this.unassignedMaterials.filter(material => material.idMaterial !== materialId);
         }
         this.isAssignModalOpen = false;
       },
       (error) => {
-        console.error('Error al desasignar material', error);
+        console.error('Error al asignar material', error);
       }
     );
   }
@@ -113,6 +118,7 @@ export class DetailsRoomComponent implements OnInit {
   }
   closeAssignModal() {
     this.isAssignModalOpen = false;
+    this.loadUnassignedMaterials();
   }
 
   // FILTROS
