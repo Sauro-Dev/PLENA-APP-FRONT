@@ -122,7 +122,7 @@ export class PatientRegisterComponent implements OnInit {
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
     const date = new Date(control.value);
-    const minDate = new Date('1920-01-01');
+    const minDate = new Date('2000-01-01');
     const maxDate = new Date('2025-01-01');
 
     if (date < minDate || date > maxDate) {
@@ -232,17 +232,40 @@ export class PatientRegisterComponent implements OnInit {
   dateValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
 
-    // Usamos UTC+0 para evitar problemas con zonas horarias
-    const date = new Date(control.value + 'T12:00:00Z');
-    const dayOfWeek = date.getUTCDay();
+    const date = new Date(control.value);
+    const dayOfWeek = date.getDay(); // 0 es Domingo, 6 es Sábado
 
-    if (dayOfWeek === 0) {
-      console.warn('Las sesiones no se pueden programar los domingos');
+    if (dayOfWeek === 0) { // Si es domingo
       return { invalidDay: true };
     }
 
     return null;
   }
+
+  calculateEndTime(startTime: string): string {
+    if (!startTime) return '-- : -- --';  // Cambiado para mantener el formato consistente
+
+    const [hours, minutes] = startTime.split(':').map(Number);
+    let endHours = hours;
+    let endMinutes = minutes + 50;
+
+    if (endMinutes >= 60) {
+      endHours += 1;
+      endMinutes -= 60;
+    }
+
+    endHours += 1;
+
+    if (endHours >= 24) {
+      endHours -= 24;
+    }
+
+    const formattedHours = endHours.toString().padStart(2, '0');
+    const formattedMinutes = endMinutes.toString().padStart(2, '0');
+
+    return this.format12Hours(`${formattedHours}:${formattedMinutes}`);
+  }
+
   calculateEndTime24Hours(startTime: string): string {
     if (!startTime) return '';
 
@@ -256,11 +279,15 @@ export class PatientRegisterComponent implements OnInit {
       endMinutes -= 60;
     }
 
+    // Agregamos 1 hora
+    endHours += 1;
+
     // Aseguramos que las horas no excedan las 24
     if (endHours >= 24) {
       endHours -= 24;
     }
 
+    // Formateamos la hora para que siempre tenga dos dígitos
     return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   }
 
@@ -312,12 +339,24 @@ export class PatientRegisterComponent implements OnInit {
     const startTime = session.get('startTime')?.value;
     const sessionDate = session.get('sessionDate')?.value;
 
-    if (sessionDate && startTime) {
-      // Guardamos el formato de 24 horas en el formulario para enviar al backend
+    // Calculamos y establecemos automáticamente la hora de fin
+    if (startTime) {
       const endTime24 = this.calculateEndTime24Hours(startTime);
-      session.get('endTime')?.setValue(endTime24, { emitEvent: false });
+      const endTime12 = this.calculateEndTime(startTime);
+      // Guardamos el formato de 24 horas en el formulario
+      session.patchValue({ endTime: endTime24 }, { emitEvent: false });
+    }
 
-      // Solo actualizamos la lista de terapeutas disponibles
+    // Reseteamos los valores de sala y terapeuta
+    session.patchValue({
+      room: '',
+      therapist: ''
+    });
+
+    if (sessionDate && startTime) {
+      const endTime24 = this.calculateEndTime24Hours(startTime);
+
+      // Obtenemos terapeutas disponibles
       this.patientService.getAvailableTherapists(sessionDate, startTime, endTime24).subscribe({
         next: (therapists) => {
           this.therapistsMap.set(index, therapists);
@@ -331,10 +370,10 @@ export class PatientRegisterComponent implements OnInit {
         }
       });
 
-      // Solo actualizamos la lista de salas disponibles
+      // Obtenemos salas disponibles
       this.patientService.getAvailableRooms(sessionDate, startTime, endTime24).subscribe({
         next: (rooms) => {
-          this.rooms = rooms; // Solo actualizamos la lista
+          this.rooms = rooms;
           if (rooms.length === 0) {
             session.get('room')?.setErrors({ noAvailableRooms: true });
           }
