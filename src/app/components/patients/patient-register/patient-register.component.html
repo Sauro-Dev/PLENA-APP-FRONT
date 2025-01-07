@@ -5,7 +5,7 @@
     <!-- Nombres -->
     <div class="mb-5 relative">
       <label class="block text-lg font-medium text-gray-700">Nombres</label>
-      <input type="text" formControlName="name" placeholder="Nombres"
+      <input type="text" formControlName="name" placeholder="Ingresar Nombres"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
         [ngClass]="{'border-red-500': patientForm.get('name')?.invalid && patientForm.get('name')?.touched}" />
       <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
@@ -17,7 +17,7 @@
     <div class="flex gap-5 mb-5">
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Apellido Paterno</label>
-        <input type="text" formControlName="paternalSurname" placeholder="Apellido Paterno"
+        <input type="text" formControlName="paternalSurname" placeholder="Ingresar Apellido"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           [ngClass]="{
             'border-red-500':
@@ -34,7 +34,7 @@
 
       <div class="w-1/2">
         <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
-        <input type="text" formControlName="maternalSurname" placeholder="Apellido Materno"
+        <input type="text" formControlName="maternalSurname" placeholder="Ingresar Apellido"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
           [ngClass]="{
             'border-red-500':
@@ -79,7 +79,7 @@
     <!-- DNI del Paciente -->
     <div class="mb-5 relative">
       <label class="block text-lg font-medium text-gray-700">DNI</label>
-      <input type="text" formControlName="dni" placeholder="DNI" maxlength="8"
+      <input type="text" formControlName="dni" placeholder="Ingresar DNI" maxlength="8"
         (keypress)="limitInputLength($event, 8); onlyNumber($event)"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
         [ngClass]="{
@@ -105,8 +105,8 @@
 
     <!-- Presunción Diagnotisca -->
     <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Presunción Diagnotisca</label>
-      <textarea formControlName="presumptiveDiagnosis" placeholder="Presunción Diagnotisca" rows="3"
+      <label class="block text-lg font-medium text-gray-700">Presunción Diagnostica</label>
+      <textarea formControlName="presumptiveDiagnosis" placeholder="Ingresar Presunción Diagnostica" rows="3"
         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"></textarea>
     </div>
 
@@ -202,7 +202,7 @@
 
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">Nombre del Tutor</label>
-          <input type="text" formControlName="fullName" placeholder="Nombre del Tutor"
+          <input type="text" formControlName="fullName" placeholder="Ingresa Nombre del Tutor"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
             [ngClass]="{
               'border-red-500':
@@ -216,7 +216,7 @@
 
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">DNI</label>
-          <input type="text" formControlName="dni" placeholder="DNI" maxlength="8"
+          <input type="text" formControlName="dni" placeholder="Ingresa DNI del Tutor" maxlength="8"
             (keypress)="limitInputLength($event, 8); onlyNumber($event)"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
             [ngClass]="{
@@ -242,7 +242,7 @@
 
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-          <input type="tel" formControlName="phone" placeholder="Teléfono" maxlength="9"
+          <input type="tel" formControlName="phone" placeholder="Ingresa Teléfono del Tutor" maxlength="9"
             (keypress)="limitInputLength($event, 9); onlyNumber($event)"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
             [ngClass]="{
