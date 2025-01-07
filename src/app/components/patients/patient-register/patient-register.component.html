@@ -205,9 +205,9 @@
       </div>
     </div>
 
-    <!-- Presunción Diagnóstica -->
-    <div class="mb-5 relative">
-      <div class="relative">
+      <!-- Presunción Diagnóstica -->
+      <div class="mb-5 relative">
+        <div class="relative">
     <textarea
       id="presumptiveDiagnosis"
       formControlName="presumptiveDiagnosis"
@@ -219,26 +219,38 @@
       class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
              focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
              placeholder-transparent resize-none"
+      [ngClass]="{'border-red-500': patientForm.get('presumptiveDiagnosis')?.invalid &&
+                                  patientForm.get('presumptiveDiagnosis')?.touched}"
       placeholder="Presunción Diagnóstica">
     </textarea>
 
-        <label for="presumptiveDiagnosis"
-               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
-               [ngClass]="{
-         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'presumptiveDiagnosis' || presumptiveDiagnosisValue,
-         'top-3 text-base text-gray-400': isFocused !== 'presumptiveDiagnosis' && !presumptiveDiagnosisValue
-       }">
-          Presunción Diagnóstica
-        </label>
-      </div>
+          <label for="presumptiveDiagnosis"
+                 class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                 [ngClass]="{
+             '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'presumptiveDiagnosis' || presumptiveDiagnosisValue,
+             'top-3 text-base text-gray-400': isFocused !== 'presumptiveDiagnosis' && !presumptiveDiagnosisValue
+           }">
+            Presunción Diagnóstica
+          </label>
+        </div>
 
-      <!-- Mensaje de error para longitud máxima -->
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('presumptiveDiagnosis')?.errors?.['maxlength'] &&
+        <!-- Mensajes de error -->
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('presumptiveDiagnosis')?.errors?.['required'] &&
+          patientForm.get('presumptiveDiagnosis')?.touched">
+          Es obligatorio ingresar una presunción diagnóstica.
+        </p>
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('presumptiveDiagnosis')?.errors?.['maxlength'] &&
             patientForm.get('presumptiveDiagnosis')?.touched">
-        La presunción diagnóstica no puede exceder los 255 caracteres.
-      </p>
-    </div>
+          La presunción diagnóstica no puede exceder los 255 caracteres.
+        </p>
+
+        <!-- Ejemplo -->
+        <span class="text-sm text-gray-500 mt-1 ml-1">
+    ej: autismo, dislalia
+  </span>
+      </div>
 
     <!-- Plan -->
     <div class="mb-5 relative">
@@ -282,7 +294,7 @@
     </div>
 
     <!-- Fechas y Horas (Sesiones) -->
-    <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0" class="space-y-4">
+      <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0" class="space-y-4 mb-8">
       <div
         *ngFor="let session of sessionDates.controls; let i = index"
         [formGroupName]="i"
@@ -427,79 +439,128 @@
       </div>
     </div>
 
-    <div formArrayName="tutors" class="mb-5">
-      <h2 class="text-lg font-medium text-gray-700 mb-3">Tutores</h2>
-      <div *ngFor="let tutor of tutors.controls; let i = index" [formGroupName]="i" class="border p-4 mb-4 rounded-lg bg-gray-50 shadow-sm">
-        <h3 class="font-medium mb-3">Tutor {{ i + 1 }}</h3>
+      <!-- Tutores -->
+      <div formArrayName="tutors" class="mb-5 border rounded-lg p-4 bg-white shadow-md">
+        <h2 class="text-lg font-semibold text-black mb-4">Tutores</h2>
 
-        <!-- Nombre del Tutor -->
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-700">Nombre del Tutor</label>
-          <input
-            type="text"
-            formControlName="fullName"
-            placeholder="Nombre del Tutor"
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            [ngClass]="{ 'border-red-500': tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched }"
-          />
-          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched">
-            El nombre del tutor es requerido.
-          </p>
+        <!-- Card para cada tutor -->
+        <div *ngFor="let tutor of tutors.controls; let i = index"
+             [formGroupName]="i"
+             class="border p-6 mb-4 rounded-lg bg-gray-50 shadow-sm">
+          <h3 class="text-base font-medium text-gray-600 mb-4">Tutor {{ i + 1 }}</h3>
+
+          <!-- Nombre del Tutor -->
+          <div class="mb-4 relative">
+            <div class="relative">
+              <input type="text"
+                     formControlName="fullName"
+                     #tutorNameInput
+                     [(ngModel)]="tutorValues[i].name"
+                     (focus)="onTutorFocus(i, 'name')"
+                     (blur)="onTutorBlur(i, 'name')"
+                     class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                      focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+                      placeholder-transparent" />
+
+              <label class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                     [ngClass]="{
+                 '-top-2 text-sm text-blue-800 px-1 bg-white': tutorFocused[i].name || tutorValues[i].name,
+                 'top-3 text-base text-gray-400': !tutorFocused[i].name && !tutorValues[i].name
+               }">
+                Nombre del Tutor
+              </label>
+            </div>
+            <p class="mt-1 text-sm text-red-600"
+               *ngIf="tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched">
+              El nombre del tutor es requerido.
+            </p>
+          </div>
+
+          <!-- DNI del Tutor -->
+          <div class="mb-4 relative">
+            <div class="relative">
+              <input type="text"
+                     formControlName="dni"
+                     #tutorDniInput
+                     [(ngModel)]="tutorValues[i].dni"
+                     (focus)="onTutorFocus(i, 'dni')"
+                     (blur)="onTutorBlur(i, 'dni')"
+                     maxlength="8"
+                     (keypress)="limitInputLength($event, 8); onlyNumber($event)"
+                     class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                      focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+                      placeholder-transparent" />
+
+              <label class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                     [ngClass]="{
+                 '-top-2 text-sm text-blue-800 px-1 bg-white': tutorFocused[i].dni || tutorValues[i].dni,
+                 'top-3 text-base text-gray-400': !tutorFocused[i].dni && !tutorValues[i].dni
+               }">
+                DNI
+              </label>
+            </div>
+            <div *ngIf="tutor.get('dni')?.touched">
+              <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('required')">
+                El DNI del tutor es requerido.
+              </p>
+              <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('pattern')">
+                El DNI debe tener exactamente 8 dígitos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Teléfono del Tutor -->
+          <div class="mb-4 relative">
+            <div class="relative">
+              <input type="tel"
+                     formControlName="phone"
+                     #tutorPhoneInput
+                     [(ngModel)]="tutorValues[i].phone"
+                     (focus)="onTutorFocus(i, 'phone')"
+                     (blur)="onTutorBlur(i, 'phone')"
+                     maxlength="9"
+                     (keypress)="limitInputLength($event, 9); onlyNumber($event)"
+                     class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                      focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+                      placeholder-transparent" />
+
+              <label class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                     [ngClass]="{
+                 '-top-2 text-sm text-blue-800 px-1 bg-white': tutorFocused[i].phone || tutorValues[i].phone,
+                 'top-3 text-base text-gray-400': !tutorFocused[i].phone && !tutorValues[i].phone
+               }">
+                Teléfono
+              </label>
+            </div>
+            <div *ngIf="tutor.get('phone')?.touched">
+              <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('required')">
+                El teléfono del tutor es requerido.
+              </p>
+              <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('pattern')">
+                El teléfono debe tener exactamente 9 dígitos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Botón para eliminar tutor -->
+          <button *ngIf="tutors.length > 1"
+                  type="button"
+                  (click)="removeTutor(i)"
+                  class="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-500
+                   transition-colors duration-200">
+            Eliminar Tutor
+          </button>
         </div>
 
-        <!-- DNI del Tutor -->
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-700">DNI</label>
-          <input
-            type="text"
-            formControlName="dni"
-            placeholder="DNI"
-            maxlength="8"
-            (keypress)="limitInputLength($event, 8); onlyNumber($event)"
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            [ngClass]="{ 'border-red-500': tutor.get('dni')?.invalid && tutor.get('dni')?.touched }"
-          />
-          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('required') && tutor.get('dni')?.touched">
-            El DNI del tutor es requerido.
-          </p>
-          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('pattern') && tutor.get('dni')?.touched">
-            El DNI debe tener exactamente 8 dígitos.
-          </p>
-        </div>
-
-        <!-- Teléfono del Tutor -->
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-          <input
-            type="tel"
-            formControlName="phone"
-            placeholder="Teléfono"
-            maxlength="9"
-            (keypress)="limitInputLength($event, 9); onlyNumber($event)"
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-            [ngClass]="{ 'border-red-500': tutor.get('phone')?.invalid && tutor.get('phone')?.touched }"
-          />
-          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('required') && tutor.get('phone')?.touched">
-            El teléfono del tutor es requerido.
-          </p>
-          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('pattern') && tutor.get('phone')?.touched">
-            El teléfono debe tener exactamente 9 dígitos.
-          </p>
-        </div>
-
-        <!-- Botón para eliminar tutor -->
-        <button type="button" (click)="removeTutor(i)" *ngIf="tutors.length > 1"
-                class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-500 transition">
-          Eliminar Tutor
+        <!-- Botón para añadir tutor -->
+        <button *ngIf="tutors.length < 2"
+                type="button"
+                (click)="addTutor()"
+                class="mt-4 bg-blue-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700
+                 transition-colors duration-200">
+          Añadir Tutor
         </button>
       </div>
-
-      <!-- Botón para añadir tutor -->
-      <button *ngIf="tutors.length < 2" type="button" (click)="addTutor()"
-              class="bg-blue-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
-        Añadir Tutor
-      </button>
-    </div>
 
     <!-- Botones -->
     <div class="flex gap-5 justify-center mt-10">

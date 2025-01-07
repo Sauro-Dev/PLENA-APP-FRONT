@@ -59,6 +59,20 @@ export class PatientRegisterComponent implements OnInit {
   @ViewChild('dniInput') dniInput!: ElementRef;
   @ViewChild('presumptiveDiagnosisInput') presumptiveDiagnosisInput!: ElementRef;
 
+  tutorValues: Array<{
+    name: string;
+    dni: string;
+    phone: string;
+  }> = [{ name: '', dni: '', phone: '' }];
+
+  tutorFocused: Array<{
+    name: boolean;
+    dni: boolean;
+    phone: boolean;
+  }> = [{ name: false, dni: false, phone: false }];
+
+
+
   sessionFocusStates: Map<number, {
     date: boolean;
     hour: boolean;
@@ -99,14 +113,21 @@ export class PatientRegisterComponent implements OnInit {
             Validators.maxLength(30),
           ],
         ],
+
         dni: [
           '',
           [Validators.required, Validators.pattern('^[0-9]{8}$')],
           [this.checkDuplicateDNI.bind(this)],
         ],
+        presumptiveDiagnosis: [
+          '',
+          [
+            Validators.required,
+            Validators.maxLength(255)
+          ]
+        ],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
         age: [{value: '', disabled: true}],
-        presumptiveDiagnosis: ['', [Validators.maxLength(255)]],
         status: [true],
         idPlan: [null, [Validators.required]],
         tutors: this.fb.array([this.createTutor()]),
@@ -432,10 +453,15 @@ export class PatientRegisterComponent implements OnInit {
 
   addTutor(): void {
     this.tutors.push(this.createTutor());
+    this.tutorValues.push({ name: '', dni: '', phone: '' });
+    this.tutorFocused.push({ name: false, dni: false, phone: false });
   }
-
-  removeTutor(index: number) {
-    this.tutors.removeAt(index);
+  removeTutor(index: number): void {
+    if (this.tutors.length > 1) {
+      this.tutors.removeAt(index);
+      this.tutorValues.splice(index, 1);
+      this.tutorFocused.splice(index, 1);
+    }
   }
 
   onSessionChange(index: number): void {
@@ -778,38 +804,21 @@ export class PatientRegisterComponent implements OnInit {
     }
   }
 
-  onSessionFocus(index: number, field: 'date' | 'hour' | 'minute'): void {
-    const sessionState = this.sessionFocusStates.get(index);
-    if (sessionState) {
-      sessionState[field] = true;
-      this.sessionFocusStates.set(index, sessionState);
+  onTutorFocus(index: number, field: 'name' | 'dni' | 'phone'): void {
+    if (!this.tutorFocused[index]) {
+      this.tutorFocused[index] = { name: false, dni: false, phone: false };
     }
+    this.tutorFocused[index][field] = true;
   }
 
-  onSessionBlur(index: number, field: 'date' | 'hour' | 'minute'): void {
-    const sessionState = this.sessionFocusStates.get(index);
-    if (sessionState) {
-      const session = this.sessionDates.at(index);
-      let value = '';
-
-      switch(field) {
-        case 'date':
-          value = this.sessionDateValues[index];
-          break;
-        case 'hour':
-          value = this.sessionHourValues[index];
-          break;
-        case 'minute':
-          value = this.sessionMinuteValues[index];
-          break;
-      }
-
-      if (!value) {
-        sessionState[field] = false;
-        this.sessionFocusStates.set(index, sessionState);
+  onTutorBlur(index: number, field: 'name' | 'dni' | 'phone'): void {
+    if (this.tutorFocused[index]) {
+      if (!this.tutorValues[index][field]) {
+        this.tutorFocused[index][field] = false;
       }
     }
   }
+
 
 }
 
