@@ -35,7 +35,7 @@ export class AreasComponent implements OnInit {
       (data) => {
         this.areas = data;
         this.filteredAreas = [...this.areas];
-        this.applyFilters();
+        this.paginate();
       },
       (error) => {
         console.error('Error al obtener las áreas de intervención', error);
@@ -43,30 +43,20 @@ export class AreasComponent implements OnInit {
     );
   }
 
-  applyFilters(): void {
-    if (this.searchQuery.trim() === '') {
-      this.filteredAreas = [...this.areas];
-    } else {
-      this.filteredAreas = this.areas.filter(
-        (area) =>
-          area.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          area.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    }
+  onSearch(): void {
+    this.currentPage = 1;
+    this.filteredAreas = this.areas.filter(
+      (area) =>
+        area.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        area.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
     this.paginate();
   }
 
-  onSearch(): void {
-    this.currentPage = 1;
-    this.applyFilters();
-  }
-
   paginate(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedAreas = this.filteredAreas.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
+    const startIndex = (this.currentPage - 1) * Number(this.itemsPerPage);
+    const endIndex = startIndex + Number(this.itemsPerPage);
+    this.paginatedAreas = this.filteredAreas.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
