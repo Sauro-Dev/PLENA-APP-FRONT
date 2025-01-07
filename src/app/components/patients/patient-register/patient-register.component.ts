@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
   FormArray,
-  FormBuilder,
+  FormBuilder, FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -29,12 +29,14 @@ export class PatientRegisterComponent implements OnInit {
     { id: 4, name: 'Plan D' },
   ];
   rooms: any[] = [];
+  roomsMap = new Map<number, any[]>(); // Un mapa que asocia cada sesión con su lista de salas disponibles
   therapistsMap: Map<number, any[]> = new Map();
 
   patientForm!: FormGroup;
   isDateTimePickerVisible: number = 0;
   showRegisterModal: boolean = false;
   showCancelModal: boolean = false;
+  timeControls: Map<number, { hour: FormControl, minute: FormControl }> = new Map();
 
   constructor(
     private fb: FormBuilder,
@@ -86,12 +88,21 @@ export class PatientRegisterComponent implements OnInit {
       }
     );
 
+
     this.patientForm.get('idPlan')?.valueChanges.subscribe((value) => {
-      this.updateDatePickers(value);
+      this.resetSessionDates(); // Reinicia las sesiones con los valores iniciales
+      this.updateDatePickers(value); // Actualiza la cantidad de sesiones en base al plan seleccionado
     });
 
     // Inicializar rooms como array vacío
     this.rooms = [];
+
+    this.roomsMap = new Map<number, any[]>();
+
+    this.therapistsMap = new Map<number, any[]>();
+
+    this.addSession();
+
 
     // Si hay un plan seleccionado, actualizar los date pickers
     const selectedPlan = this.patientForm.get('idPlan')?.value;
@@ -112,12 +123,27 @@ export class PatientRegisterComponent implements OnInit {
     });
   }
 
+
   get tutors(): FormArray {
     return this.patientForm.get('tutors') as FormArray;
   }
 
   get sessionDates(): FormArray {
     return this.patientForm.get('sessionDates') as FormArray;
+  }
+
+  getDefaultTimeForPlanA(currentTime: string | null): string {
+    // Por ejemplo, las sesiones en Plan A siempre inician a las 09:00 AM si no tienen un valor actual
+    return currentTime && currentTime >= '09:00' && currentTime <= '13:00'
+      ? currentTime
+      : '09:00';
+  }
+
+  getDefaultTimeForPlanB(currentTime: string | null): string {
+    // Por ejemplo, las sesiones en Plan B inician a las 03:00 PM si no tienen un valor actual
+    return currentTime && currentTime >= '15:00' && currentTime <= '19:00'
+      ? currentTime
+      : '15:00';
   }
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
@@ -129,6 +155,20 @@ export class PatientRegisterComponent implements OnInit {
       return { outOfRange: true };
     }
     return null;
+  }
+
+  resetSessionDates(): void {
+    while (this.sessionDates.length > 0) {
+      this.sessionDates.removeAt(0); // Elimina las sesiones existentes
+    }
+
+    // Reiniciar los valores visibles en los selectores de hora (timeControls)
+    this.timeControls.forEach((controls, index) => {
+      controls.hour.setValue(''); // Reinicia la hora a vacía
+      controls.minute.setValue(''); // Reinicia los minutos a vacíos
+    });
+
+    this.timeControls.clear(); // Limpia todos los controles de tiempo personalizados
   }
 
   checkDuplicateDNIPatientAndTutor(): ValidatorFn {
@@ -204,7 +244,20 @@ export class PatientRegisterComponent implements OnInit {
     });
   }
 
-  limitInputLength(event: KeyboardEvent, maxLength: number): void {
+  addSession(): void {
+    const sessionGroup = this.fb.group({
+      sessionDate: ['', Validators.required],   // Fecha de la sesión (vacía inicialmente)
+      startTime: ['', Validators.required],     // Hora de inicio (vacía inicialmente)
+      endTime: ['', Validators.required],       // Hora de fin (calculada, inicialmente vacía)
+      room: [null, Validators.required],        // Sala seleccionada (nula inicialmente)
+      therapist: [null, Validators.required]    // Terapeuta seleccionado (nulo inicialmente)
+    });
+
+    this.sessionDates.push(sessionGroup); // Agrega la nueva sesión al FormArray
+  }
+
+
+    limitInputLength(event: KeyboardEvent, maxLength: number): void {
     const input = event.target as HTMLInputElement;
     if (input.value.length >= maxLength && event.key !== 'Backspace') {
       event.preventDefault();
@@ -246,47 +299,73 @@ export class PatientRegisterComponent implements OnInit {
   calculateEndTime24Hours(startTime: string): string {
     if (!startTime) return '';
 
-    const [hours, minutes] = startTime.split(':').map(Number);
-    let endHours = hours;
-    let endMinutes = minutes + 50; // Agregamos 50 minutos
+    try {
+      const [hours, minutes] = startTime.split(':').map(Number);
+      if (isNaN(hours) || isNaN(minutes)) return '';
 
-    // Ajustamos si los minutos superan 60
-    if (endMinutes >= 60) {
-      endHours += 1;
-      endMinutes -= 60;
+      // Calcular total de minutos
+      let totalMinutes = hours * 60 + minutes + 50; // Agregar 50 minutos
+
+      // Convertir de vuelta a horas y minutos
+      const newHours = Math.floor(totalMinutes / 60) % 24;
+      const newMinutes = totalMinutes % 60;
+
+      // Formatear con ceros a la izquierda
+      return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+    } catch (error) {
+      console.error('Error calculating end time:', error);
+      return '';
     }
-
-    // Aseguramos que las horas no excedan las 24
-    if (endHours >= 24) {
-      endHours -= 24;
-    }
-
-    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   }
 
+
+
   format12Hours(time: string): string {
-    if (!time) return '-- : --';
+    if (!time) return '--:-- --';
 
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'p. m.' : 'a. m.';
-    let displayHours = hours % 12;
-    displayHours = displayHours === 0 ? 12 : displayHours;
+    try {
+      const [hours, minutes] = time.split(':').map(Number);
 
-    // Aseguramos que los números tengan dos dígitos
-    const formattedHours = displayHours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+      if (isNaN(hours) || isNaN(minutes)) {
+        return '--:-- --';
+      }
 
-    return `${formattedHours} : ${formattedMinutes} ${period}`;
+      // Convertir a formato 12 horas
+      const hour12 = hours % 12 || 12;
+      const period = hours >= 12 ? 'PM' : 'AM';
+
+      // Formatear con ceros a la izquierda
+      const formattedHours = hour12.toString().padStart(2, '0');
+      const formattedMinutes = minutes.toString().padStart(2, '0');
+
+      // Retornar formato consistente
+      return `${formattedHours}:${formattedMinutes} ${period}`;
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return '--:-- --';
+    }
   }
 
   addMinutes(time: string, minutes: number): string {
     if (!time) return '';
 
-    const [hours, mins] = time.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, mins + minutes);
+    try {
+      const [hours, mins] = time.split(':').map(Number);
+      if (isNaN(hours) || isNaN(mins)) return '';
 
-    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      // Calcular total de minutos
+      let totalMinutes = hours * 60 + mins + minutes;
+
+      // Convertir de vuelta a horas y minutos
+      const newHours = Math.floor(totalMinutes / 60) % 24; // Asegura formato 24 horas
+      const newMinutes = totalMinutes % 60;
+
+      // Formatear con ceros a la izquierda
+      return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+    } catch (error) {
+      console.error('Error adding minutes:', error);
+      return '';
+    }
   }
 
   addTutor(): void {
@@ -308,81 +387,85 @@ export class PatientRegisterComponent implements OnInit {
   }
 
   onSessionChange(index: number): void {
-    const session = this.sessionDates.at(index);
+    const session = this.sessionDates.at(index); // Obtener la sesión actual
     const startTime = session.get('startTime')?.value;
     const sessionDate = session.get('sessionDate')?.value;
 
-    if (sessionDate && startTime) {
-      // Guardamos el formato de 24 horas en el formulario para enviar al backend
-      const endTime24 = this.calculateEndTime24Hours(startTime);
-      session.get('endTime')?.setValue(endTime24, { emitEvent: false });
+    // Si no hay fecha u hora seleccionada, no hacemos nada
+    if (!sessionDate || !startTime) return;
 
-      // Solo actualizamos la lista de terapeutas disponibles
-      this.patientService.getAvailableTherapists(sessionDate, startTime, endTime24).subscribe({
-        next: (therapists) => {
-          this.therapistsMap.set(index, therapists);
-          if (therapists.length === 0) {
-            session.get('therapist')?.setErrors({ noAvailableTherapists: true });
-          }
-        },
-        error: (error) => {
-          console.error('Error al obtener terapeutas', error);
-          session.get('therapist')?.setErrors({ serverError: true });
-        }
-      });
+    // Guardamos temporalmente la sala seleccionada para esta sesión
+    const selectedRoom = session.get('room')?.value;
 
-      // Solo actualizamos la lista de salas disponibles
-      this.patientService.getAvailableRooms(sessionDate, startTime, endTime24).subscribe({
-        next: (rooms) => {
-          this.rooms = rooms; // Solo actualizamos la lista
-          if (rooms.length === 0) {
-            session.get('room')?.setErrors({ noAvailableRooms: true });
-          }
-        },
-        error: (error) => {
-          console.error('Error al obtener salas', error);
-          session.get('room')?.setErrors({ serverError: true });
+    const endTime24 = this.calculateEndTime24Hours(startTime); // Calculamos la hora de fin automáticamente
+    session.get('endTime')?.setValue(endTime24, { emitEvent: false });
+
+    // Obtenemos las salas disponibles para esta sesión
+    this.patientService.getAvailableRooms(sessionDate, startTime, endTime24).subscribe({
+      next: (rooms) => {
+        this.roomsMap.set(index, rooms); // Actualiza las salas disponibles SOLO para esta sesión
+
+        // Preservar la sala seleccionada si sigue estando disponible
+        if (selectedRoom && rooms.some((room) => room.idRoom === selectedRoom)) {
+          session.get('room')?.setValue(selectedRoom, { emitEvent: false });
+        } else {
+          // Si no está disponible, forzamos al usuario a seleccionar una nueva
+          session.get('room')?.setValue(null, { emitEvent: false });
         }
-      });
-    }
+
+        // Validar si no hay salas disponibles
+        if (rooms.length === 0) {
+          session.get('room')?.setErrors({ noAvailableRooms: true });
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener salas', error);
+        session.get('room')?.setErrors({ serverError: true });
+      }
+    });
+
+    // Obtenemos los terapeutas disponibles para esta sesión
+    this.patientService.getAvailableTherapists(sessionDate, startTime, endTime24).subscribe({
+      next: (therapists) => {
+        this.therapistsMap.set(index, therapists); // Actualiza los terapeutas SOLO para esta sesión
+
+        // Validar si no hay terapeutas disponibles
+        if (therapists.length === 0) {
+          session.get('therapist')?.setErrors({ noAvailableTherapists: true });
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener terapeutas', error);
+        session.get('therapist')?.setErrors({ serverError: true });
+      }
+    });
   }
+
+
 
   timeRangeValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
 
-      const time = control.value;
-      const [hours, minutes] = time.split(':').map(Number);
-      const inputTime = new Date();
-      inputTime.setHours(hours, minutes);
+      const [hours, minutes] = control.value.split(':').map(Number);
 
-      // Horario de mañana: 9:00 AM - 1:00 PM
-      const morningStart = new Date();
-      morningStart.setHours(9, 0);
-      const morningEnd = new Date();
-      morningEnd.setHours(13, 0);
+      // Validar horario de mañana (9:00 AM - 1:00 PM)
+      const isMorningShift = (hours >= 9 && hours < 13);
 
-      // Horario de tarde: 3:00 PM - 7:00 PM
-      const afternoonStart = new Date();
-      afternoonStart.setHours(15, 0);
-      const afternoonEnd = new Date();
-      afternoonEnd.setHours(19, 0);
+      // Validar horario de tarde (3:00 PM - 7:00 PM)
+      const isAfternoonShift = (hours >= 15 && hours < 19);
 
-      const isInMorningShift = inputTime >= morningStart && inputTime < morningEnd;
-      const isInAfternoonShift = inputTime >= afternoonStart && inputTime < afternoonEnd;
+      if (!isMorningShift && !isAfternoonShift) {
+        return { invalidTimeRange: true };
+      }
 
-      if (!isInMorningShift && !isInAfternoonShift) {
+      // Validar que los minutos sean múltiplos de 10
+      if (minutes % 10 !== 0) {
         return { invalidTimeRange: true };
       }
 
       return null;
     };
-  }
-
-  private isValidDay(date: Date): boolean {
-    // getDay() devuelve 0 para domingo, 1 para lunes, ..., 6 para sábado
-    // Por lo tanto, solo domingo (0) es inválido
-    return date.getDay() !== 0;
   }
 
 
@@ -394,33 +477,31 @@ export class PatientRegisterComponent implements OnInit {
     }
   }
 
-  updateDatePickers(planId: any): void {
+  updateDatePickers(planId: number): void {
     const numericPlanId = Number(planId);
     switch (numericPlanId) {
       case 1:
-        this.isDateTimePickerVisible = 1;
+        this.isDateTimePickerVisible = 1; // Número de sesiones en Plan A
         break;
       case 2:
-        this.isDateTimePickerVisible = 2;
+        this.isDateTimePickerVisible = 2; // Número de sesiones en Plan B
         break;
       case 3:
-        this.isDateTimePickerVisible = 3;
+        this.isDateTimePickerVisible = 3; // Número de sesiones en Plan C
         break;
       case 4:
-        this.isDateTimePickerVisible = 4;
+        this.isDateTimePickerVisible = 5; // Número de sesiones en Plan D
         break;
       default:
-        this.isDateTimePickerVisible = 0;
+        this.isDateTimePickerVisible = 0; // Sin sesiones visibles
         break;
     }
 
-    if (this.isDateTimePickerVisible > 0) {
-      while (this.sessionDates.length < this.isDateTimePickerVisible) {
-        this.addSessionDate();
-      }
-      while (this.sessionDates.length > this.isDateTimePickerVisible) {
-        this.removeSessionDate(this.sessionDates.length - 1);
-      }
+    // Genera nuevas sesiones con valores predeterminados
+    this.resetSessionDates(); // Limpia las sesiones previas
+
+    for (let i = 0; i < this.isDateTimePickerVisible; i++) {
+      this.addSession(); // Añade nuevas sesiones vacías
     }
   }
 
@@ -431,6 +512,7 @@ export class PatientRegisterComponent implements OnInit {
   closeRegisterModal(): void {
     this.showRegisterModal = false;
   }
+
 
   confirmRegister(): void {
     this.closeRegisterModal();
@@ -494,5 +576,68 @@ export class PatientRegisterComponent implements OnInit {
     this.closeCancelModal();
     this.router.navigate(['/patients']);
   }
+
+  getHourControl(index: number) {
+    if (!this.timeControls.has(index)) {
+      this.initializeTimeControls(index);
+    }
+    return this.timeControls.get(index)!.hour;
+  }
+
+  getMinuteControl(index: number) {
+    if (!this.timeControls.has(index)) {
+      this.initializeTimeControls(index);
+    }
+    return this.timeControls.get(index)!.minute;
+  }
+
+  initializeTimeControls(index: number): void {
+    this.timeControls.set(index, {
+      hour: new FormControl(''), // Hora inicial vacía
+      minute: new FormControl('') // Minutos iniciales vacíos
+    });
+
+    const session = this.sessionDates.at(index);
+    const currentTime = session.get('startTime')?.value;
+
+    if (currentTime) {
+      const [hours, minutes] = currentTime.split(':').map(Number);
+      const controls = this.timeControls.get(index)!;
+      controls.hour.setValue(hours.toString().padStart(2, '0'));
+      controls.minute.setValue(minutes.toString().padStart(2, '0'));
+    }
+  }
+
+  updateTime(index: number) {
+    const controls = this.timeControls.get(index);
+    const session = this.sessionDates.at(index);
+    if (!controls || !controls.hour.value) return;
+
+    let hour = parseInt(controls.hour.value, 10);
+    let minute = parseInt(controls.minute.value || '0', 10);
+
+    // Asegurar que la hora esté dentro del rango permitido
+    if (hour === 18) {
+      minute = 0; // Limitar minutos a 00 cuando es las 6 PM
+      controls.minute.setValue('00');
+    } else if (hour > 18) {
+      controls.hour.setValue('18'); // Establecer máximo en 6 PM
+      controls.minute.setValue('00');
+      hour = 18;
+      minute = 0;
+    }
+
+
+
+    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    session.get('startTime')?.setValue(time);
+    this.onSessionChange(index);
+  }
+
+  getRoomControl(index: number): FormControl {
+    return this.sessionDates.at(index).get('room') as FormControl;
+  }
+
+
 }
 
