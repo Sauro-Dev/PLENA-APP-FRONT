@@ -1,147 +1,154 @@
-<section class="flex flex-col items-center mt-12 mb-10 w-full max-w-xl mx-auto">
-  <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
-    <h1 class="text-3xl font-bold mb-10 text-center text-blue-800">Registrar Paciente</h1>
+<section class="flex flex-col items-center w-full max-w-xl mx-auto p-4 md:p-0 mt-12">
+  <div class="w-full bg-white rounded-lg shadow-lg p-6 md:p-8">
+    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+      <h1 class="text-3xl font-bold mb-10 text-center text-blue-800">Registrar Paciente</h1>
 
-    <!-- Nombres -->
-    <div class="mb-5 relative">
-      <div class="relative">
-        <input type="text"
-               id="name"
-               formControlName="name"
-               #nameInput
-               [(ngModel)]="nameValue"
-               (focus)="onFocus('name')"
-               (blur)="onBlur('name')"
-               class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm
-                  focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
-                  placeholder-transparent"
-               placeholder="Nombre" />
-
-        <label for="name"
-               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
-               [ngClass]="{
-         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'name' || nameValue,
-         'top-3 text-base text-gray-400': isFocused !== 'name' && !nameValue
-       }">
-          Nombre
-        </label>
-      </div>
-
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
-        El nombre es requerido y debe tener al menos 2 caracteres.
-      </p>
-    </div>
-
-    <!-- Apellido Paterno y Materno -->
-    <div class="flex gap-5 mb-5">
-      <!-- Apellido Paterno -->
-      <div class="w-1/2 relative">
+      <!-- Nombres -->
+      <div class="mb-5 relative">
         <div class="relative">
-          <input type="text"
-                 id="paternalSurname"
-                 formControlName="paternalSurname"
-                 #paternalInput
-                 [(ngModel)]="paternalValue"
-                 (focus)="onFocus('paternal')"
-                 (blur)="onBlur('paternal')"
-                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
-                 placeholder="Apellido Paterno" />
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            #nameInput
+            [(ngModel)]="nameValue"
+            (focus)="onFocus('name')"
+            (blur)="onBlur('name')"
+            class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
+            placeholder="Nombre"
+          />
 
-          <label for="paternalSurname"
-                 class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
-                 [ngClass]="{
-         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'paternal' || paternalValue,
-         'top-3 text-base text-gray-400': isFocused !== 'paternal' && !paternalValue
-       }">
-            Apellido Paterno
+          <label
+            for="name"
+            class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+            [ngClass]="{
+              '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'name' || nameValue,
+              'top-3 text-base text-gray-400': isFocused !== 'name' && !nameValue
+            }"
+          >
+            Nombre
           </label>
         </div>
 
-        <p class="mt-1 text-sm text-red-600"
-           *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
-          El apellido paterno es requerido.
+        <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
+          El nombre es requerido y debe tener al menos 2 caracteres.
         </p>
       </div>
 
-      <!-- Apellido Materno -->
-      <div class="w-1/2 relative">
-        <div class="relative">
-          <input type="text"
-                 id="maternalSurname"
-                 formControlName="maternalSurname"
-                 #maternalInput
-                 [(ngModel)]="maternalValue"
-                 (focus)="onFocus('maternal')"
-                 (blur)="onBlur('maternal')"
-                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
-                 placeholder="Apellido Materno" />
-          <label for="maternalSurname"
-                 class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
-                 [ngClass]="{
-        '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'maternal' || maternalValue,
-        'top-3 text-base text-gray-400': isFocused !== 'maternal' && !maternalValue
-      }">
-            Apellido Materno
-          </label>
-        </div>
-        <p class="mt-1 text-sm text-red-600"
-           *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
-          El apellido materno es requerido.
-        </p>
-      </div>
-    </div>
+      <!-- Apellido Paterno y Materno -->
+      <div class="flex gap-5 mb-5">
+        <!-- Apellido Paterno -->
+        <div class="w-1/2 relative">
+          <div class="relative">
+            <input
+              type="text"
+              id="paternalSurname"
+              formControlName="paternalSurname"
+              #paternalInput
+              [(ngModel)]="paternalValue"
+              (focus)="onFocus('paternal')"
+              (blur)="onBlur('paternal')"
+              class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
+              placeholder="Apellido Paterno"
+            />
 
-    <!-- Fecha de Nacimiento y Edad -->
-    <div class="flex gap-5 mb-5">
-      <!-- Fecha de Nacimiento -->
-      <div class="w-1/2 relative">
-        <div class="relative">
-          <input type="date"
-                 id="birthdate"
-                 formControlName="birthdate"
-                 (blur)="calculateAge()"
-                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm
-                    focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800"
-                 [ngClass]="{'border-red-500': patientForm.get('birthdate')?.invalid &&
-                                         patientForm.get('birthdate')?.touched}" />
+            <label
+              for="paternalSurname"
+              class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+              [ngClass]="{
+                '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'paternal' || paternalValue,
+                'top-3 text-base text-gray-400': isFocused !== 'paternal' && !paternalValue
+              }"
+            >
+              Apellido Paterno
+            </label>
+          </div>
 
-          <label for="birthdate"
-                 class="absolute left-4 -top-2 text-sm text-black px-1 bg-white pointer-events-none">
-            Fecha de Nacimiento
-          </label>
-        </div>
-
-        <!-- Mensajes de error -->
-        <div *ngIf="patientForm.get('birthdate')?.touched">
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="patientForm.get('birthdate')?.errors?.['required']">
-            La fecha de nacimiento es requerida.
+          <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
+            El apellido paterno es requerido.
           </p>
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="patientForm.get('birthdate')?.errors?.['outOfRange']">
-            Ingrese una edad correcta.
+        </div>
+
+        <!-- Apellido Materno -->
+        <div class="w-1/2 relative">
+          <div class="relative">
+            <input
+              type="text"
+              id="maternalSurname"
+              formControlName="maternalSurname"
+              #maternalInput
+              [(ngModel)]="maternalValue"
+              (focus)="onFocus('maternal')"
+              (blur)="onBlur('maternal')"
+              class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
+              placeholder="Apellido Materno"
+            />
+            <label
+              for="maternalSurname"
+              class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+              [ngClass]="{
+                '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'maternal' || maternalValue,
+                'top-3 text-base text-gray-400': isFocused !== 'maternal' && !maternalValue
+              }"
+            >
+              Apellido Materno
+            </label>
+          </div>
+          <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
+            El apellido materno es requerido.
           </p>
         </div>
       </div>
 
-      <!-- Campo de Edad -->
-      <div class="w-1/2 relative">
-        <div class="relative">
-          <input type="text"
-                 id="age"
-                 formControlName="age"
-                 readonly
-                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg
-                    bg-gray-100 cursor-not-allowed" />
+      <!-- Fecha de Nacimiento y Edad -->
+      <div class="flex gap-5 mb-5">
+        <!-- Fecha de Nacimiento -->
+        <div class="w-1/2 relative">
+          <div class="relative">
+            <input
+              type="date"
+              id="birthdate"
+              formControlName="birthdate"
+              (blur)="calculateAge()"
+              class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800"
+              [ngClass]="{
+                'border-red-500': patientForm.get('birthdate')?.invalid && patientForm.get('birthdate')?.touched
+              }"
+            />
 
-          <label for="age"
-                 class="absolute left-4 -top-2 text-sm text-black px-1 bg-white pointer-events-none">
-            Edad
-          </label>
+            <label for="birthdate" class="absolute left-4 -top-2 text-sm text-black px-1 bg-white pointer-events-none">
+              Fecha de Nacimiento
+            </label>
+          </div>
+
+          <!-- Mensajes de error -->
+          <div *ngIf="patientForm.get('birthdate')?.touched">
+            <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('birthdate')?.errors?.['required']">
+              La fecha de nacimiento es requerida.
+            </p>
+            <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('birthdate')?.errors?.['outOfRange']">
+              Ingrese una edad correcta.
+            </p>
+          </div>
+        </div>
+
+        <!-- Campo de Edad -->
+        <div class="w-1/2 relative">
+          <div class="relative">
+            <input
+              type="text"
+              id="age"
+              formControlName="age"
+              readonly
+              class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+            />
+
+            <label for="age" class="absolute left-4 -top-2 text-sm text-black px-1 bg-white pointer-events-none">
+              Edad
+            </label>
+          </div>
         </div>
       </div>
-    </div>
 
     <!-- DNI -->
     <div class="mb-5 relative">
@@ -541,4 +548,5 @@
       </div>
     </div>
   </form>
+  </div>
 </section>
