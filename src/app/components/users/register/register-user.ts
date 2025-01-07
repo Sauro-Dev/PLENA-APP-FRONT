@@ -14,6 +14,6 @@ export interface RegisterUser {
   role: string;
   isAdmin: boolean;
   paymentSession?: number;
-  paymentMonth?: number;
+  paymentMonthly?: number;
   adminPassword?: string;
 }
