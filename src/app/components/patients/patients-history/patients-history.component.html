@@ -1,0 +1,10 @@
+<div *ngIf="!hasMedicalHistory; else historyContent" class="no-history-container">
+  <p class="no-history-message">El paciente no tiene Historial Medico</p>
+  <button class="create-history-button" (click)="createMedicalHistory()">Crear Historial Medico</button>
+</div>
+
+<ng-template #historyContent>
+  <h1>Historial Médico</h1>
+  <h2>{{ patient.name }}</h2>
+  <!-- Aquí va el contenido del historial médico -->
+</ng-template>
