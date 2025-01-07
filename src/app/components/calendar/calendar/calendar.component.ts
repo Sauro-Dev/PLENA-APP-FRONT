@@ -256,7 +256,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.resetFilters();
+    this.selectedTherapistId = '';
+    this.selectedRoomId = undefined;
   }
 
   resetFilters(): void {
@@ -265,17 +266,24 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.calendarOptions.initialDate = today.toISOString().split('T')[0];
     this.selectedTherapistId = '';
     this.selectedRoomId = undefined;
-    this.onFilterChange();
+
+    if (this.calendarComponent) {
+      this.onFilterChange();
+    }
   }
 
   onFilterChange(jumpToDate: boolean = true, showModal: boolean = true): void {
     let params = new HttpParams();
 
     if (this.selectedDate) {
-      if (this.calendarComponent && this.calendarComponent.getApi().view.type === 'timeGridWeek') {
+      if (this.calendarComponent && this.calendarComponent.getApi()) {
         const view = this.calendarComponent.getApi().view;
-        params = params.set('startDate', this.formatDateForInput(view.activeStart));
-        params = params.set('endDate', this.formatDateForInput(view.activeEnd));
+        if (view.type === 'timeGridWeek') {
+          params = params.set('startDate', this.formatDateForInput(view.activeStart));
+          params = params.set('endDate', this.formatDateForInput(view.activeEnd));
+        } else {
+          params = params.set('date', this.selectedDate);
+        }
       } else {
         params = params.set('date', this.selectedDate);
       }
