@@ -25,12 +25,10 @@ export const routes: Routes = [
   },
   {
     path: 'calendar',
-    loadComponent: () =>
-      import('./components/calendar/calendar/calendar.component').then(
-        (m) => m.CalendarComponent
-      ),
-      canActivate: [authGuard, roleGuard],
-      data: { breadcrumb: 'Calendario', roles: ['secretary', 'therapist', 'admin'] },
+    loadChildren: () =>
+      import('./components/calendar/calendar.routes').then((m) => m.default),
+    canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: 'Calendario', roles: ['secretary', 'therapist', 'admin'] }
   },
   {
     path: 'areas',

@@ -1,295 +1,276 @@
-<section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <h1 class="text-3xl font-bold mb-10 text-center">Registrar Usuario</h1>
+<section class="flex flex-col items-center w-full max-w-xl mx-auto p-4 md:p-0 mt-12">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="w-full bg-white rounded-lg shadow-lg p-6 md:p-8">
+    <h1 class="text-2xl md:text-3xl font-bold mb-8 text-blue-900 text-center">Registrar Usuario</h1>
 
     <!-- Username -->
-    <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Username</label>
+    <div class="mb-5">
+      <label class="block text-lg font-medium text-gray-700">Nombre de usuario</label>
       <input type="text"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="username" placeholder="Username"
-        [ngClass]="{'border-red-500': registerForm.get('username')?.invalid && registerForm.get('username')?.touched}">
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             formControlName="username" placeholder="Username"
+             [ngClass]="{'border-red-500': registerForm.get('username')?.invalid && registerForm.get('username')?.touched}">
       <p class="mt-1 text-sm text-red-600"
-        *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+         *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
         El username es requerido.
       </p>
     </div>
 
-    <div class="flex gap-5 mb-5">
-      <!-- Contraseña -->
-      <div class="w-1/2">
+    <!-- Contraseñas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-5">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Contraseña</label>
         <input type="password"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="password" placeholder="Contraseña"
-          [ngClass]="{'border-red-500': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="password" placeholder="********">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+           *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
           La contraseña es requerida.
         </p>
       </div>
 
-      <!-- Confirmar Contraseña -->
-      <div class="w-1/2">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Confirmar Contraseña</label>
         <input type="password"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="confirmPassword" placeholder="Confirmar Contraseña"
-          [ngClass]="{'border-red-500': registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched}">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="confirmPassword" placeholder="********">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.hasError('passwordsDontMatch') && registerForm.get('confirmPassword')?.touched">
+           *ngIf="registerForm.hasError('passwordsDontMatch') && registerForm.get('confirmPassword')?.touched">
           Las contraseñas no coinciden.
         </p>
       </div>
     </div>
 
     <!-- Nombres -->
-    <div class="mb-5 relative">
+    <div class="mb-5">
       <label class="block text-lg font-medium text-gray-700">Nombres</label>
       <input type="text"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="name" placeholder="Nombres"
-        [ngClass]="{'border-red-500': registerForm.get('name')?.invalid && registerForm.get('name')?.touched}">
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             formControlName="name" placeholder="Ingresar nombre(s)">
       <p class="mt-1 text-sm text-red-600"
-        *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+         *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
         El nombre es requerido.
       </p>
     </div>
 
-    <!-- Apellido Paterno y Materno -->
-    <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
+    <!-- Apellidos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-5">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Apellido Paterno</label>
         <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="paternalSurname" placeholder="Apellido Paterno">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="paternalSurname" placeholder="Ingresar Apellido">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('paternalSurname')?.invalid && registerForm.get('paternalSurname')?.touched">
+           *ngIf="registerForm.get('paternalSurname')?.invalid && registerForm.get('paternalSurname')?.touched">
           El apellido paterno es requerido.
         </p>
       </div>
-      <div class="w-1/2">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
         <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="maternalSurname" placeholder="Apellido Materno">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="maternalSurname" placeholder="Ingresar Apellido">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('maternalSurname')?.invalid && registerForm.get('maternalSurname')?.touched">
+           *ngIf="registerForm.get('maternalSurname')?.invalid && registerForm.get('maternalSurname')?.touched">
           El apellido materno es requerido.
         </p>
       </div>
     </div>
 
-    <!-- DNI y E-mail -->
-    <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
+    <!-- DNI y Email -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-5">
+      <div>
         <label class="block text-lg font-medium text-gray-700">DNI</label>
-        <input type="text" formControlName="dni" placeholder="DNI" maxlength="8" (keypress)="onlyNumber($event)"
-          (keypress)="onlyNumber($event)"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          [ngClass]="{
-          'border-red-500': registerForm.get('dni')?.invalid && registerForm.get('dni')?.touched
-        }" />
+        <input type="text" formControlName="dni" placeholder="Ingresar DNI" maxlength="8"
+               (keypress)="onlyNumber($event)"
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         <p class="text-sm text-red-600"
-          *ngIf="registerForm.get('dni')?.hasError('pattern') && registerForm.get('dni')?.touched">
+           *ngIf="registerForm.get('dni')?.hasError('pattern') && registerForm.get('dni')?.touched">
           El DNI debe tener exactamente 8 dígitos.
         </p>
-        <p class="text-sm text-red-600"
-          *ngIf="registerForm.get('dni')?.hasError('dniTaken') && registerForm.get('dni')?.touched">
-          Este DNI ya está registrado en el sistema.
-        </p>
       </div>
-      <div class="w-1/2">
+      <div>
         <label class="block text-lg font-medium text-gray-700">E-mail</label>
         <input type="email"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="email" placeholder="Correo">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="email" placeholder="Ingresar Correo">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+           *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
           El correo es requerido.
         </p>
-        <p class="text-sm text-red-600"
-          *ngIf="registerForm.get('email')?.hasError('emailTaken') && registerForm.get('email')?.touched">
-          Este Correo ya está registrado en el sistema.
-        </p>
       </div>
     </div>
 
-    <!-- Dirección y Fecha de Nacimiento -->
-    <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
+    <!-- Dirección y Fecha -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-5">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Dirección</label>
         <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="address" placeholder="Dirección">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="address" placeholder="Ingresar Dirección">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched">
-          La dirección es requerido.
+           *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched">
+          La dirección es requerida.
         </p>
       </div>
-
-      <div class="w-1/2">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Fecha de Nacimiento</label>
         <input type="date"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="birthdate" [min]="'1900-01-01'" [max]="maxDate"
-          [ngClass]="{'border-red-500': registerForm.get('birthdate')?.invalid && registerForm.get('birthdate')?.touched}">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="birthdate" [min]="'1900-01-01'" [max]="maxDate">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('birthdate')?.hasError('outOfRange') && registerForm.get('birthdate')?.touched">
-          Porfavor ingrese la fecha correcta.
+           *ngIf="registerForm.get('birthdate')?.hasError('outOfRange') && registerForm.get('birthdate')?.touched">
+          Por favor ingrese la fecha correcta.
         </p>
       </div>
     </div>
 
-
     <!-- Teléfonos -->
-    <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mb-5">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Teléfono</label>
         <input type="tel"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="phone" placeholder="Teléfono" maxlength="9" (keypress)="onlyNumber($event)"
-          (keypress)="limitInputLength($event, 9)">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="phone" placeholder="Ingresar Teléfono" maxlength="9"
+               (keypress)="onlyNumber($event)">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
+           *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
           El teléfono debe tener 9 dígitos.
         </p>
       </div>
-      <div class="w-1/2">
+      <div>
         <label class="block text-lg font-medium text-gray-700">Teléfono de respaldo</label>
         <input type="tel"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="phoneBackup" placeholder="Teléfono de respaldo" maxlength="9" (keypress)="onlyNumber($event)"
-          (keypress)="limitInputLength($event, 9)">
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+               formControlName="phoneBackup" placeholder="Ingresar Teléfono" maxlength="9"
+               (keypress)="onlyNumber($event)">
         <p class="mt-1 text-sm text-red-600"
-          *ngIf="registerForm.get('phoneBackup')?.invalid && registerForm.get('phoneBackup')?.touched">
+           *ngIf="registerForm.get('phoneBackup')?.invalid && registerForm.get('phoneBackup')?.touched">
           El teléfono de respaldo debe tener 9 dígitos.
-        </p>
-        <p class="text-sm text-red-600" *ngIf="
-    registerForm.hasError('phonesSame') &&
-    (registerForm.get('phone')?.touched || registerForm.get('phoneBackup')?.touched)
-  ">
-          El teléfono y el teléfono de respaldo no pueden ser iguales.
         </p>
       </div>
     </div>
 
-    <!-- Rol y Admin -->
-    <div class="flex gap-5 mb-5">
-      <h1 class="text-lg font-medium">Rol:</h1>
+    <!-- Rol -->
+    <div class="flex flex-wrap gap-3 md:gap-5 mb-5 items-center">
+      <h1 class="text-lg font-medium text-gray-700">Rol:</h1>
       <button type="button" (click)="selectRole('Terapeuta')"
-        [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Terapeuta', 'bg-gray-200': selectedRole !== 'Terapeuta' }"
-        class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
+              [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Terapeuta', 'bg-gray-200': selectedRole !== 'Terapeuta' }"
+              class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
         Terapeuta
       </button>
       <button type="button" (click)="selectRole('Secretario/a')"
-        [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Secretario/a', 'bg-gray-200': selectedRole !== 'Secretario/a' }"
-        class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
+              [ngClass]="{ 'bg-blue-800 text-white': selectedRole === 'Secretario/a', 'bg-gray-200': selectedRole !== 'Secretario/a' }"
+              class="px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-white">
         Secretario/a
       </button>
     </div>
 
-    <div *ngIf="selectedRole === 'Terapeuta'" class="mb-5 relative">
+    <!-- Campos condicionales según rol -->
+    <div *ngIf="selectedRole === 'Terapeuta'" class="mb-5">
       <label class="block text-lg font-medium text-gray-700">Pago por sesión</label>
       <input type="number" formControlName="paymentSession"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        placeholder="Pago por sesión"
-        [ngClass]="{'border-red-500': registerForm.get('paymentSession')?.invalid && registerForm.get('paymentSession')?.touched}">
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             placeholder="Ingresar Pago por sesión">
       <p class="mt-1 text-sm text-red-600"
-        *ngIf="registerForm.get('paymentSession')?.invalid && registerForm.get('paymentSession')?.touched">
+         *ngIf="registerForm.get('paymentSession')?.invalid && registerForm.get('paymentSession')?.touched">
         El pago por sesión es requerido.
       </p>
     </div>
 
-    <div *ngIf="selectedRole === 'Secretario/a'" class="mb-5 relative">
+    <div *ngIf="selectedRole === 'Secretario/a'" class="mb-5">
       <label class="block text-lg font-medium text-gray-700">Salario mensual</label>
       <input type="number"
-        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        formControlName="paymentMonth" placeholder="Salario mensual"
-        [ngClass]="{'border-red-500': registerForm.get('paymentMonth')?.invalid && registerForm.get('paymentMonth')?.touched}">
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+             formControlName="paymentMonth" placeholder="Ingresar Salario mensual">
       <p class="mt-1 text-sm text-red-600"
-        *ngIf="registerForm.get('paymentMonth')?.invalid && registerForm.get('paymentMonth')?.touched">
+         *ngIf="registerForm.get('paymentMonth')?.invalid && registerForm.get('paymentMonth')?.touched">
         El salario mensual es requerido.
       </p>
     </div>
 
-    <div *ngIf="selectedRole == 'Terapeuta'" class="flex gap-10 mb-5 items-center">
+    <!-- Admin checkbox -->
+    <div *ngIf="selectedRole == 'Terapeuta'" class="flex gap-3 md:gap-5 mb-5 items-center">
       <h2 class="block text-lg font-medium text-gray-700">Admin</h2>
       <input type="checkbox" class="w-6 h-6 border-2 border-black" [checked]="isAdminSelected"
-        (change)="toggleAdminSelection($event)" />
+             (change)="toggleAdminSelection($event)" />
     </div>
 
     <!-- Botones -->
-    <div class="flex gap-5 justify-center mt-10 mb-10">
-      <button type="submit" class="px-5 py-2 rounded-lg text-xl" [ngClass]="{
-        'bg-blue-800 hover:bg-blue-700 text-white': registerForm.valid,
-        'bg-gray-500 text-gray-300 cursor-not-allowed': registerForm.invalid
-      }" [disabled]="registerForm.invalid">
+    <div class="flex flex-col md:flex-row gap-3 md:gap-5 justify-center mt-8">
+      <button type="submit" class="px-5 py-2 rounded-lg text-xl w-full md:w-auto"
+              [ngClass]="{
+         'bg-blue-800 hover:bg-blue-700 text-white': registerForm.valid,
+         'bg-gray-500 text-gray-300 cursor-not-allowed': registerForm.invalid
+       }"
+              [disabled]="registerForm.invalid">
         Guardar
       </button>
       <button type="button" (click)="openCancelModal()"
-        class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
-    </div>
-
-    <!-- Modal Confirmación Guardar -->
-    <div *ngIf="showRegisterModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">¿Registrar este usuario?</h2>
-        <p class="mb-6 text-gray-600">Confirma si deseas registrar al usuario con los datos ingresados.</p>
-        <div class="flex justify-center gap-4">
-          <button (click)="confirmRegister()"
-            class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Confirmar</button>
-          <button (click)="closeRegisterModal()"
-            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Confirmación Cancelar -->
-    <div *ngIf="showCancelModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">¿Cancelar el registro?</h2>
-        <p class="mb-6 text-gray-600">Todos los datos ingresados se perderán.</p>
-        <div class="flex justify-center gap-4">
-          <button (click)="confirmCancel()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">Sí,
-            cancelar</button>
-          <button (click)="closeCancelModal()"
-            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Volver</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Advertencia/Ingreso de Contraseña de Admin -->
-    <div *ngIf="showAdminDialog" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
-        <h2 class="text-xl font-bold text-red-700 mb-4">Advertencia</h2>
-        <p class="mb-6 text-gray-600">
-          Estás a punto de otorgar permisos de Administrador a este usuario. Asegúrate de que sea
-          de confianza.
-        </p>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Ingresa tu contraseña de administrador para confirmar
-        </label>
-        <input type="password" formControlName="adminPassword"
-          class="mt-1 mb-4 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none"
-          placeholder="Tu contraseña" [ngClass]="{
-        'border-red-500': registerForm.get('adminPassword')?.invalid
-      }" />
-        <p class="text-red-600 text-sm" *ngIf="registerForm.get('adminPassword')?.hasError('invalidPassword')">
-          Contraseña incorrecta
-        </p>
-
-        <div class="flex justify-end gap-4 mt-4">
-          <button type="button" (click)="confirmAdminPassword()"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            Confirmar
-          </button>
-          <button type="button" (click)="cancelAdminDialog()"
-            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
-            Cancelar
-          </button>
-        </div>
-      </div>
+              class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400 w-full md:w-auto">
+        Cancelar
+      </button>
     </div>
   </form>
+
+  <!-- Modales con padding -->
+  <div *ngIf="showRegisterModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-md mx-4">
+      <h2 class="text-xl font-bold mb-4">¿Registrar este usuario?</h2>
+      <p class="mb-6 text-gray-600">Confirma si deseas registrar al usuario con los datos ingresados.</p>
+      <div class="flex justify-center gap-4">
+        <button (click)="confirmRegister()"
+                class="bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Confirmar</button>
+        <button (click)="closeRegisterModal()"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showCancelModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-md mx-4">
+      <h2 class="text-xl font-bold mb-4">¿Cancelar el registro?</h2>
+      <p class="mb-6 text-gray-600">Todos los datos ingresados se perderán.</p>
+      <div class="flex justify-center gap-4">
+        <button (click)="confirmCancel()"
+                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500">
+          Sí, cancelar
+        </button>
+        <button (click)="closeCancelModal()"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
+          Volver
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Admin Password -->
+  <div *ngIf="showAdminDialog" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-md mx-4">
+      <h2 class="text-xl font-bold text-red-700 mb-4">Advertencia</h2>
+      <p class="mb-6 text-gray-600">
+        Estás a punto de otorgar permisos de Administrador a este usuario. Asegúrate de que sea
+        de confianza.
+      </p>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Ingresa tu contraseña de administrador para confirmar
+      </label>
+      <input type="password" formControlName="adminPassword"
+             class="mt-1 mb-4 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none"
+             placeholder="Tu contraseña" />
+      <p class="text-red-600 text-sm" *ngIf="registerForm.get('adminPassword')?.hasError('invalidPassword')">
+        Contraseña incorrecta
+      </p>
+
+      <div class="flex justify-end gap-4 mt-4">
+        <button type="button" (click)="confirmAdminPassword()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          Confirmar
+        </button>
+        <button type="button" (click)="cancelAdminDialog()"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
 </section>

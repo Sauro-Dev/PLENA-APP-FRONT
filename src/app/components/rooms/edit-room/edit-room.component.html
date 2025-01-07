@@ -1,7 +1,7 @@
 <section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
   <!-- Contenedor principal -->
   <div class="bg-white shadow-lg rounded-lg p-6 w-full">
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Editar Ambiente</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-900">Editar Ambiente</h1>
 
     <form [formGroup]="roomForm" (ngSubmit)="openSaveModal()" class="space-y-6">
       <!-- Nombre del Ambiente -->
@@ -99,7 +99,7 @@
       class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
     >
       <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">¿Guardar los cambios?</h2>
+        <h2 class="text-xl font-bold text-blue-900 mb-4">¿Guardar los cambios?</h2>
         <p class="mb-6 text-gray-600">Se actualizarán los datos del ambiente.</p>
         <div class="flex justify-center gap-4">
           <button
@@ -124,7 +124,7 @@
       class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
     >
       <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">¿Cancelar la edición?</h2>
+        <h2 class="text-xl font-bold text-blue-900 mb-4">¿Cancelar la edición?</h2>
         <p class="mb-6 text-gray-600">Se perderán todos los cambios no guardados.</p>
         <div class="flex justify-center gap-4">
           <button

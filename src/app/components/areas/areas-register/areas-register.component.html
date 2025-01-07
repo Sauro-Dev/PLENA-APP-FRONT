@@ -2,7 +2,7 @@
   <form [formGroup]="areaForm" (ngSubmit)="openRegisterModal()">
     <div class="bg-white shadow-lg rounded-lg p-6 w-full">
       <!-- Título -->
-      <h1 class="text-3xl font-bold mb-10 text-center text-gray-800">Registrar Área de Intervención</h1>
+      <h1 class="text-3xl font-bold mb-10 text-center text-blue-900">Registrar Área de Intervención</h1>
 
       <!-- Nombre del Área -->
       <div class="mb-5 relative">
@@ -13,7 +13,7 @@
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           [ngClass]="{'border-red-500': areaForm.get('name')?.invalid && areaForm.get('name')?.touched}"
           formControlName="name"
-          placeholder="Nombre del Área"
+          placeholder="Área terapéutica"
           maxlength="100"
         />
         <p *ngIf="areaForm.get('name')?.invalid && areaForm.get('name')?.touched" class="mt-1 text-sm text-red-600">
@@ -62,8 +62,8 @@
   </form>
 
   <!-- Modal Confirmación Guardar -->
-  <div *ngIf="showRegisterModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+  <div *ngIf="showRegisterModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-sm mx-4">
       <h2 class="text-xl font-bold mb-4">¿Registrar esta área?</h2>
       <p class="mb-6 text-gray-600">Confirma si deseas registrar el área con los datos ingresados.</p>
       <div class="flex justify-center gap-4">
