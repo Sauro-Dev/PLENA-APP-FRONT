@@ -29,15 +29,17 @@ export class PatientsHistoryComponent implements OnInit {
   }
 
   loadPatientHistory(): void {
-    const patientId = this.route.snapshot.params['id'];
+    const patientId = this.route.snapshot.params['idPatient'];
+    const idMedicalHistory = this.route.snapshot.params['idMedicalHistory'];
+
     this.patientsHistoryService.findMedicalHistoryByPatientId(patientId).subscribe({
       next: (data) => {
         console.log('Datos del historial médico:', data); // Log the data for debugging
-        this.hasMedicalHistory = data && data.idMedicalHistory !== undefined;
+        this.hasMedicalHistory = Array.isArray(data) && data.some(item => item.idMedicalHistory !== undefined);
         console.log('¿El paciente tiene historial médico?', this.hasMedicalHistory); // Log if the patient has medical history
         if (this.hasMedicalHistory) {
-          this.patient = { name: data.patientName }; // Assuming the response contains patientName
-          this.history = [data];
+          this.patient = { name: data[0].patientName }; // Assuming the first item contains patientName
+          this.history = data;
         } else {
           this.loadPatientDetails(patientId);
           this.history = [];
@@ -64,7 +66,7 @@ export class PatientsHistoryComponent implements OnInit {
   }
 
   createMedicalHistory(): void {
-    const patientId = this.route.snapshot.params['id'];
+    const patientId = this.route.snapshot.params['idPatient'];
     if (this.hasMedicalHistory) {
       this.errorMessage = 'El paciente ya tiene un historial médico.';
       return;
