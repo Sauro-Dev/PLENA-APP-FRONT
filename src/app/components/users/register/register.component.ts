@@ -67,7 +67,7 @@ export class RegisterComponent {
         role: ['', Validators.required],
         isAdmin: [false],
         paymentSession: [null],
-        paymentMonth: [null],
+        paymentMonthly: [null],
         adminPassword: [''],
       },
       {
@@ -91,44 +91,44 @@ export class RegisterComponent {
   }
 
   onlyNumber(event: KeyboardEvent): void {
-    const charCode = event.which ? event.which : event.keyCode;
-    if (charCode < 48 || charCode > 57) {
+    if (!/[0-9]/.test(event.key) &&
+      event.key !== 'Backspace' &&
+      event.key !== 'Delete' &&
+      event.key !== 'ArrowLeft' &&
+      event.key !== 'ArrowRight' &&
+      event.key !== 'Tab') {
       event.preventDefault();
     }
   }
 
-  dniTakenValidator(
-    control: AbstractControl
-  ): Promise<ValidationErrors | null> {
+  dniTakenValidator(control: AbstractControl): Promise<ValidationErrors | null> {
     const dni = control.value;
     return new Promise((resolve) => {
       if (!dni) {
         resolve(null);
       } else {
-        this.registerService.checkDNI(dni).subscribe(
-          (isTaken) => {
+        this.registerService.checkDNI(dni).subscribe({
+          next: (isTaken) => {
             resolve(isTaken ? { dniTaken: true } : null);
           },
-          () => resolve(null)
-        );
+          error: () => resolve(null)
+        });
       }
     });
   }
 
-  emailTakenValidator(
-    control: AbstractControl
-  ): Promise<ValidationErrors | null> {
+  emailTakenValidator(control: AbstractControl): Promise<ValidationErrors | null> {
     const email = control.value;
     return new Promise((resolve) => {
       if (!email) {
         resolve(null);
       } else {
-        this.registerService.checkEmail(email).subscribe(
-          (isTaken) => {
+        this.registerService.checkEmail(email).subscribe({
+          next: (isTaken) => {
             resolve(isTaken ? { emailTaken: true } : null);
           },
-          () => resolve(null)
-        );
+          error: () => resolve(null)
+        });
       }
     });
   }
@@ -152,22 +152,6 @@ export class RegisterComponent {
       : null;
   }
 
-  limitInputLength(event: KeyboardEvent, maxLength: number): void {
-    const input = event.target as HTMLInputElement;
-    if (input.value.length >= maxLength && event.key !== 'Backspace') {
-      event.preventDefault();
-    }
-  }
-
-  openRegisterModal(): void {
-    if (this.registerForm.valid && this.selectedRole) {
-      this.showRegisterModal = true;
-    } else {
-      this.registerForm.markAllAsTouched();
-      console.error('Formulario inválido o rol no seleccionado');
-    }
-  }
-
   closeRegisterModal(): void {
     this.showRegisterModal = false;
   }
@@ -176,37 +160,28 @@ export class RegisterComponent {
     const formValue = this.registerForm.value;
 
     if (this.selectedRole === 'Terapeuta') {
-      // Chequeamos si marcó Admin
-      if (this.isAdminSelected) {
-        formValue.role = 'ADMIN';
-      } else {
-        formValue.role = 'THERAPIST';
-      }
-
-      formValue.paymentSession = formValue.paymentSession
-        ? Number(formValue.paymentSession)
-        : null;
-      formValue.paymentMonth = null;
+      formValue.role = this.isAdminSelected ? 'ADMIN' : 'THERAPIST';
+      formValue.paymentSession = formValue.paymentSession ? Number(formValue.paymentSession) : null;
+      formValue.paymentMonthly = null; // Cambiado
     } else if (this.selectedRole === 'Secretario/a') {
       formValue.role = 'SECRETARY';
-      formValue.paymentMonth = formValue.paymentMonth
-        ? Number(formValue.paymentMonth)
-        : null;
+      formValue.paymentMonthly = formValue.paymentMonthly ? Number(formValue.paymentMonthly) : null;
       formValue.paymentSession = null;
-    } else {
+    }
+ else {
       formValue.role = '';
       console.error('Rol inválido');
     }
 
-    this.registerService.registerUser(formValue).subscribe(
-      () => {
+    this.registerService.registerUser(formValue).subscribe({
+      next: () => {
         this.closeRegisterModal();
         this.router.navigate(['/users']);
       },
-      (error) => {
+      error: (error) => {
         console.error('Error al registrar', error);
       }
-    );
+    });
   }
 
   openCancelModal(): void {
@@ -230,30 +205,16 @@ export class RegisterComponent {
       this.registerForm
         .get('paymentSession')
         ?.setValidators([Validators.required, Validators.min(0)]);
-      this.registerForm.get('paymentMonth')?.clearValidators();
+      this.registerForm.get('paymentMonthly')?.clearValidators();
     } else if (role === 'Secretario/a') {
       this.registerForm.patchValue({ role: 'SECRETARY' });
       this.registerForm
-        .get('paymentMonth')
-        ?.setValidators([Validators.required, Validators.min(0)]);
+        .get('paymentMonthly')?.setValidators([Validators.required, Validators.min(0)]);
       this.registerForm.get('paymentSession')?.clearValidators();
-    } else {
-      this.registerForm.patchValue({ role: '' });
-      this.registerForm.get('paymentSession')?.clearValidators();
-      this.registerForm.get('paymentMonth')?.clearValidators();
     }
 
     this.registerForm.get('paymentSession')?.updateValueAndValidity();
-    this.registerForm.get('paymentMonth')?.updateValueAndValidity();
-  }
-
-  promptAdminPassword(): void {
-    this.registerForm.patchValue({ adminPassword: '' });
-    this.registerForm
-      .get('adminPassword')
-      ?.setValidators([Validators.required]);
-    this.registerForm.get('adminPassword')?.updateValueAndValidity();
-    this.showAdminDialog = true;
+    this.registerForm.get('paymentMonthly')?.updateValueAndValidity();
   }
 
   toggleAdminSelection(event: Event): void {
@@ -303,28 +264,21 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       const formValue = this.registerForm.value;
 
-      formValue.role =
-        this.selectedRole === 'Terapeuta'
-          ? this.isAdminSelected
-            ? 'ADMIN'
-            : 'THERAPIST'
-          : 'SECRETARY';
+      formValue.role = this.selectedRole === 'Terapeuta'
+        ? (this.isAdminSelected ? 'ADMIN' : 'THERAPIST')
+        : 'SECRETARY';
 
-      formValue.paymentSession = formValue.paymentSession
-        ? Number(formValue.paymentSession)
-        : null;
-      formValue.paymentMonth = formValue.paymentMonth
-        ? Number(formValue.paymentMonth)
-        : null;
+      formValue.paymentSession = formValue.paymentSession ? Number(formValue.paymentSession) : null;
+      formValue.paymentMonthly = formValue.paymentMonthly ? Number(formValue.paymentMonthly) : null;
 
-      this.registerService.registerUser(formValue).subscribe(
-        () => {
+      this.registerService.registerUser(formValue).subscribe({
+        next: () => {
           this.router.navigate(['/users']);
         },
-        (error) => {
+        error: (error) => {
           console.error('Error al registrar', error);
         }
-      );
+      });
     } else {
       console.error('Formulario inválido');
     }
