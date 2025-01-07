@@ -4,47 +4,89 @@
 
     <!-- Nombres -->
     <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Nombres</label>
-      <input type="text" formControlName="name" placeholder="Nombres"
-             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-             [ngClass]="{'border-red-500': patientForm.get('name')?.invalid && patientForm.get('name')?.touched}" />
-      <p class="mt-1 text-sm text-red-600" *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
+      <div class="relative">
+        <input type="text"
+               id="name"
+               formControlName="name"
+               #nameInput
+               [(ngModel)]="nameValue"
+               (focus)="onFocus('name')"
+               (blur)="onBlur('name')"
+               class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm
+                  focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+                  placeholder-transparent"
+               placeholder="Nombre" />
+
+        <label for="name"
+               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+               [ngClass]="{
+         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'name' || nameValue,
+         'top-3 text-base text-gray-400': isFocused !== 'name' && !nameValue
+       }">
+          Nombre
+        </label>
+      </div>
+
+      <p class="mt-1 text-sm text-red-600"
+         *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
         El nombre es requerido y debe tener al menos 2 caracteres.
       </p>
     </div>
 
     <!-- Apellido Paterno y Materno -->
     <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
-        <label class="block text-lg font-medium text-gray-700">Apellido Paterno</label>
-        <input type="text" formControlName="paternalSurname" placeholder="Apellido Paterno"
-               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-               [ngClass]="{
-            'border-red-500':
-              patientForm.get('paternalSurname')?.invalid &&
-              patientForm.get('paternalSurname')?.touched
-          }" />
-        <p class="mt-1 text-sm text-red-600" *ngIf="
-            patientForm.get('paternalSurname')?.invalid &&
-            patientForm.get('paternalSurname')?.touched
-          ">
+      <!-- Apellido Paterno -->
+      <div class="w-1/2 relative">
+        <div class="relative">
+          <input type="text"
+                 id="paternalSurname"
+                 formControlName="paternalSurname"
+                 #paternalInput
+                 [(ngModel)]="paternalValue"
+                 (focus)="onFocus('paternal')"
+                 (blur)="onBlur('paternal')"
+                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
+                 placeholder="Apellido Paterno" />
+
+          <label for="paternalSurname"
+                 class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                 [ngClass]="{
+         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'paternal' || paternalValue,
+         'top-3 text-base text-gray-400': isFocused !== 'paternal' && !paternalValue
+       }">
+            Apellido Paterno
+          </label>
+        </div>
+
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('paternalSurname')?.invalid && patientForm.get('paternalSurname')?.touched">
           El apellido paterno es requerido.
         </p>
       </div>
 
-      <div class="w-1/2">
-        <label class="block text-lg font-medium text-gray-700">Apellido Materno</label>
-        <input type="text" formControlName="maternalSurname" placeholder="Apellido Materno"
-               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-               [ngClass]="{
-            'border-red-500':
-              patientForm.get('maternalSurname')?.invalid &&
-              patientForm.get('maternalSurname')?.touched
-          }" />
-        <p class="mt-1 text-sm text-red-600" *ngIf="
-            patientForm.get('maternalSurname')?.invalid &&
-            patientForm.get('maternalSurname')?.touched
-          ">
+      <!-- Apellido Materno -->
+      <div class="w-1/2 relative">
+        <div class="relative">
+          <input type="text"
+                 id="maternalSurname"
+                 formControlName="maternalSurname"
+                 #maternalInput
+                 [(ngModel)]="maternalValue"
+                 (focus)="onFocus('maternal')"
+                 (blur)="onBlur('maternal')"
+                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 placeholder-transparent"
+                 placeholder="Apellido Materno" />
+          <label for="maternalSurname"
+                 class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+                 [ngClass]="{
+        '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'maternal' || maternalValue,
+        'top-3 text-base text-gray-400': isFocused !== 'maternal' && !maternalValue
+      }">
+            Apellido Materno
+          </label>
+        </div>
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('maternalSurname')?.invalid && patientForm.get('maternalSurname')?.touched">
           El apellido materno es requerido.
         </p>
       </div>
@@ -52,76 +94,180 @@
 
     <!-- Fecha de Nacimiento y Edad -->
     <div class="flex gap-5 mb-5">
-      <div class="w-1/2">
-        <label class="block text-lg font-medium text-gray-700">Fecha de Nacimiento</label>
-        <input type="date" formControlName="birthdate"
-               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+      <!-- Fecha de Nacimiento -->
+      <div class="w-1/2 relative">
+        <div class="relative">
+          <input type="date"
+                 id="birthdate"
+                 formControlName="birthdate"
+                 (blur)="calculateAge()"
+                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm
+                    focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800"
+                 [ngClass]="{'border-red-500': patientForm.get('birthdate')?.invalid &&
+                                         patientForm.get('birthdate')?.touched}" />
+
+          <label for="birthdate"
+                 class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white pointer-events-none">
+            Fecha de Nacimiento
+          </label>
+        </div>
+
+        <!-- Mensajes de error -->
+        <div *ngIf="patientForm.get('birthdate')?.touched">
+          <p class="mt-1 text-sm text-red-600"
+             *ngIf="patientForm.get('birthdate')?.errors?.['required']">
+            La fecha de nacimiento es requerida.
+          </p>
+          <p class="mt-1 text-sm text-red-600"
+             *ngIf="patientForm.get('birthdate')?.errors?.['outOfRange']">
+            Ingrese una edad correcta.
+          </p>
+        </div>
+      </div>
+
+      <!-- Campo de Edad -->
+      <div class="w-1/2 relative">
+        <div class="relative">
+          <input type="text"
+                 id="age"
+                 formControlName="age"
+                 readonly
+                 class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg
+                    bg-gray-100 cursor-not-allowed" />
+
+          <label for="age"
+                 class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white pointer-events-none">
+            Edad
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- DNI -->
+    <div class="mb-5 relative">
+      <div class="relative">
+        <input type="text"
+               id="dni"
+               formControlName="dni"
+               #dniInput
+               [(ngModel)]="dniValue"
+               (focus)="onFocus('dni')"
+               (blur)="onBlur('dni')"
+               maxlength="8"
+               (keypress)="limitInputLength($event, 8); onlyNumber($event)"
+               class="peer mt-1 block w-full px-4 pt-4 pb-2 border border-gray-300 rounded-lg shadow-sm
+                  focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+                  placeholder-transparent"
+               placeholder="DNI" />
+
+        <label for="dni"
+               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
                [ngClass]="{
-            'border-red-500':
-              patientForm.get('birthdate')?.invalid &&
-              patientForm.get('birthdate')?.touched
-          }" />
-        <p class="mt-1 text-sm text-red-600" *ngIf="
-            patientForm.get('birthdate')?.invalid &&
-            patientForm.get('birthdate')?.touched
-          ">
-          La fecha de nacimiento es requerida.
+         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'dni' || dniValue,
+         'top-3 text-base text-gray-400': isFocused !== 'dni' && !dniValue
+       }">
+          DNI
+        </label>
+      </div>
+
+      <!-- Mensajes de error -->
+      <div *ngIf="patientForm.get('dni')?.touched">
+        <!-- Error cuando es requerido -->
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('dni')?.hasError('required')">
+          El DNI es obligatorio.
         </p>
-        <p class="mt-1 text-sm text-red-600" *ngIf="
-            patientForm.get('birthdate')?.hasError('outOfRange') &&
-            patientForm.get('birthdate')?.touched
-          ">
-          Ingresa una fecha correcta.
+
+        <!-- Error de formato (8 dígitos) -->
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('dni')?.hasError('pattern')">
+          El DNI debe tener exactamente 8 dígitos.
+        </p>
+
+        <!-- Error de duplicado con tutor -->
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor')">
+          El DNI del paciente no puede coincidir con el de un tutor.
+        </p>
+
+        <!-- Error de duplicado en base de datos -->
+        <p class="mt-1 text-sm text-red-600"
+           *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase')">
+          El DNI ya está registrado en el sistema.
         </p>
       </div>
     </div>
 
-    <!-- DNI del Paciente -->
+    <!-- Presunción Diagnóstica -->
     <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">DNI</label>
-      <input type="text" formControlName="dni" placeholder="DNI" maxlength="8"
-             (keypress)="limitInputLength($event, 8); onlyNumber($event)"
-             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-             [ngClass]="{
-          'border-red-500': patientForm.get('dni')?.invalid && patientForm.get('dni')?.touched
-        }" />
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('dni')?.hasError('required') && patientForm.get('dni')?.touched">
-        El DNI es obligatorio.
-      </p>
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('dni')?.hasError('pattern') && patientForm.get('dni')?.touched">
-        El DNI debe tener exactamente 8 dígitos.
-      </p>
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('dni')?.hasError('duplicateWithTutor') && patientForm.get('dni')?.touched">
-        El DNI del paciente no puede coincidir con el de un tutor.
-      </p>
-      <p class="mt-1 text-sm text-red-600"
-         *ngIf="patientForm.get('dni')?.hasError('duplicateWithDatabase') && patientForm.get('dni')?.touched">
-        El DNI ya está registrado en el sistema.
-      </p>
-    </div>
+      <div class="relative">
+    <textarea
+      id="presumptiveDiagnosis"
+      formControlName="presumptiveDiagnosis"
+      #presumptiveDiagnosisInput
+      [(ngModel)]="presumptiveDiagnosisValue"
+      (focus)="onFocus('presumptiveDiagnosis')"
+      (blur)="onBlur('presumptiveDiagnosis')"
+      rows="3"
+      class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+             placeholder-transparent resize-none"
+      placeholder="Presunción Diagnóstica">
+    </textarea>
 
-    <!-- Presunción Diagnotisca -->
-    <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Presunción Diagnotisca</label>
-      <textarea formControlName="presumptiveDiagnosis" placeholder="Presunción Diagnotisca" rows="3"
-                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"></textarea>
+        <label for="presumptiveDiagnosis"
+               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+               [ngClass]="{
+         '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'presumptiveDiagnosis' || presumptiveDiagnosisValue,
+         'top-3 text-base text-gray-400': isFocused !== 'presumptiveDiagnosis' && !presumptiveDiagnosisValue
+       }">
+          Presunción Diagnóstica
+        </label>
+      </div>
+
+      <!-- Mensaje de error para longitud máxima -->
+      <p class="mt-1 text-sm text-red-600"
+         *ngIf="patientForm.get('presumptiveDiagnosis')?.errors?.['maxlength'] &&
+            patientForm.get('presumptiveDiagnosis')?.touched">
+        La presunción diagnóstica no puede exceder los 255 caracteres.
+      </p>
     </div>
 
     <!-- Plan -->
     <div class="mb-5 relative">
-      <label class="block text-lg font-medium text-gray-700">Plan</label>
-      <select formControlName="idPlan"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-              [ngClass]="{
-          'border-red-500':
-            patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched
-        }">
-        <option [value]="null" disabled>Seleccione un plan</option>
-        <option *ngFor="let plan of plans" [value]="plan.id">{{ plan.name }}</option>
-      </select>
+      <div class="relative">
+        <select
+          id="idPlan"
+          formControlName="idPlan"
+          #planInput
+          [(ngModel)]="planValue"
+          (focus)="onFocus('plan')"
+          (blur)="onBlur('plan')"
+          class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+             appearance-none cursor-pointer"
+          [ngClass]="{'border-red-500': patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched}">
+          <option [value]="null" disabled>Seleccione un plan</option>
+          <option *ngFor="let plan of plans" [value]="plan.id">{{plan.name.substring(5)}}</option>
+        </select>
+
+        <label for="idPlan"
+               class="absolute left-4 top-3 text-gray-500 text-base transition-all pointer-events-none"
+               [ngClass]="{
+             '-top-2 text-sm text-blue-800 px-1 bg-white': isFocused === 'plan' || planValue,
+             'top-3 text-base text-gray-400': isFocused !== 'plan' && !planValue
+           }">
+          Plan
+        </label>
+
+        <!-- Icono de flecha personalizado -->
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
+
       <p class="mt-1 text-sm text-red-600"
          *ngIf="patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched">
         Es obligatorio seleccionar un plan.
@@ -129,192 +275,219 @@
     </div>
 
     <!-- Fechas y Horas (Sesiones) -->
-    <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0">
-      <!-- Iteramos sobre el FormArray de sesiones -->
-      <div *ngFor="let session of sessionDates.controls; let i = index" [formGroupName]="i" class="mb-5">
+    <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0" class="space-y-4">
+      <div
+        *ngFor="let session of sessionDates.controls; let i = index"
+        [formGroupName]="i"
+        class="border rounded-lg p-4 bg-blue-50 shadow-md"
+      >
+        <h4 class="text-lg font-semibold text-blue-800 mb-4">Sesión {{ i + 1 }}</h4>
 
         <!-- Fecha -->
-        <label class="block text-lg font-medium text-gray-700">Fecha {{ i + 1 }}</label>
-        <input
-          type="date"
-          formControlName="sessionDate"
-          (change)="onSessionChange(i)"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-          [ngClass]="{'border-red-500': session.get('sessionDate')?.invalid && session.get('sessionDate')?.touched}"
-        />
-        <div class="mt-1 text-sm text-red-600" *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched">
-          No se pueden programar sesiones los domingos
+        <div class="mb-4 relative">
+          <input
+            type="date"
+            formControlName="sessionDate"
+            (change)="onSessionChange(i)"
+            class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+               focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+          />
+
+          <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+            Fecha {{ i + 1 }}
+          </label>
+
+          <div
+            class="mt-1 text-sm text-red-600"
+            *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched"
+          >
+            No se pueden programar sesiones los domingos
+          </div>
         </div>
 
-        <!-- Hora de Inicio -->
-        <div class="flex gap-5">
-          <div class="w-1/2">
-            <label class="block text-lg font-medium text-gray-700">Hora de Inicio</label>
-            <div class="flex gap-2 items-center">
-              <!-- Selector de Hora -->
-              <select
-                [formControl]="getHourControl(i)"
-                (change)="updateTime(i)"
-                class="w-24 px-2 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-                <option value="" disabled>Hora</option>
-                <option value="09">09 AM</option>
-                <option value="10">10 AM</option>
-                <option value="11">11 AM</option>
-                <option value="12">12 PM</option>
-                <option value="15">03 PM</option>
-                <option value="16">04 PM</option>
-                <option value="17">05 PM</option>
-                <option value="18">06 PM</option>
-              </select>
+        <!-- Campos de Hora, Salas y Terapeutas en diseño de 2 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Hora de Inicio -->
+          <div class="relative">
+            <select
+              [formControl]="getHourControl(i)"
+              (change)="updateTime(i)"
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+            >
+              <option value="" disabled selected>Seleccione hora</option>
+              <option value="09">09 AM</option>
+              <option value="10">10 AM</option>
+              <option value="11">11 AM</option>
+              <option value="12">12 PM</option>
+              <option value="15">03 PM</option>
+              <option value="16">04 PM</option>
+              <option value="17">05 PM</option>
+              <option value="18">06 PM</option>
+            </select>
 
-              <!-- Selector de Minutos -->
-              <select
-                [formControl]="getMinuteControl(i)"
-                (change)="updateTime(i)" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-              <option value="" disabled>Minutos</option>
+            <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+              Hora de Inicio
+            </label>
+          </div>
+
+          <!-- Minutos -->
+          <div class="relative">
+            <select
+              [formControl]="getMinuteControl(i)"
+              (change)="updateTime(i)"
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+            >
+              <option value="" disabled selected>Seleccione minutos</option>
               <option *ngFor="let minute of minuteOptionsMap.get(i) || []" [value]="minute">
-                {{ minute }}
+                {{minute}}
               </option>
-              </select>
-            </div>
-            <div class="mt-1 text-sm text-red-600" *ngIf="session.get('startTime')?.errors?.['invalidTimeRange'] && session.get('startTime')?.touched">
-              El horario de atención es de 9:00 AM a 1:00 PM y de 3:00 PM a 7:00 PM
-            </div>
-          </div>
-        </div>
+            </select>
 
-        <!-- Hora de Fin -->
-        <div class="flex gap-5">
-          <div class="w-1/2">
-            <label class="block text-lg font-medium text-gray-700">Hora de Fin</label>
-            <div class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
-              <!-- Formato de la hora de fin calculada -->
-              {{ session.value.startTime ? format12Hours(addMinutes(session.value.startTime, 50)) : '--:-- --' }}
-            </div>
-            <input type="hidden" formControlName="endTime" />
+            <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+              Minutos
+            </label>
           </div>
-        </div>
 
-        <!-- Sala -->
-        <div class="flex gap-5 mt-5">
-          <div class="w-1/2">
-            <label class="block text-lg font-medium text-gray-700">Sala</label>
+          <!-- Sala -->
+          <div class="relative">
             <select
               [formControl]="getRoomControl(i)"
-              class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-              <!-- Opción predeterminada -->
-              <option [ngValue]="null" disabled>Seleccione una sala</option>
-              <!-- Opciones dinámicas de las salas -->
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+            >
+              <option [ngValue]="null" disabled selected>Seleccione sala</option>
               <ng-container *ngIf="roomsMap.get(i) as rooms">
                 <option *ngFor="let room of rooms" [value]="room.idRoom">
                   {{ room.name }}
                 </option>
               </ng-container>
             </select>
+
+            <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+              Sala
+            </label>
+
             <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
               No hay salas disponibles
             </div>
           </div>
 
           <!-- Terapeuta -->
-          <div class="w-1/2">
-            <label class="block text-lg font-medium text-gray-700">Terapeuta</label>
+          <div class="relative">
             <select
               formControlName="therapist"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800">
-              <!-- Opción Predeterminada -->
-              <option [ngValue]="null" disabled>Seleccione un terapeuta</option>
-              <!-- Opciones dinámicas de Terapeutas -->
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+            >
+              <option [ngValue]="null" disabled selected>Seleccione terapeuta</option>
               <ng-container *ngIf="therapistsMap.get(i) as therapists">
                 <option *ngFor="let therapist of therapists" [value]="therapist.id">
                   {{ therapist.name }}
                 </option>
               </ng-container>
             </select>
+
+            <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+              Terapeuta
+            </label>
+
             <div
               class="mt-1 text-sm text-red-600"
-              *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists'] && session.get('sessionDate')?.value && session.get('startTime')?.value"
+              *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists'] &&
+                  session.get('sessionDate')?.value &&
+                  session.get('startTime')?.value"
             >
-              No hay terapeutas disponibles.
+              No hay terapeutas disponibles
             </div>
           </div>
+        </div>
+
+        <!-- Hora de Fin -->
+        <div class="relative mt-4">
+          <input
+            type="text"
+            [value]="format12Hours(addMinutes(session.value.startTime, 50))"
+            readonly
+            class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+          />
+          <label class="absolute left-4 -top-2 text-sm text-blue-800 px-1 bg-white">
+            Hora de Fin
+          </label>
+          <input type="hidden" formControlName="endTime" />
         </div>
       </div>
     </div>
 
-    <!-- Tutores -->
     <div formArrayName="tutors" class="mb-5">
       <h2 class="text-lg font-medium text-gray-700 mb-3">Tutores</h2>
-      <div *ngFor="let tutor of tutors.controls; let i = index" [formGroupName]="i"
-           class="border p-4 mb-4 rounded-lg bg-gray-50 shadow-sm">
+      <div *ngFor="let tutor of tutors.controls; let i = index" [formGroupName]="i" class="border p-4 mb-4 rounded-lg bg-gray-50 shadow-sm">
         <h3 class="font-medium mb-3">Tutor {{ i + 1 }}</h3>
 
+        <!-- Nombre del Tutor -->
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">Nombre del Tutor</label>
-          <input type="text" formControlName="fullName" placeholder="Nombre del Tutor"
-                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-                 [ngClass]="{
-              'border-red-500':
-                tutor.get('fullName')?.invalid &&
-                tutor.get('fullName')?.touched
-            }" />
+          <input
+            type="text"
+            formControlName="fullName"
+            placeholder="Nombre del Tutor"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+            [ngClass]="{ 'border-red-500': tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched }"
+          />
           <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('fullName')?.invalid && tutor.get('fullName')?.touched">
             El nombre del tutor es requerido.
           </p>
         </div>
 
+        <!-- DNI del Tutor -->
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">DNI</label>
-          <input type="text" formControlName="dni" placeholder="DNI" maxlength="8"
-                 (keypress)="limitInputLength($event, 8); onlyNumber($event)"
-                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-                 [ngClass]="{
-              'border-red-500':
-                tutor.get('dni')?.invalid &&
-                tutor.get('dni')?.touched
-            }" />
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="tutor.get('dni')?.hasError('required') && tutor.get('dni')?.touched">
+          <input
+            type="text"
+            formControlName="dni"
+            placeholder="DNI"
+            maxlength="8"
+            (keypress)="limitInputLength($event, 8); onlyNumber($event)"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+            [ngClass]="{ 'border-red-500': tutor.get('dni')?.invalid && tutor.get('dni')?.touched }"
+          />
+          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('required') && tutor.get('dni')?.touched">
             El DNI del tutor es requerido.
           </p>
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="tutor.get('dni')?.hasError('pattern') && tutor.get('dni')?.touched">
+          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('dni')?.hasError('pattern') && tutor.get('dni')?.touched">
             El DNI debe tener exactamente 8 dígitos.
-          </p>
-          <p class="mt-1 text-sm text-red-600" *ngIf="
-              tutor.get('dni')?.hasError('duplicateWithDatabase') &&
-              tutor.get('dni')?.touched
-            ">
-            El DNI del tutor ya está registrado en el sistema.
           </p>
         </div>
 
+        <!-- Teléfono del Tutor -->
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-          <input type="tel" formControlName="phone" placeholder="Teléfono" maxlength="9"
-                 (keypress)="limitInputLength($event, 9); onlyNumber($event)"
-                 class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-                 [ngClass]="{
-              'border-red-500':
-                tutor.get('phone')?.invalid &&
-                tutor.get('phone')?.touched
-            }" />
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="tutor.get('phone')?.hasError('required') && tutor.get('phone')?.touched">
+          <input
+            type="tel"
+            formControlName="phone"
+            placeholder="Teléfono"
+            maxlength="9"
+            (keypress)="limitInputLength($event, 9); onlyNumber($event)"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+            [ngClass]="{ 'border-red-500': tutor.get('phone')?.invalid && tutor.get('phone')?.touched }"
+          />
+          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('required') && tutor.get('phone')?.touched">
             El teléfono del tutor es requerido.
           </p>
-          <p class="mt-1 text-sm text-red-600"
-             *ngIf="tutor.get('phone')?.hasError('pattern') && tutor.get('phone')?.touched">
+          <p class="mt-1 text-sm text-red-600" *ngIf="tutor.get('phone')?.hasError('pattern') && tutor.get('phone')?.touched">
             El teléfono debe tener exactamente 9 dígitos.
           </p>
         </div>
 
+        <!-- Botón para eliminar tutor -->
         <button type="button" (click)="removeTutor(i)" *ngIf="tutors.length > 1"
                 class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-500 transition">
           Eliminar Tutor
         </button>
       </div>
 
+      <!-- Botón para añadir tutor -->
       <button *ngIf="tutors.length < 2" type="button" (click)="addTutor()"
               class="bg-blue-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
         Añadir Tutor

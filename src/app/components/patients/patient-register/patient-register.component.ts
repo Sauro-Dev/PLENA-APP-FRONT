@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -40,6 +40,31 @@ export class PatientRegisterComponent implements OnInit {
   minuteOptionsMap: Map<number, string[]> = new Map(); // Opciones de minutos por índice
   timeControls: Map<number, { hour: FormControl, minute: FormControl }> = new Map();
 
+  isFocused: string | null = null;
+  nameValue: string = '';
+  paternalValue: string = '';
+  maternalValue: string = '';
+  dniValue: string = '';
+  presumptiveDiagnosisValue: string = '';
+  planValue: string = '';
+  sessionDateValues: string[] = [];
+  sessionHourValues: string[] = [];
+  sessionMinuteValues: string[] = [];
+  @ViewChild('sessionDateInput') sessionDateInput!: ElementRef;
+  @ViewChild('nameInput') nameInput!: ElementRef;
+  @ViewChild('planInput') planInput!: ElementRef;
+  @ViewChild('paternalInput') paternalInput!: ElementRef;
+  @ViewChild('maternalInput') maternalInput!: ElementRef;
+  @ViewChild('birthdateInput') birthdateInput!: ElementRef;
+  @ViewChild('dniInput') dniInput!: ElementRef;
+  @ViewChild('presumptiveDiagnosisInput') presumptiveDiagnosisInput!: ElementRef;
+
+  sessionFocusStates: Map<number, {
+    date: boolean;
+    hour: boolean;
+    minute: boolean;
+  }> = new Map();
+
   constructor(
     private fb: FormBuilder,
     private patientService: PatientsService,
@@ -80,6 +105,7 @@ export class PatientRegisterComponent implements OnInit {
           [this.checkDuplicateDNI.bind(this)],
         ],
         birthdate: ['', [Validators.required, this.dateRangeValidator]],
+        age: [{value: '', disabled: true}],
         presumptiveDiagnosis: ['', [Validators.maxLength(255)]],
         status: [true],
         idPlan: [null, [Validators.required]],
@@ -135,43 +161,35 @@ export class PatientRegisterComponent implements OnInit {
     return this.patientForm.get('sessionDates') as FormArray;
   }
 
-  getDefaultTimeForPlanA(currentTime: string | null): string {
-    // Por ejemplo, las sesiones en Plan A siempre inician a las 09:00 AM si no tienen un valor actual
-    return currentTime && currentTime >= '09:00' && currentTime <= '13:00'
-      ? currentTime
-      : '09:00';
-  }
-
-  getDefaultTimeForPlanB(currentTime: string | null): string {
-    // Por ejemplo, las sesiones en Plan B inician a las 03:00 PM si no tienen un valor actual
-    return currentTime && currentTime >= '15:00' && currentTime <= '19:00'
-      ? currentTime
-      : '15:00';
-  }
 
   dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return { required: true };
+    }
+
     const date = new Date(control.value);
+    const today = new Date();
     const minDate = new Date('1920-01-01');
-    const maxDate = new Date('2025-01-01');
+    const maxDate = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
 
     if (date < minDate || date > maxDate) {
       return { outOfRange: true };
     }
+
     return null;
   }
-
   resetSessionDates(): void {
     while (this.sessionDates.length > 0) {
-      this.sessionDates.removeAt(0); // Elimina las sesiones existentes
+      const index = this.sessionDates.length - 1;
+      this.sessionFocusStates.delete(index);
+      this.sessionDates.removeAt(index);
     }
 
-    // Reiniciar los valores visibles en los selectores de hora (timeControls)
-    this.timeControls.forEach((controls, index) => {
-      controls.hour.setValue(''); // Reinicia la hora a vacía
-      controls.minute.setValue(''); // Reinicia los minutos a vacíos
-    });
-
-    this.timeControls.clear(); // Limpia todos los controles de tiempo personalizados
+    this.timeControls.clear();
+    this.sessionDateValues = [];
+    this.sessionHourValues = [];
+    this.sessionMinuteValues = [];
+    this.minuteOptionsMap.clear();
   }
 
   checkDuplicateDNIPatientAndTutor(): ValidatorFn {
@@ -274,14 +292,30 @@ export class PatientRegisterComponent implements OnInit {
 
   addSession(): void {
     const sessionGroup = this.fb.group({
-      sessionDate: ['', Validators.required],   // Fecha de la sesión (vacía inicialmente)
-      startTime: ['', Validators.required],     // Hora de inicio (vacía inicialmente)
-      endTime: ['', Validators.required],       // Hora de fin (calculada, inicialmente vacía)
-      room: [null, Validators.required],        // Sala seleccionada (nula inicialmente)
-      therapist: [null, Validators.required]    // Terapeuta seleccionado (nulo inicialmente)
+      sessionDate: ['', Validators.required],
+      startTime: ['', Validators.required],
+      endTime: ['', Validators.required],
+      room: [null, Validators.required],
+      therapist: [null, Validators.required]
     });
 
-    this.sessionDates.push(sessionGroup); // Agrega la nueva sesión al FormArray
+    const index = this.sessionDates.length;
+    this.sessionDates.push(sessionGroup);
+
+    // Inicializar estados para la nueva sesión
+    this.sessionFocusStates.set(index, {
+      date: false,
+      hour: false,
+      minute: false
+    });
+
+    // Inicializar valores
+    this.sessionDateValues[index] = '';
+    this.sessionHourValues[index] = '';
+    this.sessionMinuteValues[index] = '';
+
+    // Inicializar controles de tiempo
+    this.initializeTimeControls(index);
   }
 
 
@@ -402,16 +436,6 @@ export class PatientRegisterComponent implements OnInit {
 
   removeTutor(index: number) {
     this.tutors.removeAt(index);
-  }
-
-  addSessionDate(): void {
-    this.sessionDates.push(this.createSessionDates());
-  }
-
-  removeSessionDate(index: number): void {
-    if (this.sessionDates.length > 1) {
-      this.sessionDates.removeAt(index);
-    }
   }
 
   onSessionChange(index: number): void {
@@ -636,24 +660,20 @@ export class PatientRegisterComponent implements OnInit {
     const controls = this.timeControls.get(index);
     const session = this.sessionDates.at(index);
 
-    if (!controls || !controls.hour.value) return; // Asegurarse de que los controles están inicializados
+    if (!controls || !controls.hour.value) return;
 
-    // Obtener y validar hora y minutos seleccionados
     let hour = parseInt(controls.hour.value ?? '', 10);
     let minute = parseInt(controls.minute.value ?? '', 10);
 
     if (isNaN(hour)) hour = 0;
     if (isNaN(minute)) minute = 0;
 
-    // Validar que los minutos sean correctos para la hora seleccionada
     this.updateMinuteOptions(index, hour);
 
-    // Corregir si los minutos han cambiado automáticamente
     if (minute === undefined || isNaN(minute)) {
-      minute = 0; // Valor por defecto
+      minute = 0;
     }
 
-    // Si la hora es mayor a 6 PM, corregir a las 6:00 PM
     if (hour > 18) {
       hour = 18;
       minute = 0;
@@ -661,18 +681,135 @@ export class PatientRegisterComponent implements OnInit {
       controls.minute.setValue('00', { emitEvent: false });
     }
 
-    // Formatear hora final y actualizar `startTime` en el formulario
     const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    session.get('startTime')?.setValue(time); // Actualizamos el valor directamente
+    session.get('startTime')?.setValue(time);
+
+    // Actualizar valores locales
+    this.sessionHourValues[index] = hour.toString().padStart(2, '0');
+    this.sessionMinuteValues[index] = minute.toString().padStart(2, '0');
 
     this.cdRef.detectChanges();
     this.onSessionChange(index);
+  }
+
+  isSessionFieldFocused(index: number, field: 'date' | 'hour' | 'minute'): boolean {
+    return this.sessionFocusStates.get(index)?.[field] || false;
+  }
+
+  hasSessionValue(index: number, field: 'date' | 'hour' | 'minute'): boolean {
+    switch(field) {
+      case 'date':
+        return !!this.sessionDateValues[index];
+      case 'hour':
+        return !!this.sessionHourValues[index];
+      case 'minute':
+        return !!this.sessionMinuteValues[index];
+      default:
+        return false;
+    }
   }
 
   getRoomControl(index: number): FormControl {
     return this.sessionDates.at(index).get('room') as FormControl;
   }
 
+  onFocus(field: string): void {
+    this.isFocused = field;
+  }
+
+  onBlur(field: string): void {
+    switch(field) {
+      case 'name':
+        if (!this.nameValue) this.isFocused = null;
+        break;
+      case 'paternal':
+        if (!this.paternalValue) this.isFocused = null;
+        break;
+      case 'maternal':
+        if (!this.maternalValue) this.isFocused = null;
+        break;
+      case 'dni':
+        if (!this.dniValue) this.isFocused = null;
+        break;
+      case 'presumptiveDiagnosis':
+        if (!this.presumptiveDiagnosisValue) this.isFocused = null;
+        break;
+      case 'plan':
+        if (!this.planValue) this.isFocused = null;
+        break;
+    }
+  }
+
+  calculateAge(): void {
+    const birthdateControl = this.patientForm.get('birthdate');
+    const birthdate = birthdateControl?.value;
+
+    if (!birthdate) {
+      this.patientForm.get('age')?.setValue('');
+      return;
+    }
+
+    const today = new Date();
+    const birth = new Date(birthdate);
+
+    // Validar el rango de fechas
+    const minDate = new Date('1920-01-01');
+    const maxDate = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
+
+    if (birth < minDate || birth > maxDate) {
+      birthdateControl?.setErrors({ outOfRange: true });
+      this.patientForm.get('age')?.setValue('');
+      return;
+    }
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const month = today.getMonth() - birth.getMonth();
+
+    if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    // Solo establecemos la edad si está dentro del rango válido
+    if (age >= 1) {
+      this.patientForm.get('age')?.setValue(age);
+    } else {
+      this.patientForm.get('age')?.setValue('');
+      birthdateControl?.setErrors({ outOfRange: true });
+    }
+  }
+
+  onSessionFocus(index: number, field: 'date' | 'hour' | 'minute'): void {
+    const sessionState = this.sessionFocusStates.get(index);
+    if (sessionState) {
+      sessionState[field] = true;
+      this.sessionFocusStates.set(index, sessionState);
+    }
+  }
+
+  onSessionBlur(index: number, field: 'date' | 'hour' | 'minute'): void {
+    const sessionState = this.sessionFocusStates.get(index);
+    if (sessionState) {
+      const session = this.sessionDates.at(index);
+      let value = '';
+
+      switch(field) {
+        case 'date':
+          value = this.sessionDateValues[index];
+          break;
+        case 'hour':
+          value = this.sessionHourValues[index];
+          break;
+        case 'minute':
+          value = this.sessionMinuteValues[index];
+          break;
+      }
+
+      if (!value) {
+        sessionState[field] = false;
+        this.sessionFocusStates.set(index, sessionState);
+      }
+    }
+  }
 
 }
 
