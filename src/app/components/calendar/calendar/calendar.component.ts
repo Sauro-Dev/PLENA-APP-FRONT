@@ -24,26 +24,154 @@ import {Room} from "../room";
   templateUrl: './calendar.component.html',
   encapsulation: ViewEncapsulation.None,
   styles: [`
+    /* Estilos de la barra de herramientas */
+    .fc-toolbar-title {
+      @apply text-2xl font-bold text-blue-900 capitalize;
+    }
+
+    .fc-button {
+      @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors !important;
+    }
+
+    .fc-button-active {
+      @apply bg-blue-800 !important;
+    }
+
+    /* Estilos del calendario */
     .fc-col-header-cell {
-      padding: 0 !important;
+      @apply bg-blue-50 border-blue-100 !important;
     }
-    .fc-col-header-cell-cushion {
-      padding: 0 !important;
-      width: 100%;
-      height: 100%;
-    }
+
     .day-header {
-      padding: 8px;
-      width: 100%;
-      height: 100%;
-      display: block;
-      min-height: 45px;
-      line-height: 30px;
-      background-color: transparent;
-      transition: background-color 0.2s;
+      @apply p-3 w-full h-full block min-h-[45px] leading-8 hover:bg-blue-100 transition-colors cursor-pointer;
     }
-    .day-header:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+
+    /* Estilos de eventos */
+    .fc-event {
+      @apply rounded-lg border-none shadow-sm !important;
+      margin: 0 2px !important;
+      overflow: hidden !important;
+    }
+
+    .event-content {
+      @apply flex flex-col h-full p-2 min-h-[80px];
+      overflow: hidden !important;
+    }
+
+    .event-header {
+      @apply text-sm font-medium text-white/90 truncate;
+    }
+
+    .event-title {
+      @apply text-base font-bold text-white mb-1 truncate;
+    }
+
+    .fc-event-main {
+      @apply h-full overflow-hidden !important;
+    }
+
+    /* Ajustes específicos para eventos múltiples */
+    .fc-timegrid-event {
+      @apply min-h-[80px] max-h-full !important;
+    }
+
+    .fc-event-time {
+      @apply hidden;
+    }
+
+    /* Estilos de la sección de filtros */
+    .filter-section {
+      @apply bg-white rounded-xl shadow-md p-6 mb-8;
+    }
+
+    .filter-label {
+      @apply block text-lg font-medium text-gray-700 mb-2;
+    }
+
+    .filter-select {
+      @apply w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    }
+
+
+
+    .fc-popover {
+      @apply rounded-lg shadow-lg !important;
+    }
+
+    .fc-popover-header {
+      @apply bg-blue-50 px-4 py-2 flex items-center justify-between !important;
+    }
+
+    .fc-popover-title {
+      @apply text-sm font-medium text-gray-700 !important;
+    }
+
+    .fc-popover-close {
+      @apply text-gray-500 hover:text-gray-700 !important;
+    }
+
+    .fc-popover-body {
+      @apply p-2 !important;
+    }
+
+    @media (max-width: 768px) {
+      .fc-more-popover {
+        max-width: 300px !important;
+      }
+
+      .fc-popover-body {
+        max-height: 200px !important;
+        overflow-y: auto !important;
+      }
+    }
+
+    .fc-more-link {
+      @apply bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium;
+    }
+
+    .fc-popover-header {
+      @apply bg-blue-50 border-b border-blue-100;
+    }
+
+
+
+    /* Estilos responsivos */
+    @media (max-width: 768px) {
+      .fc-timegrid-event {
+        @apply min-h-[50px] !important;
+      }
+
+      .event-content {
+        @apply p-1;
+      }
+
+      .event-header {
+        @apply text-[10px];
+      }
+
+      .event-title {
+        @apply text-xs mb-0;
+      }
+
+      .fc-timegrid-slot {
+        @apply h-16 !important;
+      }
+
+      .fc-timegrid-axis {
+        @apply w-16 !important;
+        min-width: 64px !important;
+      }
+
+      .fc-timegrid-slot-label-cushion {
+        @apply text-xs;
+      }
+    }
+
+    /* Ajustes para pantallas muy pequeñas */
+    @media (max-width: 480px) {
+      .fc-toolbar {
+        @apply flex-col gap-2;
+      }
     }
   `]
 })
@@ -95,6 +223,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '09:00', endTime: '13:00' },
       { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '15:00', endTime: '19:00' },
     ],
+    slotEventOverlap: false,
+    eventMaxStack: 1,
+    dayMaxEvents: 1,
+    moreLinkText: '+ {0} más',
+    moreLinkClick: 'popover',
+    views: {
+      timeGrid: {
+        dayMaxEvents: 1
+      }
+    },
     allDaySlot: false,
     editable: false,
     locale: {
@@ -116,7 +254,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
     slotLabelFormat: {
       hour: 'numeric',
       minute: '2-digit',
-      meridiem: 'short',
+      meridiem: 'narrow',
+      omitZeroMinute: true
+    },
+
+    slotLabelContent: (arg) => {
+      const hour = arg.date.getHours();
+      const meridiem = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+
+      return {
+        html: `
+        <div class="flex flex-col items-center justify-center w-full p-2">
+          <span class="text-lg font-bold text-gray-700">${hour12}:00</span>
+          <span class="text-sm font-medium text-gray-600">${meridiem}</span>
+        </div>
+      `
+      };
     },
     eventTimeFormat: {
       hour: 'numeric',
@@ -378,12 +532,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ...this.calendarOptions,
       events,
       eventContent: (arg) => {
+        const props = arg.event.extendedProps as EventDetails;
+        const isRescheduled = props.rescheduled;
+
         return {
           html: `
-           <div class="event-content p-1">
-             <div class="font-medium">${arg.event.title}</div>
-           </div>
-         `
+        <div class="event-content">
+          <div class="event-header">
+            ${props.roomName}
+          </div>
+          <div class="event-title">
+            ${props.patientName}
+          </div>
+          <div class="event-header mt-auto">
+            ${props.therapistName}
+          </div>
+        </div>
+      `
         };
       },
       eventClick: (info) => {
