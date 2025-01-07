@@ -256,15 +256,11 @@ export class PatientRegisterComponent implements OnInit {
       endMinutes -= 60;
     }
 
-    // Agregamos 1 hora
-    endHours += 1;
-
     // Aseguramos que las horas no excedan las 24
     if (endHours >= 24) {
       endHours -= 24;
     }
 
-    // Formateamos la hora para que siempre tenga dos dígitos
     return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   }
 
