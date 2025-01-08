@@ -30,7 +30,7 @@ export class AddRoomComponent {
     this.roomForm = this.fb.group({
       name: ['', Validators.required],
       address: ['', Validators.required],
-      isTherapeutic: [false],
+      isTherapeutic: [true],
     });
   }
 
