@@ -67,10 +67,11 @@ export class StorageService {
     return this.http.get<Material>(`${this.apiUrl}/select/${id}`, {headers});
   }
   // Obtener los materiales que no han sido asignados
-  getUnassignedMaterials(): Observable<Material[]>{
+  getUnassignedMaterials(): Observable<Material[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<Material[]>(`${this.apiUrl}/unassigned`, {headers});
+    const timestamp = new Date().getTime();
+    return this.http.get<Material[]>(`${this.apiUrl}/unassigned?v=${timestamp}`, {headers});
   }
   // Eliminar material
   deleteMaterial(materialId: string): Observable<void>{
