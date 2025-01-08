@@ -267,7 +267,7 @@
              appearance-none cursor-pointer"
           [ngClass]="{'border-red-500': patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched}">
           <option [value]="null" disabled>Seleccione un plan</option>
-          <option *ngFor="let plan of plans" [value]="plan.id">{{plan.name.substring(5)}}</option>
+          <option *ngFor="let plan of plans" [value]="plan.id">{{plan.name}}</option>
         </select>
 
         <label for="idPlan"

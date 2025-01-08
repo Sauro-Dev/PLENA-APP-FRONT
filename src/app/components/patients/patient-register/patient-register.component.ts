@@ -23,10 +23,10 @@ import { PatientsService } from '../patients.service';
 })
 export class PatientRegisterComponent implements OnInit {
   plans = [
-    { id: 1, name: 'Plan A' },
-    { id: 2, name: 'Plan B' },
-    { id: 3, name: 'Plan C' },
-    { id: 4, name: 'Plan D' },
+    { id: 1, name: 'Plan A (4 sesiones x mes)' },
+    { id: 2, name: 'Plan B (8 sesiones x mes)' },
+    { id: 3, name: 'Plan C (12 sesiones x mes)' },
+    { id: 4, name: 'Plan D (20 sesiones x mes)' },
   ];
   rooms: any[] = [];
   roomsMap = new Map<number, any[]>(); // Un mapa que asocia cada sesión con su lista de salas disponibles
@@ -625,7 +625,7 @@ export class PatientRegisterComponent implements OnInit {
         firstWeekDates: firstWeekDates.map((date: any) => new Date(date).toISOString().split('T')[0]) // Convert to ISO format
       };
 
-      console.log('Datos a enviar:', registerPatientData); // Verify data in console
+      //console.log('Datos a enviar:', registerPatientData);  Verify data in console
 
       this.patientService.createPatient(registerPatientData).subscribe(
         () => {
