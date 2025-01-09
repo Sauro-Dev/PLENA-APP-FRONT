@@ -1,0 +1,43 @@
+<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
+  <!-- Título de la página -->
+  <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
+    Reportes
+  </h1>
+  <!-- Sección de Eleccion (Elegir Terapeuta) -->
+  <div class="flex justify-left mb-8">
+    <select [value]="selectedTherapistId" (change)="onTherapistChange($event)" class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform">
+      <option value="" disabled selected hidden>Elija el terapeuta</option>
+      <option *ngFor="let therapist of therapists" [value]="therapist.id">{{ therapist.name }}</option>
+    </select>
+  </div>
+  <!-- Sección de Reportes (Carta de reportes) -->
+  <div class="flex flex-col items-center mb-8 space-y-4">
+    <div class="bg-white w-full p-6 flex justify-between items-center shadow-lg rounded-lg">
+      <div class="flex-grow">
+        <h2 class="text-xl font-medium text-left text-gray-800">Reporte de horarios</h2>
+        <div class="text-left">
+          <!-- Contenido de la carta -->
+        </div>
+      </div>
+      <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">Generar Reporte</button>
+    </div>
+    <div class="bg-white w-full p-6 flex justify-between items-center shadow-lg rounded-lg">
+      <div class="flex-grow">
+        <h2 class="text-xl font-medium text-left text-gray-800">Reporte de sesiones</h2>
+        <div class="text-left">
+          <!-- Contenido de la carta -->
+        </div>
+      </div>
+      <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">Generar Reporte</button>
+    </div>
+    <div class="bg-white w-full p-6 flex justify-between items-center shadow-lg rounded-lg">
+      <div class="flex-grow">
+        <h2 class="text-xl font-medium text-left text-gray-800">Reporte de asistencias</h2>
+        <div class="text-left">
+          <!-- Contenido de la carta -->
+        </div>
+      </div>
+      <button class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">Generar Reporte</button>
+    </div>
+  </div>
+</div>
