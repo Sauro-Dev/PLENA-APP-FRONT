@@ -485,10 +485,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return new Promise((resolve) => {
       this.roomsService.getRooms().subscribe({
         next: (rooms) => {
-          this.rooms = rooms.map(room => ({
-            idRoom: room.idRoom,
-            name: room.name,
-          }));
+          this.rooms = rooms
+            .filter(room => room.isTherapeutic)
+            .map(room => ({
+              idRoom: room.idRoom,
+              name: room.name,
+            }));
           resolve();
         },
         error: (err) => {

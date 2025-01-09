@@ -480,12 +480,13 @@ export class PatientRegisterComponent implements OnInit {
       .getAvailableRooms(sessionDate, startTime, endTime24)
       .subscribe({
         next: (rooms) => {
-          this.roomsMap.set(index, rooms); // Actualizar el mapa de salas disponibles para esta sesión
-          if (selectedRoom && !rooms.some((room) => room.idRoom === selectedRoom)) {
+          const therapeuticRooms = rooms.filter(room => room.isTherapeutic); // Filtrar solo las salas terapéuticas
+          this.roomsMap.set(index, therapeuticRooms); // Actualizar el mapa de salas disponibles para esta sesión
+          if (selectedRoom && !therapeuticRooms.some((room) => room.idRoom === selectedRoom)) {
             session.get('room')?.setValue(null); // Restablecer sala si ya no está disponible
           }
 
-          if (rooms.length === 0) {
+          if (therapeuticRooms.length === 0) {
             session.get('room')?.setErrors({ noAvailableRooms: true });
           } else {
             session.get('room')?.setErrors(null);
