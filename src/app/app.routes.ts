@@ -64,7 +64,7 @@ export const routes: Routes = [
       import('./components/users/user-profile/user-profile.component').then(
         (m) => m.UserProfileComponent
       ),
-      canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { breadcrumb: 'Mi Perfil', roles: ['secretary', 'therapist', 'admin'] },
 
   },
@@ -74,8 +74,17 @@ export const routes: Routes = [
       import('./components/users/update-profile/user-update.component').then(
         (m) => m.UserUpdateComponent
       ),
-      canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { breadcrumb: ' Actualizar mi Perfil', roles: ['secretary', 'therapist', 'admin'] },
 
+  },
+  {
+    path: 'reports',
+    loadComponent: () =>
+      import('./components/reports/reports.component').then(
+        (m) => m.ReportsComponent
+      ),
+    canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: 'Reportes', roles: ['admin', 'secretary'] },
   }
 ];
