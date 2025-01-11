@@ -9,15 +9,215 @@
     Gestión de Pacientes
   </h1>
 
-  <!-- Sección de botones (Agregar Paciente) -->
-  <div class="flex md:justify-between justify-center items-center mb-8 md:flex-row-reverse flex-row">
+  <!-- Botones de acción -->
+  <div class="flex justify-between mb-8">
+    <!-- Botones de planes a la izquierda -->
+    <div class="flex gap-4">
+      <button
+        class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="openViewPlansModal()"
+      >
+        <i class="fas fa-list-alt mr-2"></i> Ver Planes
+      </button>
+
+      <button
+        class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="openPlanModal()"
+      >
+        <i class="fas fa-plus-circle mr-2"></i> Registrar Plan
+      </button>
+    </div>
+
+    <!-- Botón de agregar paciente a la derecha -->
     <button
-      class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform"
-      [routerLink]="'/patients/register'">
+      class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+      [routerLink]="'/patients/register'"
+    >
       <i class="fas fa-user-plus mr-2"></i> Agregar Paciente
     </button>
   </div>
 
+  <!-- Tu contenido existente (búsqueda, grid, paginación) ... -->
+
+  <!-- Modal para Ver Planes -->
+  <div *ngIf="showViewPlansModal"
+       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full m-4">
+      <!-- Encabezado del modal -->
+      <div class="border-b p-4 flex justify-between items-center">
+        <h3 class="text-xl font-semibold text-blue-800">
+          Planes Disponibles
+        </h3>
+        <button
+          (click)="closeViewPlansModal()"
+          class="text-gray-400 hover:text-gray-500 focus:outline-none"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Contenido del modal -->
+      <div class="p-6">
+        <!-- Grid de cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div *ngFor="let plan of plans; let i = index"
+               class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
+            <!-- Círculo con número de orden -->
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl font-bold text-blue-800">{{ i + 1 }}</span>
+              </div>
+            </div>
+
+            <!-- Nombre del plan -->
+            <h4 class="text-xl font-bold text-center text-blue-800 mb-4">
+              {{ plan.name }}
+            </h4>
+
+            <!-- Detalles del plan -->
+            <div class="space-y-2 text-center">
+              <p class="text-gray-600">
+                {{ plan.numOfSessions * 4 }} sesiones por mes
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay planes -->
+        <div *ngIf="plans.length === 0" class="text-center text-gray-500 py-8">
+          No hay planes registrados
+        </div>
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="border-t p-4 flex justify-end">
+        <button
+          (click)="closeViewPlansModal()"
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Registro de Plan -->
+  <div *ngIf="showPlanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+      <div class="border-b p-4">
+        <h3 class="text-xl font-semibold text-blue-800">
+          Registrar Plan
+        </h3>
+      </div>
+
+      <form [formGroup]="planForm" (ngSubmit)="savePlan()" class="p-6">
+        <div class="mb-6">
+          <label for="numOfSessions" class="block text-sm font-medium text-gray-700 mb-2">
+            Cantidad de Sesiones por Semana
+          </label>
+          <input
+            id="numOfSessions"
+            type="number"
+            formControlName="numOfSessions"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ingrese el número de sesiones (1-6)"
+            min="1"
+            max="6"
+          />
+          <div *ngIf="planForm.get('numOfSessions')?.touched" class="mt-1 text-sm">
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['required']">
+              El número de sesiones es requerido
+            </p>
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['min']">
+              El mínimo de sesiones es 1
+            </p>
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['max']">
+              El máximo de sesiones es 6
+            </p>
+          </div>
+
+          <!-- Información detallada de los planes -->
+          <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+            <p class="font-medium text-blue-800 mb-2">Guía de Planes:</p>
+            <div class="space-y-2 text-sm text-gray-600">
+              <ng-container *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="flex items-center p-2 rounded transition-colors"
+                     [ngClass]="{
+             'bg-red-100': isExistingPlan(i),
+             'hover:bg-blue-100': !isExistingPlan(i)
+           }">
+                  <!-- Información del plan -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center">
+            <span [ngClass]="{'text-red-800': isExistingPlan(i)}" class="mr-2">
+              {{i}} {{i === 1 ? 'sesión' : 'sesiones'}} semanal{{i === 1 ? '' : 'es'}} (Plan {{getPlanName(i).split(' ')[1]}}):
+            </span>
+                      <div class="flex items-center gap-2 flex-shrink-0">
+              <span [ngClass]="{'text-red-800': isExistingPlan(i)}">
+                {{i * 4}} sesiones al mes
+              </span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Badge "Existente" -->
+                  <div class="flex-shrink-0 ml-2" *ngIf="isExistingPlan(i)">
+          <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded whitespace-nowrap">
+            Existente
+          </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Mensaje de resultado según la selección -->
+          <div *ngIf="planForm.get('numOfSessions')?.valid && planForm.get('numOfSessions')?.value"
+               class="mt-4 p-4 rounded-lg text-center"
+               [ngClass]="{
+       'bg-red-50': isExistingPlan(planForm.get('numOfSessions')?.value),
+       'bg-green-50': !isExistingPlan(planForm.get('numOfSessions')?.value)
+     }">
+            <p [ngClass]="{
+       'text-red-800': isExistingPlan(planForm.get('numOfSessions')?.value),
+       'text-green-800': !isExistingPlan(planForm.get('numOfSessions')?.value)
+     }">
+              <ng-container *ngIf="isExistingPlan(planForm.get('numOfSessions')?.value)">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                Ya existe un plan con {{ planForm.get('numOfSessions')?.value * 4 }} sesiones mensuales
+              </ng-container>
+              <ng-container *ngIf="!isExistingPlan(planForm.get('numOfSessions')?.value)">
+                <i class="fas fa-check-circle mr-2"></i>
+                Este plan incluirá
+                <span class="font-bold">
+        {{ planForm.get('numOfSessions')?.value * 4 }} sesiones mensuales
+      </span>
+              </ng-container>
+            </p>
+          </div>
+
+
+
+        </div>
+
+        <div class="flex justify-end gap-4">
+          <button
+            type="button"
+            (click)="closePlanModal()"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="planForm.invalid || isExistingPlan(planForm.get('numOfSessions')?.value)"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
   <!-- Filtros y búsqueda (Escritorio) -->
   <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-md mb-8">
     <!-- Campo de búsqueda -->
