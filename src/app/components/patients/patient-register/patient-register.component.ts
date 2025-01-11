@@ -15,6 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { PatientsService } from '../patients.service';
+import {RoomResponse} from "../room-response";
 
 @Component({
   selector: 'app-patient-register',
@@ -505,27 +506,37 @@ export class PatientRegisterComponent implements OnInit {
   }
 
   onSessionChange(index: number): void {
-    const session = this.sessionDates.at(index); // Obtener la sesión actual
+    const session = this.sessionDates.at(index);
     const startTime = session.get('startTime')?.value;
     const sessionDate = session.get('sessionDate')?.value;
 
-    if (!sessionDate || !startTime) return; // Si no hay fecha u hora seleccionada, no hacemos nada
+    if (!sessionDate || !startTime) return;
 
-    const selectedRoom = session.get('room')?.value; // Sala seleccionada
-    const endTime24 = this.calculateEndTime24Hours(startTime); // Calculamos la hora de fin automáticamente
+    const selectedRoom = session.get('room')?.value;
+    const endTime24 = this.calculateEndTime24Hours(startTime);
     session.get('endTime')?.setValue(endTime24, { emitEvent: false });
 
     // Obtener salas disponibles
     this.patientService
       .getAvailableRooms(sessionDate, startTime, endTime24)
       .subscribe({
-        next: (rooms) => {
-          const therapeuticRooms = rooms.filter(room => room.isTherapeutic); // Filtrar solo las salas terapéuticas
-          this.roomsMap.set(index, therapeuticRooms); // Actualizar el mapa de salas disponibles para esta sesión
+        next: (rooms: RoomResponse[]) => {
+          // Filtrar solo salas terapéuticas y habilitadas
+          const therapeuticRooms = rooms.filter(room =>
+            room.isTherapeutic && room.enabled
+          );
+
+          console.log('Salas terapéuticas disponibles:', therapeuticRooms);
+
+          this.roomsMap.set(index, therapeuticRooms);
+
+          // Validar si la sala seleccionada sigue siendo válida
           if (selectedRoom && !therapeuticRooms.some((room) => room.idRoom === selectedRoom)) {
-            session.get('room')?.setValue(null); // Restablecer sala si ya no está disponible
+            session.get('room')?.setValue(null);
+            session.get('room')?.setErrors({ noAvailableRooms: true });
           }
 
+          // Validar disponibilidad de salas
           if (therapeuticRooms.length === 0) {
             session.get('room')?.setErrors({ noAvailableRooms: true });
           } else {
@@ -534,6 +545,7 @@ export class PatientRegisterComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al cargar salas disponibles:', err);
+          session.get('room')?.setErrors({ loadError: true });
         },
       });
 

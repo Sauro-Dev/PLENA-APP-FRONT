@@ -378,9 +378,9 @@
               <select
                 [formControl]="getRoomControl(i)"
                 class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+    focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
               >
-                <option [ngValue]="null" disabled selected>Seleccione sala</option>
+                <option [ngValue]="null" disabled selected>Seleccione sala terapéutica</option>
                 <ng-container *ngIf="roomsMap.get(i) as rooms">
                   <option *ngFor="let room of rooms" [value]="room.idRoom">
                     {{ room.name }}
@@ -389,11 +389,15 @@
               </select>
 
               <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-                Sala
+                Sala Terapéutica
               </label>
 
               <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
-                No hay salas disponibles
+                No hay salas terapéuticas disponibles en este horario
+              </div>
+
+              <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['loadError']">
+                Error al cargar las salas. Por favor, intente nuevamente.
               </div>
             </div>
 
