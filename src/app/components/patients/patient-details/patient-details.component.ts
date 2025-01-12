@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { PatientsService } from '../patients.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, NgForOf, NgIf } from '@angular/common';
+import { Patient} from "../patient";
+import {PlanStatus} from "../plan-status";
 
 @Component({
   selector: 'app-patient-details',
@@ -11,8 +13,21 @@ import { CommonModule, NgForOf, NgIf } from '@angular/common';
   imports: [RouterLink, NgIf, NgForOf, CommonModule],
 })
 export class PatientDetailsComponent implements OnInit {
-  patient: any = null; // Detalles del paciente
-  isLoading: boolean = true; // Estado de carga
+  patient: Patient = {
+    idPatient: 0,
+    name: '',
+    paternalSurname: '',
+    maternalSurname: '',
+    dni: '',
+    birthdate: '',
+    age: 0,
+    planId: 0,
+    planStatus: PlanStatus.EN_ESPERA,
+    tutors: [],
+    presumptiveDiagnosis: '',
+    status: false,
+  };
+  isLoading: boolean = true;
 
   constructor(
     private patientsService: PatientsService,
@@ -30,14 +45,18 @@ export class PatientDetailsComponent implements OnInit {
     }
   }
 
-  // Método para cargar los detalles del paciente
   loadPatient(id: number): void {
     this.patientsService.getPatientById(id).subscribe(
-      (data) => {
+      (data: Patient) => {
         this.patient = {
           ...data,
           tutors: data.tutors || [],
         };
+
+        if (!Object.values(PlanStatus).includes(data.planStatus as PlanStatus)) {
+          console.warn(`Estado de plan inválido: ${data.planStatus}`);
+        }
+
         this.isLoading = false;
       },
       (error) => {
@@ -47,12 +66,24 @@ export class PatientDetailsComponent implements OnInit {
     );
   }
 
-  // Método para redirigir al formulario de edición
   editPatient(): void {
     if (!this.patient) {
       console.error('El paciente no está cargado.');
       return;
     }
     this.router.navigate(['/patients/edit', this.patient.idPatient]);
+  }
+
+  getPlanStatusLabel(status: PlanStatus): string {
+    switch (status) {
+      case PlanStatus.EN_ESPERA:
+        return 'En Espera';
+      case PlanStatus.EN_CURSO:
+        return 'En Curso';
+      case PlanStatus.COMPLETADO:
+        return 'Completado';
+      default:
+        return 'Desconocido';
+    }
   }
 }

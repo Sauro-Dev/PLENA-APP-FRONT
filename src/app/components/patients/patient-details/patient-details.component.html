@@ -75,6 +75,20 @@
           </div>
         </div>
 
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-checklist text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Estado del Plan:</span>
+          <span
+            class="ml-auto"
+            [ngClass]="{
+      'text-green-500': patient.planStatus === 'COMPLETADO',
+      'text-blue-500': patient.planStatus === 'EN_CURSO',
+      'text-yellow-500': patient.planStatus === 'EN_ESPERA'
+    }">
+    {{ getPlanStatusLabel(patient.planStatus) }}
+  </span>
+        </div>
+
         <!-- Presunción Diagnotisca -->
         <div class="space-y-4">
           <h2 class="text-xl font-medium text-gray-700">Presunción Diagnóstica</h2>
@@ -88,7 +102,7 @@
         </div>
 
         <!-- Tutores -->
-        <div *ngIf="patient?.tutors?.length > 0" class="space-y-4">
+        <div *ngIf="patient?.tutors && patient.tutors.length > 0" class="space-y-4">
           <h2 class="text-xl font-medium text-gray-700">Tutores</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
