@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { UsersService } from '../users/users.service';
-import { ReportModalComponent} from "./report-modal/report-modal.component";
 import { NgForOf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -15,12 +13,14 @@ import { FormsModule } from '@angular/forms';
   ],
   styleUrls: ['./reports.component.css']
 })
-// reports.component.ts
 export class ReportsComponent implements OnInit {
   therapists: { id: string; name: string }[] = [];
-  selectedTherapistId: string = ''; // Inicializar a una cadena vacía
+  selectedTherapistId: string = '';
+  startDate: string = '';
+  endDate: string = '';
+  showDownloadButton: boolean = false;
 
-  constructor(private usersService: UsersService, public dialog: MatDialog) {}
+  constructor(private usersService: UsersService) {}
 
   ngOnInit(): void {
     this.usersService.getTherapists().subscribe(therapists => {
@@ -32,9 +32,31 @@ export class ReportsComponent implements OnInit {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedTherapistId = selectElement.value;
     console.log('Selected Therapist ID:', this.selectedTherapistId);
-    // Lógica adicional cuando cambia el terapeuta
   }
+
   openReportModal(): void {
-    this.dialog.open(ReportModalComponent);
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+      modal.style.display = 'block';
+    }
+  }
+
+  closeReportModal(): void {
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+    this.showDownloadButton = false;
+  }
+
+  generateReport(): void {
+    // Aquí puedes agregar la lógica para generar el reporte basado en las fechas seleccionadas
+    console.log('Generando reporte desde', this.startDate, 'hasta', this.endDate);
+    this.showDownloadButton = true;
+  }
+
+  downloadReport(): void {
+    // Aquí puedes agregar la lógica para descargar el reporte
+    console.log('Descargando reporte');
   }
 }

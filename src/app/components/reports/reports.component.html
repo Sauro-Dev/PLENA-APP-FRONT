@@ -1,9 +1,7 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <!-- Título de la página -->
   <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
     Reportes
   </h1>
-  <!-- Sección de Eleccion (Elegir Terapeuta) -->
   <div class="flex items-center mb-8">
     <label for="therapist-select" class="mr-4 text-lg font-medium text-gray-700">Terapeuta:</label>
     <select id="therapist-select" [value]="selectedTherapistId" (change)="onTherapistChange($event)" class="flex items-center bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out transform">
@@ -11,7 +9,6 @@
       <option *ngFor="let therapist of therapists" [value]="therapist.id">{{ therapist.name }}</option>
     </select>
   </div>
-  <!-- Sección de Reportes (Carta de reportes) -->
   <div class="flex flex-col items-center mb-8 space-y-4">
     <div class="bg-white w-full p-6 flex justify-between items-center shadow-lg rounded-lg">
       <div class="flex-grow">
@@ -40,5 +37,22 @@
       </div>
       <button (click)="openReportModal()" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">Generar Reporte</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="reportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;">
+  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 1000;">
+    <h2 class="text-2xl font-semibold mb-4 text-blue-900">Generar Reporte</h2>
+    <p class="text-gray-700">Seleccione el rango de fechas para el reporte.</p>
+    <label for="startDate" class="block text-gray-700">Fecha de Inicio:</label>
+    <input id="startDate" type="date" [(ngModel)]="startDate" class="mb-4 p-2 border rounded">
+    <label for="endDate" class="block text-gray-700">Fecha de Fin:</label>
+    <input id="endDate" type="date" [(ngModel)]="endDate" class="mb-4 p-2 border rounded">
+    <button (click)="generateReport()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">Generar</button>
+    <div *ngIf="showDownloadButton" class="mt-4">
+      <button (click)="downloadReport()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200">Descargar</button>
+    </div>
+    <button (click)="closeReportModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200">Cerrar</button>
   </div>
 </div>
