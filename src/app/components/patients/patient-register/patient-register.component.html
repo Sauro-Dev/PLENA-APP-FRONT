@@ -255,6 +255,7 @@
     <!-- Plan -->
     <div class="mb-5 relative">
       <div class="relative">
+        <!-- En el select de planes -->
         <select
           id="idPlan"
           formControlName="idPlan"
@@ -263,11 +264,14 @@
           (focus)="onFocus('plan')"
           (blur)="onBlur('plan')"
           class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
-             appearance-none cursor-pointer"
+  focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800
+  appearance-none cursor-pointer"
           [ngClass]="{'border-red-500': patientForm.get('idPlan')?.invalid && patientForm.get('idPlan')?.touched}">
-          <option [value]="null" disabled>Seleccione un plan</option>
-          <option *ngFor="let plan of plans" [value]="plan.id">{{plan.name}}</option>
+          <option [ngValue]="null" disabled selected>Seleccione un plan</option>
+          <option *ngFor="let plan of plans" [ngValue]="plan.idPlan">
+            {{ getPlanName(plan.numOfSessions) }}: {{ plan.numOfSessions }}
+            {{ plan.numOfSessions === 1 ? 'sesión' : 'sesiones' }} por semana
+          </option>
         </select>
 
         <label for="idPlan"
@@ -293,151 +297,155 @@
       </p>
     </div>
 
-    <!-- Fechas y Horas (Sesiones) -->
+      <!-- Fechas y Horas (Sesiones) -->
       <div formArrayName="sessionDates" *ngIf="isDateTimePickerVisible > 0" class="space-y-4 mb-8">
-      <div
-        *ngFor="let session of sessionDates.controls; let i = index"
-        [formGroupName]="i"
-        class="border rounded-lg p-4 bg-blue-50 shadow-md"
-      >
-        <h4 class="text-lg font-semibold text-black mb-4">Sesión {{ i + 1 }}</h4>
+        <div
+          *ngFor="let session of sessionDates.controls; let i = index"
+          [formGroupName]="i"
+          class="border rounded-lg p-4 bg-blue-50 shadow-md"
+        >
+          <h4 class="text-lg font-semibold text-black mb-4">Sesión {{ i + 1 }}</h4>
 
-        <!-- Fecha -->
-        <div class="mb-4 relative">
-          <input
-            type="date"
-            formControlName="sessionDate"
-            (change)="onSessionChange(i)"
-            class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-               focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
-          />
-
-          <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-            Fecha {{ i + 1 }}
-          </label>
-
-          <div
-            class="mt-1 text-sm text-red-600"
-            *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched"
-          >
-            No se pueden programar sesiones los domingos
-          </div>
-        </div>
-
-        <!-- Campos de Hora, Salas y Terapeutas en diseño de 2 columnas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Hora de Inicio -->
-          <div class="relative">
-            <select
-              [formControl]="getHourControl(i)"
-              (change)="updateTime(i)"
+          <!-- Fecha -->
+          <div class="mb-4 relative">
+            <input
+              type="date"
+              formControlName="sessionDate"
+              (change)="onSessionChange(i)"
               class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
-            >
-              <option value="" disabled selected>Seleccione hora</option>
-              <option value="09">09 AM</option>
-              <option value="10">10 AM</option>
-              <option value="11">11 AM</option>
-              <option value="12">12 PM</option>
-              <option value="15">03 PM</option>
-              <option value="16">04 PM</option>
-              <option value="17">05 PM</option>
-              <option value="18">06 PM</option>
-            </select>
+           focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+            />
 
             <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-              Hora de Inicio
-            </label>
-          </div>
-
-          <!-- Minutos -->
-          <div class="relative">
-            <select
-              [formControl]="getMinuteControl(i)"
-              (change)="updateTime(i)"
-              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
-            >
-              <option value="" disabled selected>Seleccione minutos</option>
-              <option *ngFor="let minute of minuteOptionsMap.get(i) || []" [value]="minute">
-                {{minute}}
-              </option>
-            </select>
-
-            <label class="absolute left-4 -top-2 text-sm ttext-black px-1 bg-white">
-              Minutos
-            </label>
-          </div>
-
-          <!-- Sala -->
-          <div class="relative">
-            <select
-              [formControl]="getRoomControl(i)"
-              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
-            >
-              <option [ngValue]="null" disabled selected>Seleccione sala</option>
-              <ng-container *ngIf="roomsMap.get(i) as rooms">
-                <option *ngFor="let room of rooms" [value]="room.idRoom">
-                  {{ room.name }}
-                </option>
-              </ng-container>
-            </select>
-
-            <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-              Sala
-            </label>
-
-            <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
-              No hay salas disponibles
-            </div>
-          </div>
-
-          <!-- Terapeuta -->
-          <div class="relative">
-            <select
-              formControlName="therapist"
-              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
-            >
-              <option [ngValue]="null" disabled selected>Seleccione terapeuta</option>
-              <ng-container *ngIf="therapistsMap.get(i) as therapists">
-                <option *ngFor="let therapist of therapists" [value]="therapist.id">
-                  {{ therapist.name }}
-                </option>
-              </ng-container>
-            </select>
-
-            <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-              Terapeuta
+              Fecha {{ i + 1 }}
             </label>
 
             <div
               class="mt-1 text-sm text-red-600"
-              *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists'] &&
-                  session.get('sessionDate')?.value &&
-                  session.get('startTime')?.value"
+              *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched"
             >
-              No hay terapeutas disponibles
+              No se pueden programar sesiones los domingos
             </div>
           </div>
-        </div>
 
-        <!-- Hora de Fin -->
-        <div class="relative mt-4">
-          <input
-            type="text"
-            [value]="format12Hours(addMinutes(session.value.startTime, 50))"
-            readonly
-            class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
-          />
-          <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
-            Hora de Fin
-          </label>
-          <input type="hidden" formControlName="endTime" />
+          <!-- Campos de Hora, Salas y Terapeutas en diseño de 2 columnas -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Hora de Inicio -->
+            <div class="relative">
+              <select
+                [formControl]="getHourControl(i)"
+                (change)="updateTime(i)"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option value="" disabled selected>Seleccione hora</option>
+                <option value="09">09 AM</option>
+                <option value="10">10 AM</option>
+                <option value="11">11 AM</option>
+                <option value="12">12 PM</option>
+                <option value="15">03 PM</option>
+                <option value="16">04 PM</option>
+                <option value="17">05 PM</option>
+                <option value="18">06 PM</option>
+              </select>
+
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Hora de Inicio
+              </label>
+            </div>
+
+            <!-- Minutos -->
+            <div class="relative">
+              <select
+                [formControl]="getMinuteControl(i)"
+                (change)="updateTime(i)"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option value="" disabled selected>Seleccione minutos</option>
+                <option *ngFor="let minute of minuteOptionsMap.get(i) || []" [value]="minute">
+                  {{minute}}
+                </option>
+              </select>
+
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Minutos
+              </label>
+            </div>
+
+            <!-- Sala -->
+            <div class="relative">
+              <select
+                [formControl]="getRoomControl(i)"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+    focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option [ngValue]="null" disabled selected>Seleccione sala terapéutica</option>
+                <ng-container *ngIf="roomsMap.get(i) as rooms">
+                  <option *ngFor="let room of rooms" [value]="room.idRoom">
+                    {{ room.name }}
+                  </option>
+                </ng-container>
+              </select>
+
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Sala Terapéutica
+              </label>
+
+              <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
+                No hay salas terapéuticas disponibles en este horario
+              </div>
+
+              <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['loadError']">
+                Error al cargar las salas. Por favor, intente nuevamente.
+              </div>
+            </div>
+
+            <!-- Terapeuta -->
+            <div class="relative">
+              <select
+                formControlName="therapist"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option [ngValue]="null" disabled selected>Seleccione terapeuta</option>
+                <ng-container *ngIf="therapistsMap.get(i) as therapists">
+                  <option *ngFor="let therapist of therapists" [value]="therapist.id">
+                    {{ therapist.name }}
+                  </option>
+                </ng-container>
+              </select>
+
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Terapeuta
+              </label>
+
+              <div
+                class="mt-1 text-sm text-red-600"
+                *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists'] &&
+              session.get('sessionDate')?.value &&
+              session.get('startTime')?.value"
+              >
+                No hay terapeutas disponibles
+              </div>
+            </div>
+          </div>
+
+          <!-- Hora de Fin -->
+          <div class="relative mt-4">
+            <input
+              type="text"
+              [value]="format12Hours(addMinutes(session.value.startTime, 50))"
+              readonly
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+            />
+            <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+              Hora de Fin
+            </label>
+            <input type="hidden" formControlName="endTime" />
+          </div>
         </div>
       </div>
-    </div>
 
       <!-- Tutores -->
       <div formArrayName="tutors" class="mb-5 border rounded-lg p-4 bg-white shadow-md">

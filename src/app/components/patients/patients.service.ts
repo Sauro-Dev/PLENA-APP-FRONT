@@ -83,5 +83,19 @@ export class PatientsService {
       headers,
     });
   }
+
+  renewPlan(data: {
+    patientId: number;
+    newPlanId: number;
+    startTime: string;
+    firstWeekDates: string[];
+    therapistId: number;
+    roomId: number;
+  }): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.post<any>(`${this.apiUrl}/renew-plan`, data, { headers });
+  }
 }
 

@@ -26,9 +26,9 @@ export default [
     data: { breadcrumb: 'Editar Paciente' },
   },
   {
-    path: 'medical-history/:id',
+    path: 'renew-plan/:patientId',
     loadComponent: () =>
-      import('./patient-details/medicalhistory/medicalhistory.component').then((m) => m.MedicalHistoryComponent),
-    data: { breadcrumb: 'Historia Médica' },
-  }
+      import('./renew-plan/renew-plan.component').then((m) => m.RenewPlanComponent),
+    data: { breadcrumb: 'Renovar Plan' },
+  },
 ] as Routes;
