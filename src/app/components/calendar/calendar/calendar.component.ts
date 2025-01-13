@@ -729,10 +729,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
         endTimeDate.toTimeString().slice(0, 8)
       ).subscribe({
         next: (rooms: Room[]) => {
-          this.availableRooms = rooms.map((room: Room) => ({
-            idRoom: room.idRoom,
-            name: room.name
-          }));
+          this.availableRooms = rooms
+            .filter((room: Room) => room.isTherapeutic) // Filter only therapeutic rooms
+            .map((room: Room) => ({
+              idRoom: room.idRoom,
+              name: room.name,
+              isTherapeutic: room.isTherapeutic // Include the isTherapeutic property
+            }));
         },
         error: (error: Error) => {
           console.error('Error al cargar salas:', error);
