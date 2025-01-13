@@ -42,7 +42,6 @@ export class AreasRegisterComponent implements OnInit {
       description: [
         '',
         [
-          Validators.required,
           Validators.minLength(10),
           Validators.maxLength(500),
         ],

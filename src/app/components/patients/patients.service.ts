@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../enviroment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {RenewPlan} from "./renew-plan";
 
 
 @Injectable({
@@ -82,6 +83,26 @@ export class PatientsService {
       },
       headers,
     });
+  }
+
+  renewPlan(data: RenewPlan): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    // Asegurarnos de que los tipos numéricos sean números y no strings
+    const processedData = {
+      ...data,
+      patientId: Number(data.patientId),
+      newPlanId: Number(data.newPlanId),
+      therapistId: Number(data.therapistId),
+      roomId: Number(data.roomId)
+    };
+
+    console.log('Datos procesados antes de enviar:', processedData);
+
+    return this.http.post<any>(`${this.apiUrl}/renew-plan`, processedData, { headers });
   }
 }
 

@@ -1,0 +1,209 @@
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-3xl mx-auto">
+  <!-- Contenido principal -->
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <h1 class="text-2xl font-bold mb-6 text-center text-blue-800">Renovar Plan</h1>
+
+    <!-- Formulario de Renovación -->
+    <form [formGroup]="renewForm" (ngSubmit)="onSubmit()">
+      <!-- Plan Actual -->
+      <div *ngIf="patient" class="space-y-4 mb-6">
+        <h2 class="text-xl font-medium text-gray-700">Paciente</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">ID:</span>
+            <span class="ml-auto text-gray-600">{{ patient.idPatient }}</span>
+          </div>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-user text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Paciente:</span>
+            <span class="ml-auto text-gray-600">{{ patient.name }}</span>
+          </div>
+        </div>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-lightbulb text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Plan Actual:</span>
+          <span class="ml-auto text-gray-600">
+      <ng-container *ngIf="currentPlan; else noPlan">
+        {{ currentPlan.name }}
+      </ng-container>
+      <ng-template #noPlan>
+        No tiene plan asignado
+      </ng-template>
+    </span>
+        </div>
+      </div>
+
+      <!-- Selección de Plan -->
+      <div class="mb-4">
+        <label for="idPlan" class="block text-gray-700 font-medium">Seleccionar Nuevo Plan</label>
+        <div class="relative">
+          <select
+            id="idPlan"
+            class="block w-full p-2 border border-gray-300 rounded-lg shadow-sm mt-1 cursor-pointer
+             focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800"
+            formControlName="idPlan"
+            (change)="onChangePlan($event)">
+            <option value="" disabled selected>Seleccione un plan</option>
+            <option *ngFor="let plan of plans" [value]="plan.idPlan">
+              {{ getPlanName(plan.numOfSessions) }}
+            </option>
+          </select>
+
+          <!-- Flecha personalizada -->
+          <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Mensajes de error -->
+        <div class="mt-1">
+          <p class="text-sm text-red-600" *ngIf="renewForm.get('idPlan')?.invalid && renewForm.get('idPlan')?.touched">
+            Debe seleccionar un plan.
+          </p>
+        </div>
+
+        <!-- Descripción adicional -->
+        <p class="mt-2 text-sm text-gray-500">
+          Seleccione el plan para renovar. Puede elegir el mismo plan actual u otro diferente.
+        </p>
+      </div>
+
+      <!-- Fechas de las Sesiones y Configuración -->
+      <div *ngIf="hasSessionDates" formArrayName="sessionDates" class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Configurar Sesiones</h2>
+        <div *ngFor="let session of sessionDates.controls; let i = index"
+             [formGroupName]="i"
+             class="border rounded-lg p-4 bg-blue-50 shadow-md mb-4">
+          <h4 class="text-lg font-semibold text-black mb-4">Sesión {{ i + 1 }}</h4>
+
+          <!-- Fecha -->
+          <div class="mb-4 relative">
+            <input
+              type="date"
+              formControlName="sessionDate"
+              class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+               focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              (change)="onSessionChange(i)"
+            />
+            <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+              Fecha {{ i + 1 }}
+            </label>
+            <div class="mt-1 text-sm text-red-600"
+                 *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] &&
+                  session.get('sessionDate')?.touched">
+              No se pueden programar sesiones los domingos
+            </div>
+          </div>
+
+          <!-- Campos de Hora, Salas y Terapeutas -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Hora de Inicio -->
+            <div class="relative">
+              <select
+                [formControl]="getHourControl(i)"
+                (change)="updateTime(i)"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option value="" disabled selected>Seleccione hora</option>
+                <option value="09">09 AM</option>
+                <option value="10">10 AM</option>
+                <option value="11">11 AM</option>
+                <option value="12">12 PM</option>
+                <option value="15">03 PM</option>
+                <option value="16">04 PM</option>
+                <option value="17">05 PM</option>
+                <option value="18">06 PM</option>
+              </select>
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Hora de Inicio
+              </label>
+            </div>
+
+            <!-- Minutos -->
+            <div class="relative">
+              <select
+                [formControl]="getMinuteControl(i)"
+                (change)="updateTime(i)"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option value="" disabled selected>Seleccione minutos</option>
+                <option *ngFor="let minute of minuteOptionsMap.get(i) || []" [value]="minute">
+                  {{minute}}
+                </option>
+              </select>
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Minutos
+              </label>
+            </div>
+
+            <!-- Sala -->
+            <div class="relative">
+              <select
+                formControlName="room"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option [ngValue]="null" disabled selected>Seleccione sala terapéutica</option>
+                <option *ngFor="let room of roomsMap.get(i)" [value]="room.idRoom">
+                  {{ room.name }}
+                </option>
+              </select>
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Sala Terapéutica
+              </label>
+              <div class="mt-1 text-sm text-red-600" *ngIf="session.get('room')?.errors?.['noAvailableRooms']">
+                No hay salas terapéuticas disponibles en este horario
+              </div>
+            </div>
+
+            <!-- Terapeuta -->
+            <div class="relative">
+              <select
+                formControlName="therapist"
+                class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
+                 focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              >
+                <option [ngValue]="null" disabled selected>Seleccione terapeuta</option>
+                <option *ngFor="let therapist of therapistsMap.get(i)" [value]="therapist.id">
+                  {{ therapist.name }}
+                </option>
+              </select>
+              <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
+                Terapeuta
+              </label>
+              <div class="mt-1 text-sm text-red-600"
+                   *ngIf="session.get('therapist')?.errors?.['noAvailableTherapists']">
+                No hay terapeutas disponibles en este horario
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Botones de Acción -->
+      <div class="flex justify-end mt-6">
+        <button
+          type="button"
+          class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-lg mr-4 transition duration-200"
+          (click)="onCancel()">
+          <i class="fas fa-times mr-2"></i>
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="bg-blue-800 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg transition duration-200"
+          [disabled]="renewForm.invalid">
+          <i class="fas fa-check mr-2"></i>
+          Renovar Plan
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

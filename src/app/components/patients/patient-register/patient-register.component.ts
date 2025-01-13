@@ -1,6 +1,8 @@
 import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { PlansService } from '../plans.service';
+import { Plan } from '../plan';
 import {
   AbstractControl,
   FormArray,
@@ -13,6 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { PatientsService } from '../patients.service';
+import {RoomResponse} from "../room-response";
 
 @Component({
   selector: 'app-patient-register',
@@ -22,12 +25,7 @@ import { PatientsService } from '../patients.service';
   styleUrls: ['./patient-register.component.css'],
 })
 export class PatientRegisterComponent implements OnInit {
-  plans = [
-    { id: 1, name: 'Plan A (4 sesiones x mes)' },
-    { id: 2, name: 'Plan B (8 sesiones x mes)' },
-    { id: 3, name: 'Plan C (12 sesiones x mes)' },
-    { id: 4, name: 'Plan D (20 sesiones x mes)' },
-  ];
+  plans: Plan[] = [];
   rooms: any[] = [];
   roomsMap = new Map<number, any[]>(); // Un mapa que asocia cada sesión con su lista de salas disponibles
   therapistsMap: Map<number, any[]> = new Map();
@@ -59,6 +57,8 @@ export class PatientRegisterComponent implements OnInit {
   @ViewChild('dniInput') dniInput!: ElementRef;
   @ViewChild('presumptiveDiagnosisInput') presumptiveDiagnosisInput!: ElementRef;
 
+
+
   tutorValues: Array<{
     name: string;
     dni: string;
@@ -83,6 +83,7 @@ export class PatientRegisterComponent implements OnInit {
     private fb: FormBuilder,
     private patientService: PatientsService,
     private router: Router,
+    private plansService: PlansService,
     private cdRef: ChangeDetectorRef
   ) {}
 
@@ -139,9 +140,47 @@ export class PatientRegisterComponent implements OnInit {
     );
 
 
-    this.patientForm.get('idPlan')?.valueChanges.subscribe((value) => {
-      this.resetSessionDates(); // Reinicia las sesiones con los valores iniciales
-      this.updateDatePickers(value); // Actualiza la cantidad de sesiones en base al plan seleccionado
+    this.patientForm.get('idPlan')?.valueChanges.subscribe(planId => {
+      console.log('Plan ID recibido:', planId, 'tipo:', typeof planId);
+      console.log('Planes disponibles:', this.plans);
+
+      // Convertir planId a número si viene como string
+      const planIdNumber = Number(planId);
+
+      if (planId) {
+        const selectedPlan = this.plans.find(p => p.idPlan === planIdNumber);
+        console.log('Buscando plan con ID:', planIdNumber);
+        console.log('Plan encontrado:', selectedPlan);
+
+        if (selectedPlan) {
+          // Resetear sesiones existentes
+          this.resetSessionDates();
+
+          // Establecer el número de sesiones visible
+          this.isDateTimePickerVisible = selectedPlan.numOfSessions;
+          console.log('Número de sesiones a crear:', selectedPlan.numOfSessions);
+
+          // Crear las sesiones según el plan
+          for (let i = 0; i < selectedPlan.numOfSessions; i++) {
+            const sessionGroup = this.fb.group({
+              sessionDate: ['', [Validators.required, this.dateValidator.bind(this)]],
+              startTime: ['', [Validators.required]],
+              endTime: [''],
+              room: [null, Validators.required],
+              therapist: [null, Validators.required]
+            });
+
+            this.sessionDates.push(sessionGroup);
+            this.initializeTimeControls(i);
+          }
+
+          console.log('Sesiones creadas:', this.sessionDates.length);
+          this.cdRef.detectChanges();
+        }
+      } else {
+        this.resetSessionDates();
+        this.isDateTimePickerVisible = 0;
+      }
     });
 
     // Inicializar rooms como array vacío
@@ -152,6 +191,8 @@ export class PatientRegisterComponent implements OnInit {
     this.therapistsMap = new Map<number, any[]>();
 
     this.addSession();
+
+    this.loadPlans();
 
 
     // Si hay un plan seleccionado, actualizar los date pickers
@@ -355,15 +396,6 @@ export class PatientRegisterComponent implements OnInit {
     }
   }
 
-  createSessionDates(): FormGroup {
-    return this.fb.group({
-      room: ['', Validators.required],
-      therapist: ['', Validators.required],
-      sessionDate: ['', [Validators.required, this.dateValidator.bind(this)]],
-      startTime: ['', [Validators.required, this.timeRangeValidator()]],
-      endTime: ['']
-    });
-  }
 
   dateValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
@@ -465,27 +497,38 @@ export class PatientRegisterComponent implements OnInit {
   }
 
   onSessionChange(index: number): void {
-    const session = this.sessionDates.at(index); // Obtener la sesión actual
+    const session = this.sessionDates.at(index);
     const startTime = session.get('startTime')?.value;
     const sessionDate = session.get('sessionDate')?.value;
 
-    if (!sessionDate || !startTime) return; // Si no hay fecha u hora seleccionada, no hacemos nada
+    if (!sessionDate || !startTime) return;
 
-    const selectedRoom = session.get('room')?.value; // Sala seleccionada
-    const endTime24 = this.calculateEndTime24Hours(startTime); // Calculamos la hora de fin automáticamente
+    const selectedRoom = session.get('room')?.value;
+    const endTime24 = this.calculateEndTime24Hours(startTime);
     session.get('endTime')?.setValue(endTime24, { emitEvent: false });
 
     // Obtener salas disponibles
     this.patientService
       .getAvailableRooms(sessionDate, startTime, endTime24)
       .subscribe({
-        next: (rooms) => {
-          this.roomsMap.set(index, rooms); // Actualizar el mapa de salas disponibles para esta sesión
-          if (selectedRoom && !rooms.some((room) => room.idRoom === selectedRoom)) {
-            session.get('room')?.setValue(null); // Restablecer sala si ya no está disponible
+        next: (rooms: RoomResponse[]) => {
+          // Filtrar solo salas terapéuticas y habilitadas
+          const therapeuticRooms = rooms.filter(room =>
+            room.isTherapeutic && room.enabled
+          );
+
+          console.log('Salas terapéuticas disponibles:', therapeuticRooms);
+
+          this.roomsMap.set(index, therapeuticRooms);
+
+          // Validar si la sala seleccionada sigue siendo válida
+          if (selectedRoom && !therapeuticRooms.some((room) => room.idRoom === selectedRoom)) {
+            session.get('room')?.setValue(null);
+            session.get('room')?.setErrors({ noAvailableRooms: true });
           }
 
-          if (rooms.length === 0) {
+          // Validar disponibilidad de salas
+          if (therapeuticRooms.length === 0) {
             session.get('room')?.setErrors({ noAvailableRooms: true });
           } else {
             session.get('room')?.setErrors(null);
@@ -493,6 +536,7 @@ export class PatientRegisterComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al cargar salas disponibles:', err);
+          session.get('room')?.setErrors({ loadError: true });
         },
       });
 
@@ -552,30 +596,31 @@ export class PatientRegisterComponent implements OnInit {
   }
 
   updateDatePickers(planId: number): void {
-    const numericPlanId = Number(planId);
-    switch (numericPlanId) {
-      case 1:
-        this.isDateTimePickerVisible = 1; // Número de sesiones en Plan A
-        break;
-      case 2:
-        this.isDateTimePickerVisible = 2; // Número de sesiones en Plan B
-        break;
-      case 3:
-        this.isDateTimePickerVisible = 3; // Número de sesiones en Plan C
-        break;
-      case 4:
-        this.isDateTimePickerVisible = 5; // Número de sesiones en Plan D
-        break;
-      default:
-        this.isDateTimePickerVisible = 0; // Sin sesiones visibles
-        break;
+    console.log('Actualizando sesiones para plan:', planId); // Para debug
+    const selectedPlan = this.plans.find(p => p.idPlan === planId);
+    if (!selectedPlan) {
+      console.warn('Plan no encontrado:', planId);
+      return;
     }
 
-    // Genera nuevas sesiones con valores predeterminados
-    this.resetSessionDates(); // Limpia las sesiones previas
+    // Resetear sesiones existentes
+    this.resetSessionDates();
 
-    for (let i = 0; i < this.isDateTimePickerVisible; i++) {
-      this.addSession(); // Añade nuevas sesiones vacías
+    // Actualizar el número de sesiones visibles
+    this.isDateTimePickerVisible = selectedPlan.numOfSessions;
+
+    // Crear nuevas sesiones según el plan seleccionado
+    for (let i = 0; i < selectedPlan.numOfSessions; i++) {
+      const sessionGroup = this.fb.group({
+        sessionDate: ['', [Validators.required, this.dateValidator.bind(this)]],
+        startTime: ['', [Validators.required]],
+        endTime: [''],
+        room: [null, Validators.required],
+        therapist: [null, Validators.required]
+      });
+
+      this.sessionDates.push(sessionGroup);
+      this.initializeTimeControls(i);
     }
   }
 
@@ -718,23 +763,6 @@ export class PatientRegisterComponent implements OnInit {
     this.onSessionChange(index);
   }
 
-  isSessionFieldFocused(index: number, field: 'date' | 'hour' | 'minute'): boolean {
-    return this.sessionFocusStates.get(index)?.[field] || false;
-  }
-
-  hasSessionValue(index: number, field: 'date' | 'hour' | 'minute'): boolean {
-    switch(field) {
-      case 'date':
-        return !!this.sessionDateValues[index];
-      case 'hour':
-        return !!this.sessionHourValues[index];
-      case 'minute':
-        return !!this.sessionMinuteValues[index];
-      default:
-        return false;
-    }
-  }
-
   getRoomControl(index: number): FormControl {
     return this.sessionDates.at(index).get('room') as FormControl;
   }
@@ -820,5 +848,30 @@ export class PatientRegisterComponent implements OnInit {
   }
 
 
+  loadPlans(): void {
+    this.plansService.getAllPlans().subscribe({
+      next: (plans) => {
+        console.log('Planes recibidos:', plans);
+        this.plans = plans.map(plan => ({
+          idPlan: Number(plan.id),
+          numOfSessions: Number(plan.numOfSessions),
+          weeks: Number(plan.weeks),
+          name: this.getPlanName(plan.numOfSessions)
+        }));
+        console.log('Planes procesados:', this.plans);
+      },
+      error: (error) => {
+        console.error('Error al cargar planes:', error);
+        if (error.status === 403) {
+          this.router.navigate(['/login']);
+        }
+      }
+    });
+  }
+
+  getPlanName(sessions: number): string {
+    const planNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+    return `Plan ${planNames[sessions - 1]}`;
+  }
 }
 

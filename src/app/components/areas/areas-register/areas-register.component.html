@@ -27,16 +27,13 @@
         <textarea
           id="description"
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          [ngClass]="{'border-red-500': areaForm.get('description')?.invalid && areaForm.get('description')?.touched}"
           formControlName="description"
-          placeholder="Descripción del Área"
+          placeholder="Descripción del Área (opcional)"
           rows="3"
+          cols="50"
+          minlength="10"
           maxlength="500"
         ></textarea>
-        <p *ngIf="areaForm.get('description')?.invalid && areaForm.get('description')?.touched"
-           class="mt-1 text-sm text-red-600">
-          La descripción es requerida y debe tener entre 10 y 500 caracteres.
-        </p>
       </div>
 
       <!-- Botones -->
