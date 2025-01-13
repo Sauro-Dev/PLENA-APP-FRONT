@@ -396,15 +396,6 @@ export class PatientRegisterComponent implements OnInit {
     }
   }
 
-  createSessionDates(): FormGroup {
-    return this.fb.group({
-      room: ['', Validators.required],
-      therapist: ['', Validators.required],
-      sessionDate: ['', [Validators.required, this.dateValidator.bind(this)]],
-      startTime: ['', [Validators.required, this.timeRangeValidator()]],
-      endTime: ['']
-    });
-  }
 
   dateValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
@@ -770,23 +761,6 @@ export class PatientRegisterComponent implements OnInit {
 
     this.cdRef.detectChanges();
     this.onSessionChange(index);
-  }
-
-  isSessionFieldFocused(index: number, field: 'date' | 'hour' | 'minute'): boolean {
-    return this.sessionFocusStates.get(index)?.[field] || false;
-  }
-
-  hasSessionValue(index: number, field: 'date' | 'hour' | 'minute'): boolean {
-    switch(field) {
-      case 'date':
-        return !!this.sessionDateValues[index];
-      case 'hour':
-        return !!this.sessionHourValues[index];
-      case 'minute':
-        return !!this.sessionMinuteValues[index];
-      default:
-        return false;
-    }
   }
 
   getRoomControl(index: number): FormControl {

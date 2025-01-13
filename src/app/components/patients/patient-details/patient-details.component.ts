@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, NgForOf, NgIf } from '@angular/common';
 import { Patient} from "../patient";
 import {PlanStatus} from "../plan-status";
+import {Plan} from "../plan";
+import {PlansService} from "../plans.service";
 
 @Component({
   selector: 'app-patient-details',
@@ -28,20 +30,44 @@ export class PatientDetailsComponent implements OnInit {
     status: false,
   };
   isLoading: boolean = true;
-
+  plans: Plan[] = [];
+  currentPlan: Plan | null = null;
   constructor(
     private patientsService: PatientsService,
+    private plansService: PlansService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['id']; // Obtener ID de la URL
+    const id = this.route.snapshot.params['id'];
     if (id) {
-      this.loadPatient(id);
+      // Cargar los planes primero
+      this.loadPlans().then(() => {
+        this.loadPatient(id);
+      });
     } else {
       console.error('ID de paciente no proporcionado.');
-      this.router.navigate(['/patients']); // Redirigir si no hay ID
+      this.router.navigate(['/patients']);
+    }
+  }
+
+  async loadPlans(): Promise<void> {
+    try {
+      const plans = await this.plansService.getAllPlans().toPromise();
+      if (plans) { // Verificamos que plans no sea undefined
+        this.plans = plans.map(plan => ({
+          idPlan: Number(plan.id),
+          numOfSessions: Number(plan.numOfSessions),
+          weeks: Number(plan.weeks),
+          name: this.getPlanName(plan.numOfSessions)
+        }));
+      }
+    } catch (error: any) { // Especificamos el tipo como 'any'
+      console.error('Error al cargar planes:', error);
+      if (error && error.status === 403) {
+        this.router.navigate(['/login']);
+      }
     }
   }
 
@@ -52,6 +78,9 @@ export class PatientDetailsComponent implements OnInit {
           ...data,
           tutors: data.tutors || [],
         };
+
+        // Encontrar el plan actual del paciente
+        this.currentPlan = this.plans.find(plan => plan.idPlan === this.patient.planId) || null;
 
         if (!Object.values(PlanStatus).includes(data.planStatus as PlanStatus)) {
           console.warn(`Estado de plan inválido: ${data.planStatus}`);
@@ -64,6 +93,16 @@ export class PatientDetailsComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  getPlanName(sessions: number): string {
+    const planNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+    return `Plan ${planNames[sessions - 1]}`;
+  }
+
+  getCurrentPlanName(): string {
+    if (!this.currentPlan) return 'No asignado';
+    return this.getPlanName(this.currentPlan.numOfSessions);
   }
 
   editPatient(): void {

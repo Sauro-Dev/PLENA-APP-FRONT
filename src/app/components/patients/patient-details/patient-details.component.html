@@ -70,8 +70,13 @@
             <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
               <i class="ti ti-book text-2xl text-gray-500 mr-3"></i>
               <span class="font-medium text-gray-700">Plan:</span>
-              <span class="ml-auto text-gray-600">{{ patient.planId }}</span>
+              <div class="ml-auto text-gray-600">
+                <span>{{ getCurrentPlanName() }}</span>
+                <span *ngIf="currentPlan" class="ml-2 text-sm text-gray-500">
+    </span>
+              </div>
             </div>
+
           </div>
         </div>
 
