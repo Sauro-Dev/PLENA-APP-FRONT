@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UsersService } from '../users/users.service';
-import { NgForOf } from '@angular/common';
+import {CommonModule, NgForOf} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -9,7 +9,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './reports.component.html',
   imports: [
     NgForOf,
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   styleUrls: ['./reports.component.css']
 })
