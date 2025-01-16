@@ -81,6 +81,13 @@ export class ReportsComponent implements OnInit {
 
       startDate = this.generalStartDate;
       endDate = this.generalEndDate;
+    } else {
+      const today = new Date();
+      const firstDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+
+      startDate = this.formatDate(firstDayOfPreviousMonth);
+      endDate = this.formatDate(lastDayOfPreviousMonth);
     }
 
     if (startDate && endDate) {
