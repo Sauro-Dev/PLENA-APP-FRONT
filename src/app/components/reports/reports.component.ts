@@ -5,6 +5,7 @@ import { ReportsService } from './reports.service';
 import { CalendarService } from '../calendar/calendar.service';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PatientsService } from '../patients/patients.service';
 import { Session } from '../calendar/session';
 
 @Component({
@@ -20,13 +21,21 @@ import { Session } from '../calendar/session';
 })
 export class ReportsComponent implements OnInit {
   therapists: { id: string; name: string }[] = [];
+  patients: { id: string; name: string }[] = [];
   selectedTherapistId: string = '';
+  selectedPatientId: string = '';
   startDate: string = '';
   endDate: string = '';
   showDownloadButton: boolean = false;
   generalStartDate: string = '';
   generalEndDate: string = '';
   useCustomDateGeneral: boolean = false;
+  useCustomDateTherapist: boolean = false;
+  useCustomDatePatient: boolean = false;
+  therapistStartDate: string = '';
+  therapistEndDate: string = '';
+  patientStartDate: string = '';
+  patientEndDate: string = '';
   todayDate: string = '';
   errorMessage: string = '';
   showNoDataModal: boolean = false;
@@ -34,7 +43,8 @@ export class ReportsComponent implements OnInit {
   constructor(
     private usersService: UsersService,
     private reportsService: ReportsService,
-    private calendarService: CalendarService
+    private calendarService: CalendarService,
+    private patientsService: PatientsService
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +55,10 @@ export class ReportsComponent implements OnInit {
     this.generalStartDate = this.formatDate(firstDayOfJanuary2025);
     this.generalEndDate = this.formatDate(lastDayOfJanuary2025);
     this.todayDate = this.formatDate(new Date());
+
+    // Cargar la lista de terapeutas y pacientes
+    this.loadTherapists();
+    this.loadPatients();
   }
 
   private formatDate(date: Date): string {
@@ -55,6 +69,12 @@ export class ReportsComponent implements OnInit {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedTherapistId = selectElement.value;
     console.log('Selected Therapist ID:', this.selectedTherapistId);
+  }
+
+  onPatientChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.selectedPatientId = selectElement.value;
+    console.log('Selected Patient ID:', this.selectedPatientId);
   }
 
   generateGeneralReport(): void {
@@ -94,6 +114,7 @@ export class ReportsComponent implements OnInit {
       }
     });
   }
+
   checkSessionsInRange(startDate: string, endDate: string): void {
     this.calendarService.getSessionsByMonth(startDate).subscribe({
       next: (sessions) => {
@@ -130,7 +151,36 @@ export class ReportsComponent implements OnInit {
   }
 
   downloadReport(): void {
-    // Aquí puedes agregar la lógica para descargar el reporte
     console.log('Descargando reporte');
+  }
+
+  private loadTherapists(): void {
+    this.usersService.getTherapists().subscribe({
+      next: (therapists) => {
+        this.therapists = therapists;
+      },
+      error: (error) => {
+        console.error('Error al cargar los terapeutas:', error);
+      }
+    });
+  }
+
+  private loadPatients(): void {
+    this.patientsService.getPatients().subscribe({
+      next: (patients) => {
+        this.patients = patients;
+      },
+      error: (error) => {
+        console.error('Error al cargar los pacientes:', error);
+      }
+    });
+  }
+
+  generateTherapistReport(): void {
+    // Lógica de generación de reporte de terapeuta removida
+  }
+
+  generatePatientReport(): void {
+    // Lógica de generación de reporte de paciente removida
   }
 }

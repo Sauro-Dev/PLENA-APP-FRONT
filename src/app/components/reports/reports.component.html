@@ -57,12 +57,133 @@
       </button>
     </div>
 
-    <!-- Columna 2 y 3 pendientes -->
+    <!-- Columna 2: Reporte por Terapeuta -->
     <div class="bg-white p-6 rounded-xl shadow-lg">
       <h2 class="text-2xl font-semibold text-blue-800 mb-4">Reporte por Terapeuta</h2>
+
+      <div class="flex items-center mb-4">
+        <input
+          type="checkbox"
+          id="custom-date-toggle-therapist"
+          [(ngModel)]="useCustomDateTherapist"
+          class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        >
+        <label for="custom-date-toggle-therapist" class="text-gray-700">
+          Asignar fecha personalizada
+        </label>
+      </div>
+
+      <div *ngIf="useCustomDateTherapist" class="space-y-4">
+        <div>
+          <label for="therapist-start-date" class="block text-gray-700 mb-2">Fecha de Inicio:</label>
+          <input
+            id="therapist-start-date"
+            type="date"
+            [(ngModel)]="therapistStartDate"
+            [max]="todayDate"
+            class="w-full p-2 border rounded-md text-gray-700"
+          >
+        </div>
+
+        <div>
+          <label for="therapist-end-date" class="block text-gray-700 mb-2">Fecha de Fin:</label>
+          <input
+            id="therapist-end-date"
+            type="date"
+            [(ngModel)]="therapistEndDate"
+            [max]="todayDate"
+            class="w-full p-2 border rounded-md text-gray-700"
+          >
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label for="therapist-select" class="block text-gray-700 mb-2">Seleccionar Terapeuta:</label>
+        <select
+          id="therapist-select"
+          [(ngModel)]="selectedTherapistId"
+          (change)="onTherapistChange($event)"
+          class="w-full p-2 border rounded-md text-gray-700"
+        >
+          <option *ngFor="let therapist of therapists" [value]="therapist.id">
+            {{ therapist.name }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        (click)="generateTherapistReport()"
+        class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3a1 1 0 001 1h2a1 1 0 100-2h-1V8z" clip-rule="evenodd" />
+        </svg>
+        Generar Reporte
+      </button>
     </div>
+    <!-- Columna 3: Reporte por Paciente -->
     <div class="bg-white p-6 rounded-xl shadow-lg">
       <h2 class="text-2xl font-semibold text-blue-800 mb-4">Reporte por Paciente</h2>
+
+      <div class="flex items-center mb-4">
+        <input
+          type="checkbox"
+          id="custom-date-toggle-patient"
+          [(ngModel)]="useCustomDatePatient"
+          class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        >
+        <label for="custom-date-toggle-patient" class="text-gray-700">
+          Asignar fecha personalizada
+        </label>
+      </div>
+
+      <div *ngIf="useCustomDatePatient" class="space-y-4">
+        <div>
+          <label for="patient-start-date" class="block text-gray-700 mb-2">Fecha de Inicio:</label>
+          <input
+            id="patient-start-date"
+            type="date"
+            [(ngModel)]="patientStartDate"
+            [max]="todayDate"
+            class="w-full p-2 border rounded-md text-gray-700"
+          >
+        </div>
+
+        <div>
+          <label for="patient-end-date" class="block text-gray-700 mb-2">Fecha de Fin:</label>
+          <input
+            id="patient-end-date"
+            type="date"
+            [(ngModel)]="patientEndDate"
+            [max]="todayDate"
+            class="w-full p-2 border rounded-md text-gray-700"
+          >
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label for="patient-select" class="block text-gray-700 mb-2">Seleccionar Paciente:</label>
+        <select
+          id="patient-select"
+          [(ngModel)]="selectedPatientId"
+          (change)="onPatientChange($event)"
+          class="w-full p-2 border rounded-md text-gray-700"
+        >
+          <option *ngFor="let patient of patients" [value]="patient.id">
+            {{ patient.name }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        (click)="generatePatientReport()"
+        class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3a1 1 0 001 1h2a1 1 0 100-2h-1V8z" clip-rule="evenodd" />
+        </svg>
+        Generar Reporte
+      </button>
     </div>
   </div>
 </div>
