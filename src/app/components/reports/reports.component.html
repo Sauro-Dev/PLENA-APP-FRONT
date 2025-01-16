@@ -71,6 +71,7 @@
         <p class="text-gray-600 mb-4 text-center">Genera un reporte de sesiones filtrado por terapeuta.</p>
 
         <div class="space-y-4">
+          <!-- Selección de terapeuta -->
           <div>
             <label for="therapist-select" class="block text-gray-700 text-sm mb-2">Terapeuta:</label>
             <select
@@ -86,24 +87,45 @@
             </select>
           </div>
 
-          <div>
-            <label for="therapist-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+          <!-- Toggle de fecha personalizada -->
+          <div class="flex items-center border border-gray-300 rounded-lg p-4">
             <input
-              id="therapist-start-date"
-              type="date"
-              [(ngModel)]="therapistStartDate"
-              class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              type="checkbox"
+              id="therapist-date-toggle"
+              [(ngModel)]="useCustomDateTherapist"
+              class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             >
+            <label for="therapist-date-toggle" class="text-gray-700 text-sm">
+              Asignar fecha personalizada
+            </label>
           </div>
 
-          <div>
-            <label for="therapist-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
-            <input
-              id="therapist-end-date"
-              type="date"
-              [(ngModel)]="therapistEndDate"
-              class="w-full p-2 border rounded-md text-gray-700 text-sm"
-            >
+          <!-- Mensaje informativo cuando no se usa fecha personalizada -->
+          <div *ngIf="!useCustomDateTherapist" class="bg-yellow-100 bg-opacity-75 text-yellow-800 p-2 rounded-md text-xs text-center">
+            <p>Si no se asigna una fecha personalizada, se tomará el mes anterior.</p>
+          </div>
+
+          <!-- Campos de fecha que aparecen solo cuando se activa el toggle -->
+          <div *ngIf="useCustomDateTherapist" class="space-y-4">
+            <div>
+              <label for="therapist-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+              <input
+                id="therapist-start-date"
+                type="date"
+                [(ngModel)]="therapistStartDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+
+            <div>
+              <label for="therapist-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
+              <input
+                id="therapist-end-date"
+                type="date"
+                [(ngModel)]="therapistEndDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -126,6 +148,7 @@
         <p class="text-gray-600 mb-4 text-center">Genera un reporte de sesiones filtrado por paciente.</p>
 
         <div class="space-y-4">
+          <!-- Selección de paciente -->
           <div>
             <label for="patient-select" class="block text-gray-700 text-sm mb-2">Paciente:</label>
             <select
@@ -143,24 +166,45 @@
             </select>
           </div>
 
-          <div>
-            <label for="patient-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+          <!-- Toggle de fecha personalizada -->
+          <div class="flex items-center border border-gray-300 rounded-lg p-4">
             <input
-              id="patient-start-date"
-              type="date"
-              [(ngModel)]="patientStartDate"
-              class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              type="checkbox"
+              id="patient-date-toggle"
+              [(ngModel)]="useCustomDatePatient"
+              class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             >
+            <label for="patient-date-toggle" class="text-gray-700 text-sm">
+              Asignar fecha personalizada
+            </label>
           </div>
 
-          <div>
-            <label for="patient-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
-            <input
-              id="patient-end-date"
-              type="date"
-              [(ngModel)]="patientEndDate"
-              class="w-full p-2 border rounded-md text-gray-700 text-sm"
-            >
+          <!-- Mensaje informativo cuando no se usa fecha personalizada -->
+          <div *ngIf="!useCustomDatePatient" class="bg-yellow-100 bg-opacity-75 text-yellow-800 p-2 rounded-md text-xs text-center">
+            <p>Si no se asigna una fecha personalizada, se tomará el mes anterior.</p>
+          </div>
+
+          <!-- Campos de fecha que aparecen solo cuando se activa el toggle -->
+          <div *ngIf="useCustomDatePatient" class="space-y-4">
+            <div>
+              <label for="patient-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+              <input
+                id="patient-start-date"
+                type="date"
+                [(ngModel)]="patientStartDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+
+            <div>
+              <label for="patient-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
+              <input
+                id="patient-end-date"
+                type="date"
+                [(ngModel)]="patientEndDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -175,7 +219,6 @@
         Generar Reporte
       </button>
     </div>
-  </div>
 
   <!-- Modal -->
   <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

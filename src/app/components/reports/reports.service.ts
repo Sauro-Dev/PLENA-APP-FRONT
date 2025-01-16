@@ -92,17 +92,17 @@ export class ReportsService {
       observe: 'response',
       responseType: 'blob'
     }).pipe(
-      map(response => {
-        // Verificar si el PDF está vacío (tamaño 0 bytes o muy pequeño)
-        if (!response.body || response.body.size <= 100) { // Un PDF vacío típicamente pesa muy poco
-          throw new HttpErrorResponse({
-            status: 404,
-            statusText: 'No Data Found'
-          });
-        }
-        return response;
-      }),
-      catchError(error => throwError(() => error))
+        map(response => {
+          // Verificar si el PDF está vacío (tamaño menor o igual a 16 KB)
+          if (!response.body || response.body.size <= 16 * 1024) {
+            throw new HttpErrorResponse({
+              status: 404,
+              statusText: 'No Data Found'
+            });
+          }
+          return response;
+        }),
+        catchError(error => throwError(() => error))
     );
   }
 }

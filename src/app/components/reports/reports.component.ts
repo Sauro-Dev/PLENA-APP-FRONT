@@ -39,6 +39,9 @@ export class ReportsComponent implements OnInit {
   showModal = false;
   modalTitle = '';
   modalMessage = '';
+  useCustomDateTherapist: boolean = false;
+  useCustomDatePatient: boolean = false;
+
 
   constructor(
     private usersService: UsersService,
@@ -157,9 +160,13 @@ export class ReportsComponent implements OnInit {
         ? 'No hay sesiones registradas en el rango de fechas seleccionado.'
         : 'No hay sesiones registradas en el mes anterior.';
     } else if (type === 'therapist') {
-      this.modalMessage = 'No hay sesiones registradas para este terapeuta en el rango de fechas seleccionado.';
+      this.modalMessage = this.useCustomDateTherapist
+        ? 'No hay sesiones registradas para este terapeuta en el rango de fechas seleccionado.'
+        : 'No hay sesiones registradas en el mes anterior.';
     } else {
-      this.modalMessage = 'No hay sesiones registradas para este paciente en el rango de fechas seleccionado.';
+      this.modalMessage = this.useCustomDatePatient
+        ? 'No hay sesiones registradas para este paciente en el rango de fechas seleccionado.'
+        : 'No hay sesiones registradas en el mes anterior.';
     }
 
     this.showModal = true;
@@ -177,7 +184,7 @@ export class ReportsComponent implements OnInit {
   }
 
   generateTherapistReport(): void {
-    // Validaciones
+    // Solo validamos que se haya seleccionado un terapeuta
     if (!this.selectedTherapistId) {
       this.modalTitle = 'Error';
       this.modalMessage = 'Por favor, seleccione un terapeuta';
@@ -185,32 +192,50 @@ export class ReportsComponent implements OnInit {
       return;
     }
 
-    if (!this.therapistStartDate || !this.therapistEndDate) {
-      this.modalTitle = 'Error';
-      this.modalMessage = 'Por favor, seleccione ambas fechas';
-      this.showModal = true;
-      return;
+    let startDate: string;
+    let endDate: string;
+
+    if (this.useCustomDateTherapist) {
+      // Solo validamos las fechas si se está usando fecha personalizada
+      if (!this.therapistStartDate || !this.therapistEndDate) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Por favor, seleccione ambas fechas';
+        this.showModal = true;
+        return;
+      }
+
+      if (new Date(this.therapistStartDate) > new Date(this.therapistEndDate)) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
+        this.showModal = true;
+        return;
+      }
+
+      startDate = this.therapistStartDate;
+      endDate = this.therapistEndDate;
+    } else {
+      // Si no se usa fecha personalizada, usamos el mes anterior
+      const today = new Date();
+      const firstDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+
+      startDate = this.formatDate(firstDayOfPreviousMonth);
+      endDate = this.formatDate(lastDayOfPreviousMonth);
     }
 
-    if (new Date(this.therapistStartDate) > new Date(this.therapistEndDate)) {
-      this.modalTitle = 'Error';
-      this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
-      this.showModal = true;
-      return;
-    }
-
-    this.calendarService.getSessionsByMonth(this.therapistStartDate).subscribe({
+    // Verificar sesiones en el rango de fechas
+    this.calendarService.getSessionsByMonth(startDate).subscribe({
       next: (sessions) => {
         const sessionsInRange = sessions.filter(session =>
-          session.sessionDate >= this.therapistStartDate &&
-          session.sessionDate <= this.therapistEndDate &&
+          session.sessionDate >= startDate &&
+          session.sessionDate <= endDate &&
           session.therapistId.toString() === this.selectedTherapistId
         );
 
         if (sessionsInRange.length === 0) {
           this.showNoDataModal('therapist');
         } else {
-          this.generateTherapistReportPdf(this.therapistStartDate, this.therapistEndDate);
+          this.generateTherapistReportPdf(startDate, endDate);
         }
       },
       error: (error) => {
@@ -244,7 +269,7 @@ export class ReportsComponent implements OnInit {
   }
 
   generatePatientReport(): void {
-    // Validaciones iniciales
+    // Solo validamos que se haya seleccionado un paciente
     if (!this.selectedPatientId) {
       this.modalTitle = 'Error';
       this.modalMessage = 'Por favor, seleccione un paciente';
@@ -252,18 +277,35 @@ export class ReportsComponent implements OnInit {
       return;
     }
 
-    if (!this.patientStartDate || !this.patientEndDate) {
-      this.modalTitle = 'Error';
-      this.modalMessage = 'Por favor, seleccione ambas fechas';
-      this.showModal = true;
-      return;
-    }
+    let startDate: string;
+    let endDate: string;
 
-    if (new Date(this.patientStartDate) > new Date(this.patientEndDate)) {
-      this.modalTitle = 'Error';
-      this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
-      this.showModal = true;
-      return;
+    if (this.useCustomDatePatient) {
+      // Solo validamos las fechas si se está usando fecha personalizada
+      if (!this.patientStartDate || !this.patientEndDate) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Por favor, seleccione ambas fechas';
+        this.showModal = true;
+        return;
+      }
+
+      if (new Date(this.patientStartDate) > new Date(this.patientEndDate)) {
+        this.modalTitle = 'Error';
+        this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
+        this.showModal = true;
+        return;
+      }
+
+      startDate = this.patientStartDate;
+      endDate = this.patientEndDate;
+    } else {
+      // Si no se usa fecha personalizada, usamos el mes anterior
+      const today = new Date();
+      const firstDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastDayOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+
+      startDate = this.formatDate(firstDayOfPreviousMonth);
+      endDate = this.formatDate(lastDayOfPreviousMonth);
     }
 
     const selectedPatient = this.patients.find(p => p.idPatient.toString() === this.selectedPatientId);
@@ -275,15 +317,15 @@ export class ReportsComponent implements OnInit {
       return;
     }
 
-    // Generar directamente el reporte sin verificación previa
-    this.generatePatientReportPdf(selectedPatient.idPatient, this.patientStartDate, this.patientEndDate);
+    // Generar el reporte
+    this.generatePatientReportPdf(selectedPatient.idPatient, startDate, endDate);
   }
 
   private generatePatientReportPdf(patientId: number, startDate: string, endDate: string): void {
     this.reportsService.generatePatientReport(patientId, startDate, endDate)
       .subscribe({
         next: (response) => {
-          if (response.body && response.body.size > 100) {
+          if (response.body && response.body.size > 16 * 1024) { // 16 KB
             this.reportsService.downloadPdf(response, `reporte_sesiones_paciente_${patientId}.pdf`);
           } else {
             this.showNoDataModal('patient');
@@ -291,7 +333,7 @@ export class ReportsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al generar el reporte:', error);
-          if (error.status === 404 || (error.error instanceof Blob && error.error.size <= 100)) {
+          if (error.status === 404 || (error.error instanceof Blob && error.error.size <= 16 * 1024)) {
             this.showNoDataModal('patient');
           } else {
             this.modalTitle = 'Error';
@@ -301,5 +343,4 @@ export class ReportsComponent implements OnInit {
         }
       });
   }
-
 }
