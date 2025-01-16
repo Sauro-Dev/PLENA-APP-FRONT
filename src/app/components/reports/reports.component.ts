@@ -6,7 +6,9 @@ import { CalendarService } from '../calendar/calendar.service';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PatientsService } from '../patients/patients.service';
-import { Session } from '../calendar/session';
+import {ListPatient} from "../patients/list-patient";
+
+
 
 @Component({
   selector: 'app-reports',
@@ -21,24 +23,22 @@ import { Session } from '../calendar/session';
 })
 export class ReportsComponent implements OnInit {
   therapists: { id: string; name: string }[] = [];
-  patients: { id: string; name: string }[] = [];
+  patients: ListPatient[] = [];
   selectedTherapistId: string = '';
   selectedPatientId: string = '';
   startDate: string = '';
   endDate: string = '';
-  showDownloadButton: boolean = false;
   generalStartDate: string = '';
   generalEndDate: string = '';
   useCustomDateGeneral: boolean = false;
-  useCustomDateTherapist: boolean = false;
-  useCustomDatePatient: boolean = false;
   therapistStartDate: string = '';
   therapistEndDate: string = '';
   patientStartDate: string = '';
   patientEndDate: string = '';
-  todayDate: string = '';
   errorMessage: string = '';
-  showNoDataModal: boolean = false;
+  showModal = false;
+  modalTitle = '';
+  modalMessage = '';
 
   constructor(
     private usersService: UsersService,
@@ -63,19 +63,15 @@ export class ReportsComponent implements OnInit {
     console.log('Selected Therapist ID:', this.selectedTherapistId);
   }
 
-  onPatientChange(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedPatientId = selectElement.value;
-    console.log('Selected Patient ID:', this.selectedPatientId);
-  }
-
   generateGeneralReport(): void {
     let startDate: string | undefined;
     let endDate: string | undefined;
 
     if (this.useCustomDateGeneral) {
       if (!this.generalStartDate || !this.generalEndDate) {
-        alert('Por favor, seleccione ambas fechas');
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Por favor, seleccione ambas fechas';
+        this.showModal = true;
         return;
       }
 
@@ -117,41 +113,30 @@ export class ReportsComponent implements OnInit {
   checkSessionsInRange(startDate: string, endDate: string): void {
     this.calendarService.getSessionsByMonth(startDate).subscribe({
       next: (sessions) => {
-        const sessionsInRange = sessions.filter(session => session.sessionDate >= startDate && session.sessionDate <= endDate);
+        const sessionsInRange = sessions.filter(session =>
+          session.sessionDate >= startDate && session.sessionDate <= endDate
+        );
         if (sessionsInRange.length === 0) {
-          this.showNoDataModal = true;
+          this.showNoDataModal('general');
         } else {
           this.generateReport(startDate, endDate);
         }
       },
       error: (error) => {
         console.error('Error al verificar sesiones:', error);
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Error al verificar las sesiones';
+        this.showModal = true;
       }
     });
   }
 
-  openReportModal(): void {
-    const modal = document.getElementById('reportModal');
-    if (modal) {
-      modal.style.display = 'block';
-    }
+  closeModal(): void {
+    this.showModal = false;
+    this.modalTitle = '';
+    this.modalMessage = '';
   }
 
-  closeNoDataModal(): void {
-    this.showNoDataModal = false;
-  }
-
-  closeReportModal(): void {
-    const modal = document.getElementById('reportModal');
-    if (modal) {
-      modal.style.display = 'none';
-    }
-    this.showDownloadButton = false;
-  }
-
-  downloadReport(): void {
-    console.log('Descargando reporte');
-  }
 
   private loadTherapists(): void {
     this.usersService.getTherapists().subscribe({
@@ -162,6 +147,22 @@ export class ReportsComponent implements OnInit {
         console.error('Error al cargar los terapeutas:', error);
       }
     });
+  }
+
+  private showNoDataModal(type: 'general' | 'therapist' | 'patient'): void {
+    this.modalTitle = 'Sin datos disponibles';
+
+    if (type === 'general') {
+      this.modalMessage = this.useCustomDateGeneral
+        ? 'No hay sesiones registradas en el rango de fechas seleccionado.'
+        : 'No hay sesiones registradas en el mes anterior.';
+    } else if (type === 'therapist') {
+      this.modalMessage = 'No hay sesiones registradas para este terapeuta en el rango de fechas seleccionado.';
+    } else {
+      this.modalMessage = 'No hay sesiones registradas para este paciente en el rango de fechas seleccionado.';
+    }
+
+    this.showModal = true;
   }
 
   private loadPatients(): void {
@@ -176,10 +177,129 @@ export class ReportsComponent implements OnInit {
   }
 
   generateTherapistReport(): void {
-    // Lógica de generación de reporte de terapeuta removida
+    // Validaciones
+    if (!this.selectedTherapistId) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Por favor, seleccione un terapeuta';
+      this.showModal = true;
+      return;
+    }
+
+    if (!this.therapistStartDate || !this.therapistEndDate) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Por favor, seleccione ambas fechas';
+      this.showModal = true;
+      return;
+    }
+
+    if (new Date(this.therapistStartDate) > new Date(this.therapistEndDate)) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
+      this.showModal = true;
+      return;
+    }
+
+    this.calendarService.getSessionsByMonth(this.therapistStartDate).subscribe({
+      next: (sessions) => {
+        const sessionsInRange = sessions.filter(session =>
+          session.sessionDate >= this.therapistStartDate &&
+          session.sessionDate <= this.therapistEndDate &&
+          session.therapistId.toString() === this.selectedTherapistId
+        );
+
+        if (sessionsInRange.length === 0) {
+          this.showNoDataModal('therapist');
+        } else {
+          this.generateTherapistReportPdf(this.therapistStartDate, this.therapistEndDate);
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar sesiones:', error);
+        this.modalTitle = 'Error';
+        this.modalMessage = 'Error al verificar las sesiones';
+        this.showModal = true;
+      }
+    });
+  }
+
+  private generateTherapistReportPdf(startDate: string, endDate: string): void {
+    this.reportsService.generateTherapistReport(Number(this.selectedTherapistId), startDate, endDate)
+      .subscribe({
+        next: () => {
+          this.errorMessage = '';
+          console.log('Reporte generado exitosamente');
+        },
+        error: (error) => {
+          console.error('Error al generar el reporte:', error);
+          if (error.status === 404) {
+            // Cambiar esto
+            this.showNoDataModal('therapist'); // Llamar al método en lugar de asignar un valor booleano
+          } else {
+            this.modalTitle = 'Error';
+            this.modalMessage = 'Ocurrió un error al generar el reporte';
+            this.showModal = true;
+          }
+        }
+      });
   }
 
   generatePatientReport(): void {
-    // Lógica de generación de reporte de paciente removida
+    // Validaciones iniciales
+    if (!this.selectedPatientId) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Por favor, seleccione un paciente';
+      this.showModal = true;
+      return;
+    }
+
+    if (!this.patientStartDate || !this.patientEndDate) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Por favor, seleccione ambas fechas';
+      this.showModal = true;
+      return;
+    }
+
+    if (new Date(this.patientStartDate) > new Date(this.patientEndDate)) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin';
+      this.showModal = true;
+      return;
+    }
+
+    const selectedPatient = this.patients.find(p => p.idPatient.toString() === this.selectedPatientId);
+
+    if (!selectedPatient) {
+      this.modalTitle = 'Error';
+      this.modalMessage = 'Paciente no encontrado';
+      this.showModal = true;
+      return;
+    }
+
+    // Generar directamente el reporte sin verificación previa
+    this.generatePatientReportPdf(selectedPatient.idPatient, this.patientStartDate, this.patientEndDate);
   }
+
+  private generatePatientReportPdf(patientId: number, startDate: string, endDate: string): void {
+    this.reportsService.generatePatientReport(patientId, startDate, endDate)
+      .subscribe({
+        next: (response) => {
+          if (response.body && response.body.size > 100) {
+            this.reportsService.downloadPdf(response, `reporte_sesiones_paciente_${patientId}.pdf`);
+          } else {
+            this.showNoDataModal('patient');
+          }
+        },
+        error: (error) => {
+          console.error('Error al generar el reporte:', error);
+          if (error.status === 404 || (error.error instanceof Blob && error.error.size <= 100)) {
+            this.showNoDataModal('patient');
+          } else {
+            this.modalTitle = 'Error';
+            this.modalMessage = 'Ocurrió un error al generar el reporte';
+            this.showModal = true;
+          }
+        }
+      });
+  }
+
 }

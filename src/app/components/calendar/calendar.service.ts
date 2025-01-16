@@ -24,7 +24,12 @@ export class CalendarService {
   getSessionsByMonth(startDate: string): Observable<Session[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<Session[]>(`${this.apiUrl}/sessions-by-month?startDate=${startDate}`, {headers});
+    return this.http.get<Session[]>(`${this.apiUrl}/sessions-by-month?startDate=${startDate}`, {
+      headers,
+      params: {
+        includePatientId: 'true' // Añade un parámetro para solicitar el ID del paciente
+      }
+    });
   }
 
   getSessionsByTherapist(therapistId: number): Observable<Session[]> {

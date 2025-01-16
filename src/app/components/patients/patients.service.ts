@@ -3,6 +3,7 @@ import { environment } from '../../enviroment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {RenewPlan} from "./renew-plan";
+import {ListPatient} from "./list-patient";
 
 
 @Injectable({
@@ -13,10 +14,10 @@ export class PatientsService {
 
   constructor(private http: HttpClient) {}
 
-  getPatients(): Observable<any[]> {
+  getPatients(): Observable<ListPatient[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<any[]>(`${this.apiUrl}/all`, { headers });
+    return this.http.get<ListPatient[]>(`${this.apiUrl}/all`, { headers });
   }
 
   createPatient(data: {

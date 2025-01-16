@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import {catchError, Observable, switchMap, throwError} from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../enviroment';
 
@@ -78,8 +78,7 @@ export class ReportsService {
     );
   }
 
-  // Reporte de sesiones por paciente
-  generatePatientReport(patientId: number, startDate?: string, endDate?: string): Observable<Blob> {
+  generatePatientReport(patientId: number, startDate?: string, endDate?: string): Observable<HttpResponse<Blob>> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -94,13 +93,17 @@ export class ReportsService {
       responseType: 'blob'
     }).pipe(
       map(response => {
-        if (response.body instanceof Blob) {
-          this.downloadPdf(response, `reporte_sesiones_paciente_${patientId}.pdf`);
-          return response.body;
-        } else {
-          throw new Error('La respuesta no contiene un blob válido');
+        // Verificar si el PDF está vacío (tamaño 0 bytes o muy pequeño)
+        if (!response.body || response.body.size <= 100) { // Un PDF vacío típicamente pesa muy poco
+          throw new HttpErrorResponse({
+            status: 404,
+            statusText: 'No Data Found'
+          });
         }
-      })
+        return response;
+      }),
+      catchError(error => throwError(() => error))
     );
   }
 }
+
