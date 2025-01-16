@@ -48,15 +48,7 @@ export class ReportsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Establecer fechas por defecto para enero de 2025
-    const firstDayOfJanuary2025 = new Date(2025, 0, 1);
-    const lastDayOfJanuary2025 = new Date(2025, 0, 31);
 
-    this.generalStartDate = this.formatDate(firstDayOfJanuary2025);
-    this.generalEndDate = this.formatDate(lastDayOfJanuary2025);
-    this.todayDate = this.formatDate(new Date());
-
-    // Cargar la lista de terapeutas y pacientes
     this.loadTherapists();
     this.loadPatients();
   }
