@@ -1,9 +1,6 @@
-interface EvaluationDocument {
+import { DocumentBase } from "./DocumentBase";
+
+
+export interface EvaluationDocument extends DocumentBase {
   idDocument: number;
-  medicalHistoryId: number;
-  name: string;
-  description: string;
-  fileUrl: string;
-  evaluationDate: string;
-  uploadedAt: string;
 }

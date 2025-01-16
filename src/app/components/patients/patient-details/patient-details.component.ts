@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { PatientsService } from '../patients.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, NgForOf, NgIf } from '@angular/common';
 import { Patient} from "../patient";
 import {PlanStatus} from "../plan-status";
+import {firstValueFrom} from "rxjs";
 
 @Component({
   selector: 'app-patient-details',
   standalone: true,
   templateUrl: './patient-details.component.html',
   styleUrls: ['./patient-details.component.css'],
-  imports: [RouterLink, NgIf, NgForOf, CommonModule],
+  imports: [NgIf, NgForOf, CommonModule],
 })
 export class PatientDetailsComponent implements OnInit {
   patient: Patient = {
@@ -36,34 +37,40 @@ export class PatientDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['id']; // Obtener ID de la URL
+    const id = this.route.snapshot.params['id'];
     if (id) {
-      this.loadPatient(id);
+      void this.loadPatient(id);
     } else {
       console.error('ID de paciente no proporcionado.');
-      this.router.navigate(['/patients']); // Redirigir si no hay ID
+      void this.router.navigate(['/patients']);
     }
   }
 
-  loadPatient(id: number): void {
-    this.patientsService.getPatientById(id).subscribe(
-      (data: Patient) => {
-        this.patient = {
-          ...data,
-          tutors: data.tutors || [],
-        };
+  async loadPatient(id: number): Promise<void> {
+    try {
+      const data = await firstValueFrom(this.patientsService.getPatientById(id));
+      this.patient = {
+        ...data,
+        tutors: data.tutors || [],
+      };
 
-        if (!Object.values(PlanStatus).includes(data.planStatus as PlanStatus)) {
-          console.warn(`Estado de plan inválido: ${data.planStatus}`);
-        }
-
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Error al cargar los detalles del paciente:', error);
-        this.isLoading = false;
+      if (!Object.values(PlanStatus).includes(data.planStatus as PlanStatus)) {
+        console.warn(`Estado de plan inválido: ${data.planStatus}`);
       }
-    );
+
+      this.isLoading = false;
+    } catch (error) {
+      console.error('Error al cargar los detalles del paciente:', error);
+      this.isLoading = false;
+    }
+  }
+
+  goBack(): void {
+    void this.router.navigate(['/patients']);
+  }
+
+  goToMedicalHistory(): void {
+    void this.router.navigate(['/patients/details', this.patient.idPatient, 'medical-history']);
   }
 
   editPatient(): void {
@@ -71,7 +78,15 @@ export class PatientDetailsComponent implements OnInit {
       console.error('El paciente no está cargado.');
       return;
     }
-    this.router.navigate(['/patients/edit', this.patient.idPatient]);
+    void this.router.navigate(['/patients/edit', this.patient.idPatient]);
+  }
+
+  renewPlan(): void {
+    if (!this.patient?.idPatient) {
+      console.error('No se puede renovar el plan: paciente no cargado o sin ID.');
+      return;
+    }
+    void this.router.navigate(['/patients/renew-plan', this.patient.idPatient]);
   }
 
   getPlanStatusLabel(status: PlanStatus): string {
@@ -85,13 +100,5 @@ export class PatientDetailsComponent implements OnInit {
       default:
         return 'Desconocido';
     }
-  }
-
-  renewPlan(): void {
-    if (!this.patient || !this.patient.idPatient) {
-      console.error('No se puede renovar el plan: paciente no cargado o sin ID.');
-      return;
-    }
-    this.router.navigate(['/patients/renew-plan', this.patient.idPatient]);
   }
 }

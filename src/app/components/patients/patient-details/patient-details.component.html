@@ -136,18 +136,29 @@
 
       <!-- Botones -->
       <div class="flex justify-center gap-8 mt-8">
-        <a
+        <button
           class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
-          routerLink="/patients"
+          (click)="goBack()"
         >
+          <i class="ti ti-arrow-left mr-2"></i>
           Volver a la Lista
-        </a>
+        </button>
 
         <button
           class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
           (click)="editPatient()"
         >
+          <i class="ti ti-edit mr-2"></i>
           Editar Paciente
+        </button>
+
+        <!-- Botón de Historial Médico -->
+        <button
+          (click)="goToMedicalHistory()"
+          class="bg-green-100 text-green-700 px-6 py-3 rounded-full text-base font-medium hover:bg-green-200 transition duration-200"
+        >
+          <i class="ti ti-file-medical mr-2"></i>
+          Historial Médico
         </button>
 
         <button
@@ -155,6 +166,7 @@
           class="bg-green-100 text-green-700 px-6 py-3 rounded-full text-base font-medium hover:bg-green-200 transition duration-200"
           (click)="renewPlan()"
         >
+          <i class="ti ti-refresh mr-2"></i>
           Renovar Plan
         </button>
       </div>

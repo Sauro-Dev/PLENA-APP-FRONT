@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {MedicalHistoryComponent} from "./medicalhistory.component";
 
+import { MedicalHistoryComponent } from './medical-history.component';
 
 describe('MedicalHistoryComponent', () => {
   let component: MedicalHistoryComponent;
@@ -11,7 +11,7 @@ describe('MedicalHistoryComponent', () => {
       imports: [MedicalHistoryComponent]
     })
     .compileComponents();
-
+    
     fixture = TestBed.createComponent(MedicalHistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

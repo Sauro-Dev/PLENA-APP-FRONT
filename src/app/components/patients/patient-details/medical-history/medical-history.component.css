@@ -1,0 +1,52 @@
+.sort-button {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200;
+}
+
+.sort-button:hover {
+  @apply bg-gray-100;
+}
+
+.sort-button.active {
+  @apply text-blue-600;
+}
+
+.sort-icon {
+  @apply text-lg transition-transform duration-200;
+}
+
+.document-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.document-card {
+  @apply bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-[1.02];
+}
+
+.document-list {
+  @apply bg-white shadow-lg rounded-lg overflow-hidden;
+}
+
+.document-list table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-xl max-w-md w-full p-6;
+}
+
+/* Animaciones para los iconos de ordenamiento */
+.sort-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.sort-button.active .sort-icon {
+  @apply text-blue-600;
+}
+
+.sort-button:hover .sort-icon {
+  transform: scale(1.1);
+}

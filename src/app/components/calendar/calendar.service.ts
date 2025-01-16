@@ -49,7 +49,14 @@ export class CalendarService {
   presence(sessionId: number, therapistPresent: boolean, patientPresent: boolean): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.put<any>(`${this.apiUrl}/presence/${sessionId}`, { therapistPresent, patientPresent}, {headers});
+
+    const body = {
+      sessionId: sessionId,
+      therapistPresent: therapistPresent,
+      patientPresent: patientPresent
+    };
+
+    return this.http.put<any>(`${this.apiUrl}/presence`, body, {headers});
   }
 
   reprogramSession(sesionId: number, reprogrammingData: any): Observable<any>{

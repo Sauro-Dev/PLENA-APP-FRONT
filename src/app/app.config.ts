@@ -6,7 +6,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { provideRouter } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {ErrorInterceptor} from "./interceptors/error.interceptor.interceptor";
+import {AuthInterceptor, ErrorInterceptor} from "./interceptors/error.interceptor.interceptor";
 
 
 export const appConfig: ApplicationConfig = {
@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideHttpClient(
       withFetch(),
-      withInterceptors([ErrorInterceptor])
+      withInterceptors([ErrorInterceptor, AuthInterceptor])
     ),
     importProvidersFrom(HttpClientModule, FormsModule, ReactiveFormsModule),
     provideAnimations()
