@@ -31,4 +31,10 @@ export default [
       import('./renew-plan/renew-plan.component').then((m) => m.RenewPlanComponent),
     data: { breadcrumb: 'Renovar Plan' },
   },
+  {
+    path: 'details/:id/medical-history',
+    loadComponent: () => import('../patients/patient-details/medical-history/medical-history.component')
+      .then(m => m.MedicalHistoryComponent),
+    data: { breadcrumb: 'Historial Médico' }
+  }
 ] as Routes;

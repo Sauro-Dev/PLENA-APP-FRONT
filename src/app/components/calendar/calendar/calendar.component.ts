@@ -631,17 +631,24 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   openRescheduleForm(): void {
-    if (this.selectedEvent && !this.selectedEvent.therapistPresent && !this.selectedEvent.patientPresent) {
+    if (this.selectedEvent && this.canShowRescheduleButton()) {
       const [hours, minutes] = this.selectedEvent.startTime.split(':');
       const nextDay = new Date(this.selectedEvent.sessionDate);
       nextDay.setDate(nextDay.getDate() + 1);
+
+      let defaultReason = '';
+      if (this.selectedEvent.patientPresent && !this.selectedEvent.therapistPresent) {
+        defaultReason = 'Reprogramación por inasistencia del terapeuta';
+      } else if (!this.selectedEvent.patientPresent && !this.selectedEvent.therapistPresent) {
+        defaultReason = 'Reprogramación preventiva';
+      }
 
       this.rescheduleForm = {
         sessionDate: this.selectedEvent.sessionDate,
         startTime: '',
         therapistId: this.selectedEvent.therapistId.toString(),
         roomId: '',
-        reason: ''
+        reason: defaultReason
       };
       this.loadAvailableResources();
       this.isRescheduling = true;
@@ -753,8 +760,19 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   public canShowRescheduleButton(): boolean {
-    if (!this.selectedEvent) return false;
-    return !this.selectedEvent.therapistPresent && !this.selectedEvent.patientPresent;
+    if (!this.selectedEvent) {
+      return false;
+    }
+
+    const patientAttendedTherapistDidnt =
+      this.selectedEvent.patientPresent &&
+      !this.selectedEvent.therapistPresent;
+
+    const noAttendanceMarked =
+      !this.selectedEvent.patientPresent &&
+      !this.selectedEvent.therapistPresent;
+
+    return patientAttendedTherapistDidnt || noAttendanceMarked;
   }
 
   public saveReschedule(): void {
