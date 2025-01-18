@@ -54,6 +54,14 @@ export class MedicalHistoryService {
     );
   }
 
+  uploadReport(patientId: number, medicalHistoryId: number, formData: FormData): Observable<Report> {
+    return this.http.post<Report>(
+      `${this.apiUrl}/report/medical-history/${medicalHistoryId}/patient/${patientId}/upload`,
+      formData,
+      { headers: this.getHeaders() }
+    );
+  }
+
   deleteDocument(documentId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/evaluationDocument/${documentId}`,

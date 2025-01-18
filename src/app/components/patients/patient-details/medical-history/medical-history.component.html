@@ -226,6 +226,36 @@
     <!-- Vista de Lista para Reportes -->
     <div *ngIf="!isLoading && !isGridView" class="w-full">
       <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div *ngIf="viewType === 'reports'" class="w-full bg-white shadow-md rounded-lg p-4 mb-6">
+          <div class="flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex items-center gap-2">
+              <i class="ti ti-clock text-blue-600"></i>
+              <span class="text-gray-700">
+        Mes {{uploadStatus.treatmentMonths}}° del tratamiento
+      </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <i class="ti ti-file-upload text-blue-600"></i>
+              <span class="text-gray-700">
+        Reportes disponibles: {{uploadStatus.availableReports}}
+      </span>
+            </div>
+
+            <div *ngIf="!canUploadReport && uploadStatus.nextAvailableDate"
+                 class="flex items-center gap-2">
+              <i class="ti ti-calendar text-blue-600"></i>
+              <span class="text-gray-700">
+        Próximo reporte disponible: {{uploadStatus.nextAvailableDate | date:'dd/MM/yyyy'}}
+      </span>
+            </div>
+          </div>
+
+          <div *ngIf="uploadReportMessage"
+               class="mt-2 text-sm text-gray-600">
+            {{uploadReportMessage}}
+          </div>
+        </div>
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
           <tr>

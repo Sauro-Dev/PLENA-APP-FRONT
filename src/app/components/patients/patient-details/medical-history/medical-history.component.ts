@@ -15,6 +15,12 @@ import {finalize} from "rxjs";
   styleUrl: './medical-history.component.css'
 })
 export class MedicalHistoryComponent implements OnInit {
+  uploadStatus: UploadStatus = {
+    canUpload: false,
+    message: '',
+    treatmentMonths: 0,
+    availableReports: 0
+  };
   documents: EvaluationDocument[] = [];
   reports: Report[] = [];
   isLoading = true;
@@ -144,15 +150,17 @@ export class MedicalHistoryComponent implements OnInit {
   private sortItems(type: 'evaluations' | 'reports'): void {
     const items = type === 'evaluations' ? this.documents : this.reports;
     items.sort((a, b) => {
-      let comparison: number;
+      let comparison = 0;
 
       if (this.sortField === 'date') {
         comparison = new Date(b.uploadAt).getTime() - new Date(a.uploadAt).getTime();
-      } else {
+      } else if (this.sortField === 'size') {
         comparison = b.fileSize - a.fileSize;
+      } else if (type === 'reports' && this.sortField === 'month') {
+        comparison = (b as Report).treatmentMonth - (a as Report).treatmentMonth;
       }
 
-      return this.sortDirection === 'asc' ? -comparison : comparison;
+      return this.sortDirection === 'asc' ? comparison : -comparison;
     });
   }
 
@@ -197,6 +205,9 @@ export class MedicalHistoryComponent implements OnInit {
   }
 
   isValidUpload(): boolean {
+    if (this.viewType === 'reports') {
+      return !!this.newReport.file && this.canUploadReport;
+    }
     return !!(this.newDocument.name &&
       this.newDocument.description &&
       this.newDocument.file);
@@ -207,23 +218,43 @@ export class MedicalHistoryComponent implements OnInit {
 
     const formData = new FormData();
 
-    formData.append('file', this.newDocument.file!);
-    formData.append('name', this.newDocument.name);
-    formData.append('description', this.newDocument.description);
+    if (this.viewType === 'reports') {
+      if (!this.newReport.file) return;
+      formData.append('file', this.newReport.file);
 
-    this.medicalHistoryService.uploadDocument(this.patientId, this.medicalHistoryId, formData)
-      .pipe(
-        finalize(() => this.isLoading = false)
-      )
-      .subscribe({
-        next: () => {
-          this.closeUploadModal();
-          this.loadDocuments();
-        },
-        error: (error) => {
-          console.error('Error en la subida:', error);
-        }
-      });
+      this.medicalHistoryService.uploadReport(this.patientId, this.medicalHistoryId, formData)
+        .pipe(
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: () => {
+            this.closeUploadModal();
+            this.loadReports();
+            this.checkCanUploadReport();
+          },
+          error: (error) => {
+            console.error('Error en la subida del reporte:', error);
+          }
+        });
+    } else {
+      formData.append('file', this.newDocument.file!);
+      formData.append('name', this.newDocument.name);
+      formData.append('description', this.newDocument.description);
+
+      this.medicalHistoryService.uploadDocument(this.patientId, this.medicalHistoryId, formData)
+        .pipe(
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: () => {
+            this.closeUploadModal();
+            this.loadDocuments();
+          },
+          error: (error) => {
+            console.error('Error en la subida:', error);
+          }
+        });
+    }
   }
 
   downloadDocument(item: EvaluationDocument | Report): void {
@@ -288,7 +319,8 @@ export class MedicalHistoryComponent implements OnInit {
 
     this.medicalHistoryService.canUploadReport(this.patientId, this.medicalHistoryId)
       .subscribe({
-        next: (response) => {
+        next: (response: UploadStatus) => {
+          this.uploadStatus = response;
           this.canUploadReport = response.canUpload;
           this.uploadReportMessage = response.message;
         },
@@ -340,4 +372,12 @@ export class MedicalHistoryComponent implements OnInit {
         return 'ti ti-file-text';
     }
   }
+}
+
+interface UploadStatus {
+  canUpload: boolean;
+  message: string;
+  treatmentMonths?: number;
+  availableReports?: number;
+  nextAvailableDate?: string;
 }
