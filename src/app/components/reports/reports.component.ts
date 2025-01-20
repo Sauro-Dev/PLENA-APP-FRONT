@@ -4,7 +4,7 @@ import { CommonModule, NgForOf } from '@angular/common';
 import { ReportsService } from './reports.service';
 import { CalendarService } from '../calendar/calendar.service';
 import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { PatientsService } from '../patients/patients.service';
 import {ListPatient} from "../patients/list-patient";
 
@@ -98,8 +98,8 @@ export class ReportsComponent implements OnInit {
 
   private generateReport(startDate?: string, endDate?: string): void {
     this.reportsService.generateGeneralReport(startDate, endDate).subscribe({
-      next: (response) => {
-        this.reportsService.downloadPdf(response, 'reporte_general_sesiones.pdf');
+      next: (response: HttpResponse<Blob>) => {
+        this.reportsService.downloadPdf(response);
         this.errorMessage = '';
       },
       error: (error: HttpErrorResponse) => {
@@ -107,7 +107,9 @@ export class ReportsComponent implements OnInit {
         if (error.status === 404 || (error.error && error.error.message)) {
           this.errorMessage = 'No hay sesiones registradas';
         } else {
-          alert('Ocurrió un error al generar el reporte');
+          this.modalTitle = 'Error';
+          this.modalMessage = 'Ocurrió un error al generar el reporte';
+          this.showModal = true;
         }
       }
     });
@@ -250,15 +252,14 @@ export class ReportsComponent implements OnInit {
   private generateTherapistReportPdf(startDate: string, endDate: string): void {
     this.reportsService.generateTherapistReport(Number(this.selectedTherapistId), startDate, endDate)
       .subscribe({
-        next: () => {
+        next: (response: HttpResponse<Blob>) => {
+          this.reportsService.downloadPdf(response);
           this.errorMessage = '';
-          console.log('Reporte generado exitosamente');
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           console.error('Error al generar el reporte:', error);
           if (error.status === 404) {
-            // Cambiar esto
-            this.showNoDataModal('therapist'); // Llamar al método en lugar de asignar un valor booleano
+            this.showNoDataModal('therapist');
           } else {
             this.modalTitle = 'Error';
             this.modalMessage = 'Ocurrió un error al generar el reporte';
@@ -324,14 +325,14 @@ export class ReportsComponent implements OnInit {
   private generatePatientReportPdf(patientId: number, startDate: string, endDate: string): void {
     this.reportsService.generatePatientReport(patientId, startDate, endDate)
       .subscribe({
-        next: (response) => {
-          if (response.body && response.body.size > 16 * 1024) { // 16 KB
-            this.reportsService.downloadPdf(response, `reporte_sesiones_paciente_${patientId}.pdf`);
+        next: (response: HttpResponse<Blob>) => {
+          if (response.body && response.body.size > 16 * 1024) {
+            this.reportsService.downloadPdf(response);
           } else {
             this.showNoDataModal('patient');
           }
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           console.error('Error al generar el reporte:', error);
           if (error.status === 404 || (error.error instanceof Blob && error.error.size <= 16 * 1024)) {
             this.showNoDataModal('patient');
