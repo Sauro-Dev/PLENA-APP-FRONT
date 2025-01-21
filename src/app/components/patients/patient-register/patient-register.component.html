@@ -313,16 +313,29 @@
               formControlName="sessionDate"
               (change)="onSessionChange(i)"
               class="peer mt-1 block w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg shadow-sm
-           focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+    focus:outline-none focus:ring-1 focus:ring-blue-800 focus:border-blue-800 cursor-pointer"
+              [ngClass]="{'border-red-500': session.get('sessionDate')?.errors?.['duplicateDate'] ||
+                                session.get('sessionDate')?.errors?.['invalidDay']}"
             />
 
             <label class="absolute left-4 -top-2 text-sm text-black px-1 bg-white">
               Fecha {{ i + 1 }}
             </label>
 
+            <!-- Mensaje de error para fechas duplicadas -->
             <div
               class="mt-1 text-sm text-red-600"
-              *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] && session.get('sessionDate')?.touched"
+              *ngIf="session.get('sessionDate')?.errors?.['duplicateDate'] &&
+           session.get('sessionDate')?.touched"
+            >
+              No se pueden programar múltiples sesiones en el mismo día
+            </div>
+
+            <!-- Mantener el mensaje existente para domingos -->
+            <div
+              class="mt-1 text-sm text-red-600"
+              *ngIf="session.get('sessionDate')?.errors?.['invalidDay'] &&
+           session.get('sessionDate')?.touched"
             >
               No se pueden programar sesiones los domingos
             </div>

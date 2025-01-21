@@ -114,7 +114,6 @@ export class PatientRegisterComponent implements OnInit {
             Validators.maxLength(30),
           ],
         ],
-
         dni: [
           '',
           [Validators.required, Validators.pattern('^[0-9]{8}$')],
@@ -135,10 +134,12 @@ export class PatientRegisterComponent implements OnInit {
         sessionDates: this.fb.array([]),
       },
       {
-        validators: this.checkDuplicateDNIPatientAndTutor(),
+        validators: [
+          this.checkDuplicateDNIPatientAndTutor(),
+          this.duplicateDatesValidator()
+        ],
       }
     );
-
 
     this.patientForm.get('idPlan')?.valueChanges.subscribe(planId => {
       console.log('Plan ID recibido:', planId, 'tipo:', typeof planId);
@@ -185,22 +186,20 @@ export class PatientRegisterComponent implements OnInit {
 
     // Inicializar rooms como array vacío
     this.rooms = [];
-
     this.roomsMap = new Map<number, any[]>();
-
     this.therapistsMap = new Map<number, any[]>();
 
+    // Inicializar primera sesión y cargar planes
     this.addSession();
-
     this.loadPlans();
 
-
-    // Si hay un plan seleccionado, actualizar los date pickers
+    // Verificar plan seleccionado inicial
     const selectedPlan = this.patientForm.get('idPlan')?.value;
     if (selectedPlan) {
       this.updateDatePickers(selectedPlan);
     }
 
+    // Suscripciones para validación de DNI
     this.patientForm.get('dni')?.valueChanges.subscribe(() => {
       if (this.patientForm.get('dni')?.touched) {
         this.patientForm.updateValueAndValidity();
@@ -313,6 +312,47 @@ export class PatientRegisterComponent implements OnInit {
         controls.minute.setValue('00', { emitEvent: false }); // Reinicia a 00 si es inválido
       }
     }
+  }
+
+  private duplicateDatesValidator(): ValidatorFn {
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+      const sessionDates = formGroup.get('sessionDates') as FormArray;
+      if (!sessionDates || sessionDates.length === 0) return null;
+
+      const dates = sessionDates.controls
+        .map(control => control.get('sessionDate')?.value)
+        .filter(date => date); // Filtra valores nulos/undefined
+
+      // Verificar duplicados
+      const uniqueDates = new Set(dates);
+      const hasDuplicates = uniqueDates.size !== dates.length;
+
+      if (hasDuplicates) {
+        // Marcar los campos duplicados
+        sessionDates.controls.forEach((control, index) => {
+          const currentDate = control.get('sessionDate')?.value;
+          if (currentDate) {
+            const isDuplicate = dates.filter(date => date === currentDate).length > 1;
+            if (isDuplicate) {
+              control.get('sessionDate')?.setErrors({ duplicateDate: true });
+              control.get('sessionDate')?.markAsTouched();
+            }
+          }
+        });
+        return { duplicateDates: true };
+      }
+
+      // Limpiar errores si no hay duplicados
+      sessionDates.controls.forEach(control => {
+        const dateControl = control.get('sessionDate');
+        if (dateControl?.errors?.['duplicateDate']) {
+          const { duplicateDate, ...restErrors } = dateControl.errors;
+          dateControl.setErrors(Object.keys(restErrors).length ? restErrors : null);
+        }
+      });
+
+      return null;
+    };
   }
 
   checkDuplicateDNI(
@@ -503,6 +543,28 @@ export class PatientRegisterComponent implements OnInit {
 
     if (!sessionDate || !startTime) return;
 
+    // Resetear las selecciones de sala y terapeuta cuando cambia la fecha
+    session.get('room')?.setValue(null);
+    session.get('therapist')?.setValue(null);
+
+    // Validar el formulario completo para detectar fechas duplicadas
+    this.patientForm.updateValueAndValidity();
+
+    // Verificar si hay fechas duplicadas
+    const dates = this.sessionDates.controls
+      .map(control => control.get('sessionDate')?.value)
+      .filter((date): date is string => !!date);
+
+    const dateCount = dates.reduce((acc, date) => {
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Marcar error si la fecha actual está duplicada
+    if (dateCount[sessionDate] > 1) {
+      session.get('sessionDate')?.setErrors({ duplicateDate: true });
+    }
+
     const selectedRoom = session.get('room')?.value;
     const endTime24 = this.calculateEndTime24Hours(startTime);
     session.get('endTime')?.setValue(endTime24, { emitEvent: false });
@@ -531,7 +593,13 @@ export class PatientRegisterComponent implements OnInit {
           if (therapeuticRooms.length === 0) {
             session.get('room')?.setErrors({ noAvailableRooms: true });
           } else {
-            session.get('room')?.setErrors(null);
+            const currentErrors = session.get('room')?.errors;
+            if (currentErrors) {
+              const { noAvailableRooms, ...restErrors } = currentErrors;
+              session.get('room')?.setErrors(
+                Object.keys(restErrors).length ? restErrors : null
+              );
+            }
           }
         },
         error: (err) => {
@@ -545,16 +613,24 @@ export class PatientRegisterComponent implements OnInit {
       .getAvailableTherapists(sessionDate, startTime, endTime24)
       .subscribe({
         next: (therapists) => {
-          this.therapistsMap.set(index, therapists); // Actualizar el mapa de terapeutas disponibles para esta sesión
+          this.therapistsMap.set(index, therapists);
 
+          // Validar disponibilidad de terapeutas
           if (therapists.length === 0) {
             session.get('therapist')?.setErrors({ noAvailableTherapists: true });
           } else {
-            session.get('therapist')?.setErrors(null);
+            const currentErrors = session.get('therapist')?.errors;
+            if (currentErrors) {
+              const { noAvailableTherapists, ...restErrors } = currentErrors;
+              session.get('therapist')?.setErrors(
+                Object.keys(restErrors).length ? restErrors : null
+              );
+            }
           }
         },
         error: (err) => {
           console.error('Error al cargar terapeutas disponibles:', err);
+          session.get('therapist')?.setErrors({ loadError: true });
         },
       });
   }

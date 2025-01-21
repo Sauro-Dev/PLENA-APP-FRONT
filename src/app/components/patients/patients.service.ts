@@ -4,6 +4,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {RenewPlan} from "./renew-plan";
 import {ListPatient} from "./list-patient";
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 
 @Injectable({
@@ -14,10 +16,22 @@ export class PatientsService {
 
   constructor(private http: HttpClient) {}
 
+
   getPatients(): Observable<ListPatient[]> {
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<ListPatient[]>(`${this.apiUrl}/all`, { headers });
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Accept', 'application/json');
+
+    return this.http.get<ListPatient[]>(`${this.apiUrl}/all`, { headers }).pipe(
+      catchError(error => {
+        if (error.status === 400) {
+          console.error('Error en la solicitud:', error);
+          return throwError(() => new Error('Error al obtener los pacientes. Por favor, intente nuevamente.'));
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   createPatient(data: {
@@ -36,13 +50,25 @@ export class PatientsService {
     status: any
   }): Observable<any> {
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
     return this.http.post<any>(`${this.apiUrl}/register`, data, {
       headers,
-      responseType: 'json' as 'json',
-    });
+    }).pipe(
+      catchError(error => {
+        if (error.status === 400) {
+          const errorMessage = error.error?.message || 'Error al registrar el paciente';
+          console.error('Error en la creación:', errorMessage);
+          return throwError(() => new Error(errorMessage));
+        }
+        return throwError(() => error);
+      })
+    );
   }
+
   getAvailableTherapists(sessionDate: string, startTime: string, endTime: string): Observable<any[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
