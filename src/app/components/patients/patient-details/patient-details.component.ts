@@ -86,4 +86,12 @@ export class PatientDetailsComponent implements OnInit {
         return 'Desconocido';
     }
   }
+
+  renewPlan(): void {
+    if (!this.patient || !this.patient.idPatient) {
+      console.error('No se puede renovar el plan: paciente no cargado o sin ID.');
+      return;
+    }
+    this.router.navigate(['/patients/renew-plan', this.patient.idPatient]);
+  }
 }

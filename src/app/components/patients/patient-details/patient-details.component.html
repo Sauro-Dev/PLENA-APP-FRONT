@@ -138,14 +138,24 @@
       <div class="flex justify-center gap-8 mt-8">
         <a
           class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
-          routerLink="/patients">
+          routerLink="/patients"
+        >
           Volver a la Lista
         </a>
 
         <button
           class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
-          (click)="editPatient()">
+          (click)="editPatient()"
+        >
           Editar Paciente
+        </button>
+
+        <button
+          *ngIf="patient.planStatus === 'COMPLETADO' && !patient.status"
+          class="bg-green-100 text-green-700 px-6 py-3 rounded-full text-base font-medium hover:bg-green-200 transition duration-200"
+          (click)="renewPlan()"
+        >
+          Renovar Plan
         </button>
       </div>
     </div>

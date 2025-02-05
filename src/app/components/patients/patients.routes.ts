@@ -25,4 +25,10 @@ export default [
       import('./patient-edit/patient-edit.component').then((m) => m.PatientEditComponent),
     data: { breadcrumb: 'Editar Paciente' },
   },
+  {
+    path: 'renew-plan/:patientId',
+    loadComponent: () =>
+      import('./renew-plan/renew-plan.component').then((m) => m.RenewPlanComponent),
+    data: { breadcrumb: 'Renovar Plan' },
+  },
 ] as Routes;

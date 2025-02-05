@@ -1,0 +1,93 @@
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-3xl mx-auto">
+  <!-- Contenido principal -->
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <h1 class="text-2xl font-bold mb-6 text-center text-blue-800">Renovar Plan</h1>
+
+    <!-- Formulario de Renovación -->
+    <form [formGroup]="renewForm" (ngSubmit)="onSubmit()">
+      <!-- Plan Actual -->
+      <div *ngIf="patient" class="space-y-4 mb-6">
+        <h2 class="text-xl font-medium text-gray-700">Paciente</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">ID:</span>
+            <span class="ml-auto text-gray-600">{{ patient.idPatient }}</span>
+          </div>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-user text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Paciente:</span>
+            <span class="ml-auto text-gray-600">{{ patient.name }}</span>
+          </div>
+        </div>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-lightbulb text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Plan Actual:</span>
+          <span class="ml-auto text-gray-600">{{ selectedPlan?.name }}</span>
+        </div>
+      </div>
+
+      <!-- Selección de Plan -->
+      <div class="mb-4">
+        <label for="idPlan" class="block text-gray-700 font-medium">Seleccionar Nuevo Plan</label>
+        <select
+          id="idPlan"
+          class="block w-full p-2 border border-gray-300 rounded mt-1"
+          formControlName="idPlan"
+          (change)="onChangePlan($event)"> <!-- Cambiado a $event -->
+          <option value="" disabled selected>-- Seleccione un Plan --</option>
+          <option *ngFor="let plan of plans" [value]="plan.idPlan">
+            {{ plan.name }}
+          </option>
+        </select>
+        <div *ngIf="renewForm.get('idPlan')?.invalid && renewForm.get('idPlan')?.touched" class="text-red-500">
+          Seleccione un plan válido.
+        </div>
+      </div>
+
+      <!-- Fechas de las Sesiones y Configuración -->
+      <div *ngIf="hasSessionDates" formArrayName="sessionDates" class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Configurar Sesiones</h2>
+        <div *ngFor="let session of sessionDates.controls; let i = index" [formGroupName]="i" class="space-y-2">
+          <label class="font-medium text-gray-500 block">Sesión {{ i + 1 }}</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="date"
+              formControlName="sessionDate"
+              class="p-2 border rounded w-full"
+              (blur)="onSessionChange(i)" />
+            <select formControlName="room" class="p-2 border rounded w-full">
+              <option *ngFor="let room of roomsMap.get(i)" [value]="room.idRoom">
+                {{ room.name }}
+              </option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <select formControlName="therapist" class="p-2 border rounded w-full">
+              <option *ngFor="let therapist of therapistsMap.get(i)" [value]="therapist.id">
+                {{ therapist.name }}
+              </option>
+            </select>
+            <input
+              type="time"
+              formControlName="startTime"
+              class="p-2 border rounded w-full"
+              (change)="onSessionChange(i)" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex justify-end mt-6">
+        <button
+          type="button"
+          class="bg-red-500 text-white px-4 py-2 rounded mr-3"
+          (click)="onCancel()">Cancelar</button>
+        <button
+          type="submit"
+          class="bg-green-500 text-white px-4 py-2 rounded"
+          [disabled]="renewForm.invalid">Renovar Plan</button>
+      </div>
+    </form>
+  </div>
+</section>
