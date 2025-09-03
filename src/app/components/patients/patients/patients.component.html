@@ -1,8 +1,34 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Gestión de Pacientes</h1>
+  <!-- Título Principal (versión móvil) -->
+  <h1 class="text-3xl font-semibold text-center text-blue-900 mb-6 block md:hidden">
+    Gestión de Pacientes
+  </h1>
 
-  <!-- Botón de agregar -->
-  <div class="flex justify-end mb-8">
+  <!-- Título Principal (versión escritorio) -->
+  <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
+    Gestión de Pacientes
+  </h1>
+
+  <!-- Botones de acción -->
+  <div class="flex justify-between mb-8">
+    <!-- Botones de planes a la izquierda -->
+    <div class="flex gap-4">
+      <button
+        class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="openViewPlansModal()"
+      >
+        <i class="fas fa-list-alt mr-2"></i> Ver Planes
+      </button>
+
+      <button
+        class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
+        (click)="openPlanModal()"
+      >
+        <i class="fas fa-plus-circle mr-2"></i> Registrar Plan
+      </button>
+    </div>
+
+    <!-- Botón de agregar paciente a la derecha -->
     <button
       class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
       [routerLink]="'/patients/register'"
@@ -11,55 +37,280 @@
     </button>
   </div>
 
-  <!-- Buscar y mostrar -->
-  <div class="flex flex-wrap justify-between items-center bg-white p-6 rounded-lg mb-8 shadow-md">
-    <div class="w-full md:w-1/2 lg:w-1/3 mb-4 md:mb-0">
-      <label for="buscar" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+  <!-- Tu contenido existente (búsqueda, grid, paginación) ... -->
+
+  <!-- Modal para Ver Planes -->
+  <div *ngIf="showViewPlansModal"
+       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full m-4">
+      <!-- Encabezado del modal -->
+      <div class="border-b p-4 flex justify-between items-center">
+        <h3 class="text-xl font-semibold text-blue-800">
+          Planes Disponibles
+        </h3>
+        <button
+          (click)="closeViewPlansModal()"
+          class="text-gray-400 hover:text-gray-500 focus:outline-none"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Contenido del modal -->
+      <div class="p-6">
+        <!-- Grid de cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div *ngFor="let plan of plans; let i = index"
+               class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
+            <!-- Círculo con número de orden -->
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl font-bold text-blue-800">{{ i + 1 }}</span>
+              </div>
+            </div>
+
+            <!-- Nombre del plan -->
+            <h4 class="text-xl font-bold text-center text-blue-800 mb-4">
+              {{ plan.name }}
+            </h4>
+
+            <!-- Detalles del plan -->
+            <div class="space-y-2 text-center">
+              <p class="text-gray-600">
+                {{ plan.numOfSessions * 4 }} sesiones por mes
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay planes -->
+        <div *ngIf="plans.length === 0" class="text-center text-gray-500 py-8">
+          No hay planes registrados
+        </div>
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="border-t p-4 flex justify-end">
+        <button
+          (click)="closeViewPlansModal()"
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Registro de Plan -->
+  <div *ngIf="showPlanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+      <div class="border-b p-4">
+        <h3 class="text-xl font-semibold text-blue-800">
+          Registrar Plan
+        </h3>
+      </div>
+
+      <form [formGroup]="planForm" (ngSubmit)="savePlan()" class="p-6">
+        <div class="mb-6">
+          <label for="numOfSessions" class="block text-sm font-medium text-gray-700 mb-2">
+            Cantidad de Sesiones por Semana
+          </label>
+          <input
+            id="numOfSessions"
+            type="number"
+            formControlName="numOfSessions"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ingrese el número de sesiones (1-6)"
+            min="1"
+            max="6"
+          />
+          <div *ngIf="planForm.get('numOfSessions')?.touched" class="mt-1 text-sm">
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['required']">
+              El número de sesiones es requerido
+            </p>
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['min']">
+              El mínimo de sesiones es 1
+            </p>
+            <p class="text-red-500" *ngIf="planForm.get('numOfSessions')?.errors?.['max']">
+              El máximo de sesiones es 6
+            </p>
+          </div>
+
+          <!-- Información detallada de los planes -->
+          <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+            <p class="font-medium text-blue-800 mb-2">Guía de Planes:</p>
+            <div class="space-y-2 text-sm text-gray-600">
+              <ng-container *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="flex items-center p-2 rounded transition-colors"
+                     [ngClass]="{
+             'bg-red-100': isExistingPlan(i),
+             'hover:bg-blue-100': !isExistingPlan(i)
+           }">
+                  <!-- Información del plan -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center">
+            <span [ngClass]="{'text-red-800': isExistingPlan(i)}" class="mr-2">
+              {{i}} {{i === 1 ? 'sesión' : 'sesiones'}} semanal{{i === 1 ? '' : 'es'}} (Plan {{getPlanName(i).split(' ')[1]}}):
+            </span>
+                      <div class="flex items-center gap-2 flex-shrink-0">
+              <span [ngClass]="{'text-red-800': isExistingPlan(i)}">
+                {{i * 4}} sesiones al mes
+              </span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Badge "Existente" -->
+                  <div class="flex-shrink-0 ml-2" *ngIf="isExistingPlan(i)">
+          <span class="text-xs bg-red-200 text-red-800 px-2 py-1 rounded whitespace-nowrap">
+            Existente
+          </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Mensaje de resultado según la selección -->
+          <div *ngIf="planForm.get('numOfSessions')?.valid && planForm.get('numOfSessions')?.value"
+               class="mt-4 p-4 rounded-lg text-center"
+               [ngClass]="{
+       'bg-red-50': isExistingPlan(planForm.get('numOfSessions')?.value),
+       'bg-green-50': !isExistingPlan(planForm.get('numOfSessions')?.value)
+     }">
+            <p [ngClass]="{
+       'text-red-800': isExistingPlan(planForm.get('numOfSessions')?.value),
+       'text-green-800': !isExistingPlan(planForm.get('numOfSessions')?.value)
+     }">
+              <ng-container *ngIf="isExistingPlan(planForm.get('numOfSessions')?.value)">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                Ya existe un plan con {{ planForm.get('numOfSessions')?.value * 4 }} sesiones mensuales
+              </ng-container>
+              <ng-container *ngIf="!isExistingPlan(planForm.get('numOfSessions')?.value)">
+                <i class="fas fa-check-circle mr-2"></i>
+                Este plan incluirá
+                <span class="font-bold">
+        {{ planForm.get('numOfSessions')?.value * 4 }} sesiones mensuales
+      </span>
+              </ng-container>
+            </p>
+          </div>
+
+
+
+        </div>
+
+        <div class="flex justify-end gap-4">
+          <button
+            type="button"
+            (click)="closePlanModal()"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="planForm.invalid || isExistingPlan(planForm.get('numOfSessions')?.value)"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Filtros y búsqueda (Escritorio) -->
+  <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-md mb-8">
+    <!-- Campo de búsqueda -->
+    <div class="relative col-span-2">
+      <label for="buscar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
       <div class="relative">
         <input
-          id="buscar"
+          id="buscar-escritorio"
           type="text"
-          class="border border-gray-300 rounded-lg w-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full border border-gray-300 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           [(ngModel)]="searchQuery"
           (input)="onSearch()"
           placeholder="Buscar por nombre"
         />
-        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"></i>
       </div>
     </div>
-    <div class="w-full md:w-1/2 lg:w-1/3">
-      <label for="mostrar" class="block text-lg font-medium text-gray-700 mb-2">Mostrar:</label>
+
+    <!-- Espacio vacío -->
+    <div></div>
+
+    <!-- Selección de elementos por página -->
+    <div class="relative">
+      <label for="mostrar-escritorio" class="block text-lg font-medium text-gray-700 mb-2">Por Página:</label>
       <select
-        id="mostrar"
-        class="border border-gray-300 rounded-lg w-full px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="mostrar-escritorio"
+        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         [(ngModel)]="itemsPerPage"
         (change)="onItemsPerPageChange()"
       >
-        <option value="10">10 pacientes</option>
-        <option value="20">20 pacientes</option>
+        <option value="12">12 pacientes</option>
+        <option value="24">24 pacientes</option>
       </select>
     </div>
   </div>
 
+  <!-- Mensaje si no se encuentran pacientes -->
+  <div *ngIf="filteredPatients.length === 0" class="text-center text-gray-500 text-xl mt-8">
+    No se encontraron pacientes registrados.
+  </div>
+
   <!-- Grid de Pacientes -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+  <div *ngIf="paginatedPatients.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <!-- Iteración para generar tarjetas de pacientes -->
     <div
-      *ngFor="let patient of filteredPatients"
-      class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 relative"
+      *ngFor="let patient of paginatedPatients"
+      class="bg-white shadow-lg rounded-2xl p-4 text-center transition-transform duration-200 hover:scale-[1.03] space-y-4"
     >
       <!-- Indicador de estado -->
       <div
-        class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-4 border-white shadow-md"
-        [ngClass]="{'bg-green-500': patient.status, 'bg-red-500': !patient.status}"
+        class="w-8 h-8 rounded-full mx-auto"
+        [ngClass]="{
+          'bg-green-500': patient.status,
+          'bg-red-500': !patient.status
+        }"
       ></div>
 
-      <p class="text-2xl font-bold text-blue-800 mt-4">Paciente {{ patient.idPatient }}</p>
-      <p class="text-lg text-gray-700 mt-2">{{ patient.name }}</p>
-      <p class="text-md text-gray-600">{{ patient.paternalSurname }} {{ patient.maternalSurname }}</p>
-      <p class="text-sm text-gray-500 mt-2">DNI: {{ patient.dni }}</p>
+      <!-- Nombre del Paciente -->
+      <h3 class="text-xl font-semibold text-blue-800 mt-2">
+        {{ patient.name }}
+      </h3>
+
+      <!-- Separador -->
+      <hr class="border-gray-300 mt-2">
+
+      <!-- Información del Paciente -->
+      <div class="space-y-3 text-left">
+        <!-- Apellidos -->
+        <div class="flex items-center">
+          <i class="ti ti-user text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">Apellidos:</span>
+          <span class="ml-2 text-gray-800">{{ patient.paternalSurname }} {{ patient.maternalSurname }}</span>
+        </div>
+
+        <!-- Edad -->
+        <div class="flex items-center">
+          <i class="ti ti-calendar text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">Edad:</span>
+          <span class="ml-2 text-gray-800">{{ patient.age }}</span>
+        </div>
+
+        <!-- DNI -->
+        <div class="flex items-center">
+          <i class="ti ti-id text-lg text-blue-700 mr-3"></i>
+          <span class="font-medium text-gray-600">DNI:</span>
+          <span class="ml-2 text-gray-800">{{ patient.dni }}</span>
+        </div>
+      </div>
+
+      <!-- Botón Ver Detalles -->
       <a
         [routerLink]="['/patients/details', patient.idPatient]"
-        class="mt-4 inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full hover:bg-blue-200 transition duration-300"
+        class="block mt-4 bg-blue-100 text-blue-700 px-3 py-2 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
       >
         Ver Detalles
       </a>
@@ -67,35 +318,31 @@
   </div>
 
   <!-- Paginación -->
-  <div class="flex justify-center mt-10 space-x-2">
+  <div class="flex justify-center mt-6 space-x-2">
     <button
-      class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300"
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 disabled:opacity-50"
       (click)="goToPage(1)"
-      [disabled]="currentPage === 1"
-    >
-      <i class="fas fa-angle-double-left"></i>
+      [disabled]="currentPage === 1">
+      &lt;&lt;
     </button>
     <button
-      class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300"
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 disabled:opacity-50"
       (click)="goToPage(currentPage - 1)"
-      [disabled]="currentPage === 1"
-    >
-      <i class="fas fa-angle-left"></i>
+      [disabled]="currentPage === 1">
+      &lt;
     </button>
-    <span class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg">{{ currentPage }}</span>
+    <span class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">{{ currentPage }}</span>
     <button
-      class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300"
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 disabled:opacity-50"
       (click)="goToPage(currentPage + 1)"
-      [disabled]="currentPage >= Math.ceil(filteredPatients.length / itemsPerPage)"
-    >
-      <i class="fas fa-angle-right"></i>
+      [disabled]="currentPage >= Math.ceil(filteredPatients.length / itemsPerPage)">
+      &gt;
     </button>
     <button
-      class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300"
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 disabled:opacity-50"
       (click)="goToPage(Math.ceil(filteredPatients.length / itemsPerPage))"
-      [disabled]="currentPage >= Math.ceil(filteredPatients.length / itemsPerPage)"
-    >
-      <i class="fas fa-angle-double-right"></i>
+      [disabled]="currentPage >= Math.ceil(filteredPatients.length / itemsPerPage)">
+      &gt;&gt;
     </button>
   </div>
 </div>

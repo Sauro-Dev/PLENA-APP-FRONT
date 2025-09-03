@@ -1,0 +1,245 @@
+<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
+  <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12">
+    Reportes
+  </h1>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Columna 1: Reporte General -->
+    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col h-full">
+      <div class="flex-grow">
+        <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Reporte General</h2>
+        <p class="text-gray-600 mb-4 text-center">Genera un reporte general de todas las sesiones.</p>
+
+        <div class="space-y-4">
+          <div class="flex items-center border border-gray-300 rounded-lg p-4">
+            <input
+              type="checkbox"
+              id="custom-date-toggle"
+              [(ngModel)]="useCustomDateGeneral"
+              class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            >
+            <label for="custom-date-toggle" class="text-gray-700 text-sm">
+              Asignar fecha personalizada
+            </label>
+          </div>
+
+          <div *ngIf="!useCustomDateGeneral" class="bg-yellow-100 bg-opacity-75 text-yellow-800 p-2 rounded-md text-xs text-center">
+            <p>Si no se asigna una fecha personalizada, se tomará el mes anterior.</p>
+          </div>
+
+          <div *ngIf="useCustomDateGeneral" class="space-y-4">
+            <div>
+              <label for="general-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+              <input
+                id="general-start-date"
+                type="date"
+                [(ngModel)]="generalStartDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+
+            <div>
+              <label for="general-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
+              <input
+                id="general-end-date"
+                type="date"
+                [(ngModel)]="generalEndDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="text-red-500 text-sm text-center mb-4">{{ errorMessage }}</div>
+        </div>
+      </div>
+
+      <button
+        (click)="generateGeneralReport()"
+        class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+        </svg>
+        Generar Reporte
+      </button>
+    </div>
+
+    <!-- Columna 2: Reporte por Terapeuta -->
+    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col h-full">
+      <div class="flex-grow">
+        <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Reporte por Terapeuta</h2>
+        <p class="text-gray-600 mb-4 text-center">Genera un reporte de sesiones filtrado por terapeuta.</p>
+
+        <div class="space-y-4">
+          <!-- Selección de terapeuta -->
+          <div>
+            <label for="therapist-select" class="block text-gray-700 text-sm mb-2">Terapeuta:</label>
+            <select
+              id="therapist-select"
+              [(ngModel)]="selectedTherapistId"
+              (change)="onTherapistChange($event)"
+              class="w-full p-2 border rounded-md text-gray-700 text-sm"
+            >
+              <option value="">Seleccionar Terapeuta</option>
+              <option *ngFor="let therapist of therapists" [value]="therapist.id">
+                {{ therapist.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Toggle de fecha personalizada -->
+          <div class="flex items-center border border-gray-300 rounded-lg p-4">
+            <input
+              type="checkbox"
+              id="therapist-date-toggle"
+              [(ngModel)]="useCustomDateTherapist"
+              class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            >
+            <label for="therapist-date-toggle" class="text-gray-700 text-sm">
+              Asignar fecha personalizada
+            </label>
+          </div>
+
+          <!-- Mensaje informativo cuando no se usa fecha personalizada -->
+          <div *ngIf="!useCustomDateTherapist" class="bg-yellow-100 bg-opacity-75 text-yellow-800 p-2 rounded-md text-xs text-center">
+            <p>Si no se asigna una fecha personalizada, se tomará el mes anterior.</p>
+          </div>
+
+          <!-- Campos de fecha que aparecen solo cuando se activa el toggle -->
+          <div *ngIf="useCustomDateTherapist" class="space-y-4">
+            <div>
+              <label for="therapist-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+              <input
+                id="therapist-start-date"
+                type="date"
+                [(ngModel)]="therapistStartDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+
+            <div>
+              <label for="therapist-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
+              <input
+                id="therapist-end-date"
+                type="date"
+                [(ngModel)]="therapistEndDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        (click)="generateTherapistReport()"
+        class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Generar Reporte
+      </button>
+    </div>
+
+    <!-- Columna 3: Reporte por Paciente -->
+    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col h-full">
+      <div class="flex-grow">
+        <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Reporte por Paciente</h2>
+        <p class="text-gray-600 mb-4 text-center">Genera un reporte de sesiones filtrado por paciente.</p>
+
+        <div class="space-y-4">
+          <!-- Selección de paciente -->
+          <div>
+            <label for="patient-select" class="block text-gray-700 text-sm mb-2">Paciente:</label>
+            <select
+              id="patient-select"
+              [(ngModel)]="selectedPatientId"
+              class="w-full p-2 border rounded-md text-gray-700 text-sm"
+            >
+              <option value="">Seleccionar Paciente</option>
+              <option
+                *ngFor="let patient of patients"
+                [value]="patient.idPatient.toString()"
+              >
+                {{ patient.name }} {{ patient.paternalSurname }} {{ patient.maternalSurname }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Toggle de fecha personalizada -->
+          <div class="flex items-center border border-gray-300 rounded-lg p-4">
+            <input
+              type="checkbox"
+              id="patient-date-toggle"
+              [(ngModel)]="useCustomDatePatient"
+              class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            >
+            <label for="patient-date-toggle" class="text-gray-700 text-sm">
+              Asignar fecha personalizada
+            </label>
+          </div>
+
+          <!-- Mensaje informativo cuando no se usa fecha personalizada -->
+          <div *ngIf="!useCustomDatePatient" class="bg-yellow-100 bg-opacity-75 text-yellow-800 p-2 rounded-md text-xs text-center">
+            <p>Si no se asigna una fecha personalizada, se tomará el mes anterior.</p>
+          </div>
+
+          <!-- Campos de fecha que aparecen solo cuando se activa el toggle -->
+          <div *ngIf="useCustomDatePatient" class="space-y-4">
+            <div>
+              <label for="patient-start-date" class="block text-gray-700 text-sm mb-2">Fecha de Inicio:</label>
+              <input
+                id="patient-start-date"
+                type="date"
+                [(ngModel)]="patientStartDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+
+            <div>
+              <label for="patient-end-date" class="block text-gray-700 text-sm mb-2">Fecha de Fin:</label>
+              <input
+                id="patient-end-date"
+                type="date"
+                [(ngModel)]="patientEndDate"
+                class="w-full p-2 border rounded-md text-gray-700 text-sm"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        (click)="generatePatientReport()"
+        class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Generar Reporte
+      </button>
+    </div>
+
+  <!-- Modal -->
+  <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+      <div class="text-xl font-semibold text-blue-800 mb-4">
+        {{ modalTitle }}
+      </div>
+      <div class="text-gray-600 mb-6">
+        {{ modalMessage }}
+      </div>
+      <div class="flex justify-end">
+        <button
+          (click)="closeModal()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

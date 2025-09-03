@@ -1,62 +1,128 @@
-<header class="relative flex items-center bg-blue-800 h-24 justify-between">
-  <!-- Logo -->
-  <div class="flex items-center gap-x-4 p-2">
-    <img ngSrc="../../../../assets/logo-b.png" alt="logo-b" width="90" height="90" class="h-22 w-22 p-1" priority>
-    <h1 class="text-3xl font-thin text-white">PLENA-Mente</h1>
-  </div>
+<!-- Contenedor principal -->
+<div class="relative">
+  <!-- Oscurecimiento del fondo cuando la barra lateral está abierta -->
+  <div
+    *ngIf="menuOpen"
+    (click)="closeMenu()"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+  ></div>
 
-  <!-- Navegación principal -->
-  <nav class="absolute left-1/2 transform -translate-x-1/2">
-    <ul class="text-white flex space-x-6">
-      <!-- Calendario -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-calendar text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Calendario" [routerLink]="'/calendar'"></i>
-        <span class="text-sm mt-1">Calendario</span>
-      </li>
+  <!-- Encabezado -->
+  <header class="relative flex items-center bg-blue-800 h-24 justify-between lg:justify-start px-4 lg:px-8">
+    <!-- Botón hamburguesa -->
+    <button
+      (click)="toggleMenu()"
+      class="lg:hidden text-white text-3xl focus:outline-none"
+    >
+      <i class="ti ti-menu"></i>
+    </button>
 
-      <!-- Pacientes -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-clipboard-smile text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Pacientes" [routerLink]="'/patients'"></i>
-        <span class="text-sm mt-1">Pacientes</span>
-      </li>
+    <!-- Logo y texto -->
+    <div class="flex items-center gap-x-4">
+      <img
+        ngSrc="../../../../assets/logo-b.webp"
+        alt="logo-b"
+        width="164"
+        height="174"
+        class="h-16 w-16"
+        loading="eager"
+        fetchpriority="high"
+      >
+      <h1 class="text-3xl font-thin text-white">PLENA-Mente</h1>
+    </div>
 
-      <!-- Ambientes -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-door text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Ambientes" [routerLink]="'/rooms'"></i>
-        <span class="text-sm mt-1">Ambientes</span>
-      </li>
+    <!-- Navegación principal (Desktop) -->
+    <nav class="hidden lg:flex flex-1 justify-center">
+      <ul class="flex space-x-8">
+        <li class="flex flex-col items-center">
+          <i class="ti ti-calendar text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/calendar'"></i>
+          <span class="text-lg text-white mt-1">Calendario</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-clipboard-smile text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/patients'"></i>
+          <span class="text-lg text-white mt-1">Pacientes</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-door text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/rooms'"></i>
+          <span class="text-lg text-white mt-1">Ambientes</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-packages text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/storage'"></i>
+          <span class="text-lg text-white mt-1">Inventario</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-users text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/users'"></i>
+          <span class="text-lg text-white mt-1">Usuarios</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-bulb text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/areas'"></i>
+          <span class="text-lg text-white mt-1">Áreas</span>
+        </li>
+        <li class="flex flex-col items-center">
+          <i class="ti ti-report text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/reports'"></i>
+          <span class="text-lg text-white mt-1">Reportes</span>
+        </li>
+      </ul>
+    </nav>
 
-      <!-- Inventario -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-packages text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Inventario" [routerLink]="'/storage'"></i>
-        <span class="text-sm mt-1">Inventario</span>
-      </li>
+    <!-- Perfil y Cerrar sesión -->
+    <div class="hidden lg:flex items-center space-x-6">
+      <div class="flex flex-col items-center">
+        <i class="ti ti-user-circle text-3xl text-white hover:scale-125 cursor-pointer" [routerLink]="'/profile'"></i>
+        <span class="text-lg text-white mt-1">Perfil</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <i class="ti ti-logout text-3xl text-white hover:scale-125 cursor-pointer" (click)="logout()"></i>
+        <span class="text-lg text-white mt-1">Cerrar sesión</span>
+      </div>
+    </div>
+  </header>
 
-      <!-- Usuarios -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-users text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Usuarios" [routerLink]="'/users'"></i>
-        <span class="text-sm mt-1">Usuarios</span>
-      </li>
+  <!-- Barra lateral (Responsive) -->
+  <nav
+    [class]="menuOpen ? 'translate-x-0' : '-translate-x-full'"
+    class="fixed top-0 left-0 w-64 h-full bg-blue-800 text-white transform transition-transform duration-300 z-50 lg:hidden flex flex-col justify-between"
+  >
+    <div class="p-6 space-y-4">
+      <!-- Opciones del menú -->
+      <ul class="space-y-4">
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/calendar'">
+          <i class="ti ti-calendar"></i>
+          <span>Calendario</span>
+        </li>
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/patients'">
+          <i class="ti ti-clipboard-smile"></i>
+          <span>Pacientes</span>
+        </li>
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/rooms'">
+          <i class="ti ti-door"></i>
+          <span>Ambientes</span>
+        </li>
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/storage'">
+          <i class="ti ti-packages"></i>
+          <span>Inventario</span>
+        </li>
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/users'">
+          <i class="ti ti-users"></i>
+          <span>Usuarios</span>
+        </li>
+        <li class="flex items-center gap-x-4 text-xl border-t border-white/20 pt-4 cursor-pointer" (click)="closeMenu()" [routerLink]="'/areas'">
+          <i class="ti ti-bulb"></i>
+          <span>Áreas</span>
+        </li>
+      </ul>
+    </div>
 
-      <!-- Áreas -->
-      <li class="flex flex-col items-center">
-        <i class="ti ti-bulb text-3xl hover:scale-125 duration-150 transition-transform cursor-pointer" title="Áreas" [routerLink]="'/areas'"></i>
-        <span class="text-sm mt-1">Áreas</span>
-      </li>
-    </ul>
+    <!-- Perfil y cerrar sesión -->
+    <div class="p-6 space-y-4 border-t border-white/20">
+      <div class="flex items-center gap-x-4 text-xl cursor-pointer" (click)="closeMenu()" [routerLink]="'/profile'">
+        <i class="ti ti-user-circle"></i>
+        <span>Perfil</span>
+      </div>
+      <div class="flex items-center gap-x-4 text-xl cursor-pointer" (click)="logout()">
+        <i class="ti ti-logout"></i>
+        <span>Cerrar sesión</span>
+      </div>
+    </div>
   </nav>
-
-  <!-- Perfil y Cerrar sesión -->
-  <div class="flex items-center space-x-6 mr-4 md:mr-10">
-    <!-- Perfil -->
-    <div class="flex flex-col items-center">
-      <i class="ti ti-user-circle text-3xl text-white hover:scale-125 duration-150 transition-transform cursor-pointer" title="Perfil" [routerLink]="'/profile'"></i>
-      <span class="text-sm mt-1 text-white">Perfil</span>
-    </div>
-    <!-- Cerrar sesión -->
-    <div class="flex flex-col items-center">
-      <i class="ti ti-logout text-3xl text-white hover:scale-125 duration-150 transition-transform cursor-pointer" title="Cerrar sesión" (click)="logout()"></i>
-      <span class="text-sm mt-1 text-white">Cerrar sesión</span>
-    </div>
-  </div>
-</header>
+</div>

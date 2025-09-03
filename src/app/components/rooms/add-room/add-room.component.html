@@ -1,36 +1,131 @@
-<section class="flex flex-col items-center mt-12 w-full max-w-xl mx-auto">
-    <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
-      <h1 class="text-3xl font-bold mb-10 text-center">Registrar Ambiente</h1>
-  
-      <!-- Nombre -->
-      <div class="mb-5 relative">
-        <label class="block text-lg font-medium text-gray-700">Nombre</label>
-        <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="name" placeholder="Nombre">
+<section class="flex flex-col items-center w-full max-w-4xl mx-auto p-4 md:p-0 mt-12">
+  <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" class="w-full">
+    <!-- Contenedor principal del formulario -->
+    <div class="border border-gray-300 rounded-lg p-4 md:p-8 shadow-lg w-full flex flex-col items-center bg-white">
+      <!-- Título Registrar Ambiente -->
+      <h1 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center text-blue-900">Registrar Ambiente</h1>
+
+      <!-- Contenedor horizontal para Nombre y Dirección -->
+      <div class="flex flex-col md:flex-row w-full gap-4 md:gap-6 mb-6">
+        <!-- Campo Nombre -->
+        <div class="w-full md:flex-1 relative border rounded-lg shadow-sm">
+          <label for="name" class="absolute -top-3 left-2 bg-white px-1 text-sm font-medium text-gray-500">Nombre</label>
+          <div class="flex items-center px-3 py-2">
+            <i class="ti ti-id text-xl md:text-2xl text-gray-500"></i>
+            <input
+              id="name"
+              type="text"
+              class="flex-1 ml-2 border-none bg-transparent outline-none"
+              formControlName="name"
+              placeholder="Ej Sala 1"
+              [ngClass]="{ 'border-red-500': roomForm.get('name')?.invalid && roomForm.get('name')?.touched }"
+            />
+          </div>
+          <p class="mt-1 text-sm text-red-600 px-4" *ngIf="roomForm.get('name')?.invalid && roomForm.get('name')?.touched">
+            El nombre es requerido.
+          </p>
+        </div>
+
+        <!-- Campo Dirección -->
+        <div class="w-full md:flex-1 relative border rounded-lg shadow-sm">
+          <label for="address" class="absolute -top-3 left-2 bg-white px-1 text-sm font-medium text-gray-500">Dirección</label>
+          <div class="flex items-center px-3 py-2">
+            <i class="ti ti-map-pin text-xl md:text-2xl text-gray-500"></i>
+            <input
+              id="address"
+              type="text"
+              class="flex-1 ml-2 border-none bg-transparent outline-none"
+              formControlName="address"
+              placeholder="Av. "
+              [ngClass]="{ 'border-red-500': roomForm.get('address')?.invalid && roomForm.get('address')?.touched }"
+            />
+          </div>
+          <p class="mt-1 text-sm text-red-600 px-4" *ngIf="roomForm.get('address')?.invalid && roomForm.get('address')?.touched">
+            La dirección es requerida.
+          </p>
+        </div>
       </div>
-  
-      <!-- Dirección -->
-      <div class="mb-5 relative">
-        <label class="block text-lg font-medium text-gray-700">Dirección</label>
-        <input type="text"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          formControlName="address" placeholder="Dirección">
-      </div>
-  
-      <!-- ¿Es Terapéutico? -->
-      <div class="mb-5 relative flex items-center">
-        <label class="block text-lg font-medium text-gray-700 mr-2">¿Es Terapéutico?</label>
-        <input type="checkbox" class="border border-gray-300" formControlName="isTherapeutic">
-      </div>
-  
+
+      <!-- Checkbox: ¿Es Terapéutico? -->
+      <div class="w-full mb-8 flex justify-center">
+        <div class="border rounded-lg shadow-sm p-3 flex items-center gap-2 max-w-sm">
+        <i class="ti ti-heartbeat text-xl text-gray-500"></i>
+        <label for="isTherapeutic" class="font-medium text-gray-700">¿Es Terapéutico?</label>
+        <input id="isTherapeutic" type="checkbox" class="w-5 h-5 ml-auto" formControlName="isTherapeutic" />
+        </div>
+        </div>
+
       <!-- Botones -->
-      <div class="flex gap-5 justify-center mt-10 mb-10">
-        <button type="submit"
-          class="bg-blue-800 text-white px-5 py-2 rounded-lg text-xl hover:bg-blue-700">Guardar</button>
-        <button type="button" (click)="onCancel()"
-          class="bg-gray-500 text-white px-5 py-2 rounded-lg text-xl hover:bg-gray-400">Cancelar</button>
+      <div class="flex flex-col md:flex-row gap-3 w-full md:justify-center">
+        <!-- Botón Guardar -->
+        <button
+          type="submit"
+          (click)="openRegisterModal()"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+          [disabled]="roomForm.invalid"
+        >
+          <i class="ti ti-save text-xl"></i> Guardar
+        </button>
+
+        <!-- Botón Cancelar -->
+        <button
+          type="button"
+          (click)="openCancelModal()"
+          class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+        >
+          <i class="ti ti-arrow-back text-xl"></i> Cancelar
+        </button>
       </div>
-    </form>
-  </section>
-  
+    </div>
+  </form>
+
+    <!-- Modal de Confirmación de Registro -->
+    <div
+      *ngIf="showRegisterModal"
+      class="fixed inset-0 flex items-center justify-center p-4 bg-gray-800 bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mx-4">
+        <h3 class="text-xl font-bold text-blue-800 mb-4">Confirmar Registro</h3>
+        <p class="text-gray-700 mb-6">¿Estás seguro de que deseas registrar esta sala?</p>
+        <div class="flex justify-end gap-3">
+          <button
+            (click)="confirmRegister()"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Sí, Registrar
+          </button>
+          <button
+            (click)="closeRegisterModal()"
+            class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmación de Cancelación -->
+    <div
+      *ngIf="showCancelModal"
+      class="fixed inset-0 flex items-center justify-center p-4 bg-gray-800 bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-4 mx-4">
+        <h3 class="text-xl font-bold text-red-800 mb-4">Confirmar Cancelación</h3>
+        <p class="text-gray-700 mb-6">¿Estás seguro de que deseas cancelar el registro?</p>
+        <div class="flex justify-end gap-3">
+          <button
+            (click)="confirmCancel()"
+            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Sí, Cancelar
+          </button>
+          <button
+            (click)="closeCancelModal()"
+            class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    </div>
+</section>

@@ -1,40 +1,215 @@
-<section class="flex flex-col items-center mt-28">
-    <div class="flex items-center gap-x-4 mb-20">
-        <img ngSrc="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority>
-        <h1 class="text-3xl font-thin">PLENA-Mente</h1>
+<section class="flex justify-center items-center min-h-screen bg-cover bg-center bg-no-repeat"
+         style="background-image: url('assets/terapiasalaazul.png');">
+  <!-- Contenedor principal -->
+  <div class="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md md:max-w-lg lg:max-w-sm mx-4 md:mx-0">
+    <!-- Logo y título -->
+    <div class="flex flex-col items-center gap-y-4 mb-10">
+      <img src="assets/logo-n.webp" alt="logo-n" width="112" height="112" class="h-28 w-28" priority />
+      <h1 class="text-3xl font-thin text-gray-800">PLENA-Mente</h1>
     </div>
-    <h2 class="text-2xl font-thin mb-10">Inicio de Sesión</h2>
 
-    <form (ngSubmit)="login()" #loginForm="ngForm" class="w-full max-w-sm">
-        <div class="mb-8">
-            <h3 class="ml-2">Usuario</h3>
-            <div class="flex items-center border-2 border-black rounded-xl">
-                <input [(ngModel)]="username" name="username" #usernameInput="ngModel" required minlength="3"
-                    class="outline-none text-xl w-80 px-3 py-2" type="text" placeholder="Usuario">
-                <i class="ti ti-user text-4xl"></i>
-            </div>
-            <div *ngIf="usernameInput.invalid && (usernameInput.dirty || usernameInput.touched)"
-                class="text-red-500 text-sm mt-1 ml-2">
-                <div *ngIf="usernameInput.errors?.['required']">El usuario es requerido.</div>
-                <div *ngIf="usernameInput.errors?.['minlength']">El usuario debe tener al menos 3 caracteres.</div>
-            </div>
+    <!-- Formulario -->
+    <form *ngIf="!showForgotPassword" (ngSubmit)="login()" #loginForm="ngForm" class="space-y-6">
+      <!-- Campo Usuario -->
+      <div>
+        <div
+          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input [(ngModel)]="username" name="username" #usernameInput="ngModel" required minlength="3"
+                 class="outline-none text-lg w-full px-3 py-2 rounded-l-lg" type="text" placeholder="Usuario" />
+          <i class="ti ti-user text-2xl px-3 text-gray-500"></i>
         </div>
-        <div class="mb-20">
-            <h3 class="ml-2">Contraseña</h3>
-            <div class="flex items-center border-2 border-black rounded-xl">
-                <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
-                    class="outline-none text-xl w-80 px-3 py-2" type="password" placeholder="Contraseña">
-                <i class="ti ti-lock text-4xl"></i>
-            </div>
-            <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
-                class="text-red-500 text-sm mt-1 ml-2">
-                <div *ngIf="passwordInput.errors?.['required']">La contraseña es requerida.</div>
-                <div *ngIf="passwordInput.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</div>
-            </div>
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div>
+        <div
+          class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input [(ngModel)]="password" name="password" #passwordInput="ngModel" required minlength="6"
+                 class="outline-none text-lg w-full px-3 py-2 appearance-none" [type]="showPassword ? 'text' : 'password'"
+                 placeholder="Contraseña" />
+
+          <!-- Mostrar candado u ojito -->
+          <button type="button" (click)="togglePasswordVisibility()" class="text-gray-500 px-3 focus:outline-none">
+            <i [class]="
+                password.length > 0
+                  ? (showPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl')
+                  : 'ti ti-lock text-2xl'
+              "></i>
+          </button>
         </div>
-        <button type="submit" [disabled]="loginForm.invalid"
-            class="bg-blue-800 text-white py-4 px-20 rounded-lg w-full disabled:opacity-50 disabled:cursor-not-allowed">
-            INICIAR SESIÓN
+        <div *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
+             class="text-red-500 text-sm mt-1">
+          <div *ngIf="passwordInput.errors?.['required']">
+            La contraseña es requerida.
+          </div>
+          <div *ngIf="passwordInput.errors?.['minlength']">
+            La contraseña debe tener al menos 6 caracteres.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="text-red-600 text-center text-sm mt-4">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botón de envío -->
+      <button type="submit" [disabled]="loginForm.invalid"
+              class="bg-blue-600 text-white py-3 rounded-lg w-full font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+        INICIAR SESIÓN
+      </button>
+
+      <!-- Link para recuperación de contraseña -->
+      <div class="text-center mt-4">
+        <button type="button" class="text-blue-600 hover:underline" (click)="showForgotPassword = true">
+          ¿Olvidó su contraseña?
         </button>
+      </div>
     </form>
+
+    <!-- Formulario de recuperación -->
+    <form *ngIf="showForgotPassword" (ngSubmit)="recoverPassword()" #recoverForm="ngForm" class="space-y-6">
+      <p class="text-sm text-gray-500 text-center">
+        Por favor, completa los siguientes campos para restablecer tu contraseña.
+      </p>
+
+      <!-- Campo Usuario -->
+      <div>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            id="recoveryUsername"
+            [(ngModel)]="recoveryUsername"
+            name="recoveryUsername"
+            required
+            minlength="3"
+            #usernameInput="ngModel"
+            class="outline-none text-lg w-full px-3 py-2"
+            type="text"
+            placeholder="Introduce tu usuario"
+          />
+          <i class="ti ti-user text-2xl px-3 text-gray-500"></i>
+        </div>
+        <!-- Mensajes de error -->
+        <div *ngIf="usernameInput.invalid && usernameInput.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="usernameInput.errors?.['required']">
+            El campo "Usuario" es obligatorio.
+          </div>
+          <div *ngIf="usernameInput.errors?.['minlength']">
+            El nombre de usuario debe tener al menos 3 caracteres.
+          </div>
+        </div>
+      </div>
+
+      <!-- Campo DNI -->
+      <div>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            id="recoveryDNI"
+            [(ngModel)]="recoveryDNI"
+            name="recoveryDNI"
+            required
+            pattern="\d{8}"
+            #dniInput="ngModel"
+            class="outline-none text-lg w-full px-3 py-2"
+            type="text"
+            placeholder="Introduce tu DNI"
+          />
+          <i class="ti ti-id text-2xl px-3 text-gray-500"></i>
+        </div>
+        <!-- Mensajes de error -->
+        <div *ngIf="dniInput.invalid && dniInput.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="dniInput.errors?.['required']">
+            El campo "DNI" es obligatorio.
+          </div>
+          <div *ngIf="dniInput.errors?.['pattern']">
+            El DNI debe contener exactamente 8 números.
+          </div>
+        </div>
+      </div>
+
+      <!-- Campo Nueva Contraseña  -->
+      <div>
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+          <input
+            id="newPassword"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            required
+            minlength="6"
+            #newPasswordInput="ngModel"
+            class="outline-none text-lg w-full px-3 py-2"
+            [type]="showNewPassword ? 'text' : 'password'"
+            placeholder="Introduce la nueva contraseña"
+          />
+          <button type="button" (click)="toggleNewPasswordVisibility()" class="text-gray-500 px-3 focus:outline-none">
+            <i [class]="
+                newPassword.length > 0
+                  ? (showNewPassword ? 'ti ti-eye-off text-2xl' : 'ti ti-eye text-2xl')
+                  : 'ti ti-lock text-2xl'
+              "></i>
+          </button>
+        </div>
+        <!-- Mensajes de error -->
+        <div *ngIf="newPasswordInput.invalid && newPasswordInput.touched" class="text-red-500 text-sm mt-1">
+          <div *ngIf="newPasswordInput.errors?.['required']">
+            El campo "Nueva Contraseña" es obligatorio.
+          </div>
+          <div *ngIf="newPasswordInput.errors?.['minlength']">
+            La contraseña debe tener al menos 6 caracteres.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje general de error -->
+      <div *ngIf="recoveryErrorMessage" class="text-red-600 text-center text-sm">
+        {{ recoveryErrorMessage }}
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-between items-center">
+        <button
+          type="button"
+          class="text-red-600 hover:underline"
+          (click)="showForgotPassword = false; resetRecoveryForm()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="recoverForm.invalid"
+          class="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Recuperar Contraseña
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div
+    *ngIf="showNotificationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md text-center"
+      [class.text-green-600]="notificationType === 'success'"
+      [class.text-red-600]="notificationType === 'error'"
+    >
+      <!-- Ícono dependiendo del tipo de notificación -->
+      <i
+        class="text-4xl"
+        [class.ti-circle-check]="notificationType === 'success'"
+        [class.ti-alert-triangle]="notificationType === 'error'"
+      ></i>
+
+      <!-- Mensaje -->
+      <p class="text-gray-800 text-xl mt-4">{{ notificationMessage }}</p>
+      <!-- Botón para cerrar -->
+      <button
+        (click)="closeNotificationModal()"
+        class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
 </section>

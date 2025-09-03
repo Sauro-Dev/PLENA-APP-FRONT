@@ -4,7 +4,6 @@ import { Material } from '../material';
 import { StorageService } from '../storage.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { error } from 'console';
 
 @Component({
   selector: 'app-storage',
@@ -20,14 +19,19 @@ export class StorageComponent implements OnInit {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   paginatedMaterials: Material[] = [];
-  materialFilter: string ='';
+  materialFilter: string = '';
+  showFilters: boolean = false;
 
-  constructor(private storageService: StorageService, private router: Router) { }
+  // Variable para almacenar el ID del material seleccionado para eliminar
+  selectedMaterialId: string | null = null;
+
+  constructor(private storageService: StorageService, private router: Router) {}
 
   ngOnInit() {
     this.loadMaterials();
   }
 
+  // Cargar materiales desde el servicio
   loadMaterials(): void {
     this.storageService.getMaterials().subscribe((materials: Material[]) => {
       this.materials = materials;
@@ -36,6 +40,7 @@ export class StorageComponent implements OnInit {
     });
   }
 
+  // Búsqueda en los materiales
   onSearch(): void {
     if (this.searchTerm.trim() === '') {
       this.filteredMaterials = [...this.materials];
@@ -49,6 +54,7 @@ export class StorageComponent implements OnInit {
     this.paginate();
   }
 
+  // Paginación
   paginate(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     this.paginatedMaterials = this.filteredMaterials.slice(
@@ -57,39 +63,54 @@ export class StorageComponent implements OnInit {
     );
   }
 
+  // Navegación entre páginas
   goToPage(page: number): void {
     this.currentPage = page;
     this.paginate();
   }
 
-  onFilter(): void{
+  // Filtros por estado
+  onFilter(): void {
     if (this.materialFilter === '') {
       this.filteredMaterials = this.materials;
       this.paginate();
     } else {
-      this.filteredMaterials = this.materials.filter((material) =>
-        material.estado === this.materialFilter
+      this.filteredMaterials = this.materials.filter(
+        (material) => material.estado === this.materialFilter
       );
       this.paginate();
     }
   }
 
+  // Mostrar/ocultar filtros
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+
+  // Navega al formulario de edición de un material
   navigateToEdit(id: string | undefined): void {
     this.router.navigate([`/storage/material-edit`, id]);
   }
 
-  delete(materialId: string | undefined): void {
-    if (materialId === undefined) {
+  // Abrir modal de confirmación para la eliminación
+  confirmDelete(id: string | undefined): void {
+    this.selectedMaterialId = id || null;
+  }
+
+  // Eliminar un material
+  delete(): void {
+    if (this.selectedMaterialId === null) {
       return;
     }
-    this.storageService.deleteMaterial(materialId).subscribe(
-      () =>{
+    this.storageService.deleteMaterial(this.selectedMaterialId).subscribe(
+      () => {
         this.loadMaterials();
+        this.selectedMaterialId = null; // Oculta el modal tras eliminar
       },
-      (error)=>{
+      (error) => {
         console.error('Error al eliminar un material', error);
       }
-    )
+    );
   }
 
   protected readonly Math = Math;

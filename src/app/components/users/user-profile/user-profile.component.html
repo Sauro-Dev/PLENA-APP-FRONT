@@ -1,52 +1,296 @@
 <section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <!-- Contenedor principal -->
   <div class="bg-white shadow-lg rounded-lg p-6 w-full">
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Mi Perfil</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-900">Mi Perfil</h1>
 
-    <!-- Cargando -->
+    <!-- Indicador de carga -->
     <div *ngIf="isLoading" class="text-center text-gray-500">
       Cargando...
     </div>
 
-    <!-- Datos del perfil -->
-    <div *ngIf="!isLoading && profile" class="space-y-4 text-gray-700">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="font-medium">Nombre:</div>
-        <div class="text-right">{{ profile.name }}</div>
+    <!-- Contenido del Perfil -->
+    <div *ngIf="!isLoading && profile" class="divide-y divide-gray-300 space-y-6">
 
-        <div class="font-medium">Apellido Paterno:</div>
-        <div class="text-right">{{ profile.paternalSurname }}</div>
+      <!-- Información personal -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Personal</h2>
+        <div class="space-y-4">
+          <!-- Campo Usuario -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-user text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Usuario:</span>
+            <span class="ml-auto text-gray-600">{{ profile.username }}</span>
+          </div>
 
-        <div class="font-medium">Apellido Materno:</div>
-        <div class="text-right">{{ profile.maternalSurname }}</div>
+          <!-- Nombre -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Nombre:</span>
+            <span class="ml-auto text-gray-600">{{ profile.name }}</span>
+          </div>
 
-        <div class="font-medium">Correo Electrónico:</div>
-        <div class="text-right">{{ profile.email }}</div>
+          <!-- Apellidos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Paterno:</span>
+              <span class="ml-auto text-gray-600">{{ profile.paternalSurname }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Materno:</span>
+              <span class="ml-auto text-gray-600">{{ profile.maternalSurname }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div class="font-medium">DNI:</div>
-        <div class="text-right">{{ profile.dni }}</div>
+      <!-- Información de contacto -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información de Contacto</h2>
+        <div class="space-y-4">
+          <!-- Correo Electrónico -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-mail text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Correo Electrónico:</span>
+            <span class="ml-auto text-gray-600">{{ profile.email }}</span>
+          </div>
 
-        <div class="font-medium">Teléfono:</div>
-        <div class="text-right">{{ profile.phone }}</div>
+          <!-- Teléfonos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono:</span>
+              <span class="ml-auto text-gray-600">{{ profile.phone }}</span>
+            </div>
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-phone-plus text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono Respaldo:</span>
+              <span class="ml-auto text-gray-600">{{ profile.phoneBackup }}</span>
+            </div>
+          </div>
 
-        <div class="font-medium">Teléfono de Respaldo:</div>
-        <div class="text-right">{{ profile.phoneBackup }}</div>
+          <!-- Dirección -->
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+            <i class="ti ti-map-pin text-2xl text-gray-500 mr-3"></i>
+            <span class="font-medium text-gray-700">Dirección:</span>
+            <span class="ml-auto text-gray-600">{{ profile.address }}</span>
+          </div>
+        </div>
+      </div>
 
-        <div class="font-medium">Dirección:</div>
-        <div class="text-right">{{ profile.address }}</div>
+      <!-- Información adicional -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-medium text-gray-700">Información Adicional</h2>
 
-        <div class="font-medium">Rol:</div>
-        <div class="text-right">{{ profile.role }}</div>
+        <!-- DNI -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">DNI:</span>
+          <span class="ml-auto text-gray-600">{{ profile.dni }}</span>
+        </div>
+
+        <!-- Fecha de Nacimiento -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-calendar text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Fecha de Nacimiento:</span>
+          <span class="ml-auto text-gray-600">{{ profile.birthdate }}</span>
+        </div>
+
+        <!-- Rol -->
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-users text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Rol:</span>
+          <span class="ml-auto text-gray-600">{{ profile.role }}</span>
+        </div>
       </div>
     </div>
 
-    <!-- Botón para actualizar perfil -->
-    <div class="text-center mt-6">
-      <button
-        class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition w-full md:w-auto"
+    <div class="flex flex-col items-center gap-4 mt-8 md:flex-row md:justify-center">
+      <!-- Botón para actualizar perfil -->
+      <a
+        class="bg-blue-100 text-blue-700 px-8 py-4 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200 w-full md:w-auto text-center"
         routerLink="/update-profile"
       >
         Actualizar Perfil
+      </a>
+
+      <!-- Botón para abrir el modal de cambiar contraseña -->
+      <button
+        type="button"
+        (click)="openPasswordModal()"
+        class="bg-blue-100 text-blue-700 px-8 py-4 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200 w-full md:w-auto"
+      >
+        Modificar Contraseña
       </button>
+    </div>
+  </div>
+
+  <!-- Modal de Cambio de Contraseña -->
+  <div *ngIf="isPasswordModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md transition-transform transform">
+      <h2 class="text-2xl font-bold text-center text-blue-900 mb-6">Modificar Contraseña</h2>
+
+      <!-- Formulario de Contraseña -->
+      <form>
+        <!-- Contraseña Actual -->
+        <div class="mb-4">
+          <label for="current-password" class="block text-lg font-medium text-gray-700 mb-1">Contraseña Actual</label>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              [type]="showPasswordField['currentPassword'] ? 'text' : 'password'"
+              id="current-password"
+              [(ngModel)]="currentPassword"
+              name="currentPassword"
+              required
+              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+              placeholder="Introduce tu contraseña actual"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility('currentPassword')"
+              class="text-gray-500 px-3 focus:outline-none"
+            >
+              <i
+                [class]="
+          showPasswordField['currentPassword']
+            ? 'ti ti-eye-off text-2xl'
+            : 'ti ti-eye text-2xl'
+        "
+              ></i>
+            </button>
+          </div>
+          <!-- Error de validación -->
+          <div *ngIf="!currentPassword && isPasswordTouched" class="text-red-500 text-sm mt-1">
+            La contraseña actual es obligatoria.
+          </div>
+        </div>
+
+        <!-- Nueva Contraseña -->
+        <div class="mb-4">
+          <label for="new-password" class="block text-lg font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              [type]="showPasswordField['newPassword'] ? 'text' : 'password'"
+              id="new-password"
+              [(ngModel)]="newPassword"
+              name="newPassword"
+              minlength="4"
+              required
+              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+              placeholder="Introduce una nueva contraseña"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility('newPassword')"
+              class="text-gray-500 px-3 focus:outline-none"
+            >
+              <i
+                [class]="
+          showPasswordField['newPassword']
+            ? 'ti ti-eye-off text-2xl'
+            : 'ti ti-eye text-2xl'
+        "
+              ></i>
+            </button>
+          </div>
+          <!-- Error de validación -->
+          <div *ngIf="newPassword && newPassword.length < 4" class="text-red-500 text-sm mt-1">
+            La nueva contraseña debe tener al menos 4 caracteres.
+          </div>
+        </div>
+
+        <!-- Confirmación de Nueva Contraseña -->
+        <div class="mb-6">
+          <label for="confirm-password" class="block text-lg font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
+          <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              [type]="showPasswordField['confirmNewPassword'] ? 'text' : 'password'"
+              id="confirm-password"
+              [(ngModel)]="confirmNewPassword"
+              name="confirmNewPassword"
+              minlength="4"
+              required
+              class="outline-none text-lg w-full px-3 py-2 rounded-l-lg"
+              placeholder="Confirma tu nueva contraseña"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility('confirmNewPassword')"
+              class="text-gray-500 px-3 focus:outline-none"
+            >
+              <i
+                [class]="
+          showPasswordField['confirmNewPassword']
+            ? 'ti ti-eye-off text-2xl'
+            : 'ti ti-eye text-2xl'
+        "
+              ></i>
+            </button>
+          </div>
+          <!-- Error de validación -->
+          <div *ngIf="newPassword !== confirmNewPassword && confirmNewPassword" class="text-red-500 text-sm mt-1">
+            Las contraseñas no coinciden.
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            (click)="closePasswordModal()"
+            class="px-6 py-2 border border-gray-500 text-gray-700 hover:bg-gray-100 rounded-lg shadow transition">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="updatePassword()"
+            class="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow transition">
+            Cambiar Contraseña
+          </button>
+        </div>
+
+        <!-- Modal para Re-logeo -->
+        <div *ngIf="isProfileReloginModalOpen" class="fixed z-50 inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md text-center">
+            <!-- Título -->
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Actualización Exitosa</h2>
+
+            <!-- Mensaje de Seguridad -->
+            <p class="text-gray-600 mb-6">
+              Tu contraseña ha sido actualizada correctamente.
+              Por seguridad, debes iniciar sesión nuevamente.
+            </p>
+
+            <!-- Botones -->
+            <div class="flex justify-center gap-4">
+              <button
+                (click)="redirectToLogin()"
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition">
+                Ir al Inicio de Sesión
+              </button>
+              <button
+                (click)="closeReloginModal()"
+                class="bg-gray-600 text-white px-6 py-3 rounded-lg shadow hover:bg-gray-700 transition">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pequeña modal para alertas -->
+        <div
+          *ngIf="isAlertVisible"
+          class="fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-xl border-l-4"
+          [class.bg-green-100]="alertType === 'success'"
+          [class.border-green-400]="alertType === 'success'"
+          [class.text-green-700]="alertType === 'success'"
+          [class.bg-red-100]="alertType === 'error'"
+          [class.border-red-400]="alertType === 'error'"
+          [class.text-red-700]="alertType === 'error'">
+          <p class="text-sm">{{ alertMessage }}</p>
+        </div>
+      </form>
     </div>
   </div>
 </section>

@@ -1,0 +1,387 @@
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-6xl mx-auto">
+  <!-- Header -->
+  <div class="w-full bg-white shadow-lg rounded-lg p-6 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <h1 class="text-3xl font-bold text-blue-800">Historia Médica</h1>
+
+      <!-- Botones de tipo de vista -->
+      <div class="flex gap-4 mb-4 md:mb-0">
+        <button
+          (click)="changeView('evaluations')"
+          class="px-4 py-2 rounded-lg transition-colors duration-200"
+          [ngClass]="{
+            'bg-blue-100 text-blue-800': isViewActive('evaluations'),
+            'text-gray-600 hover:bg-gray-100': !isViewActive('evaluations')
+          }">
+          <i class="ti ti-file-medical mr-2"></i>
+          Evaluaciones
+        </button>
+        <button
+          (click)="changeView('reports')"
+          class="px-4 py-2 rounded-lg transition-colors duration-200"
+          [ngClass]="{
+            'bg-blue-100 text-blue-800': isViewActive('reports'),
+            'text-gray-600 hover:bg-gray-100': !isViewActive('reports')
+          }">
+          <i class="ti ti-report mr-2"></i>
+          Reportes
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Controles de ordenamiento -->
+        <div class="flex items-center gap-4">
+          <button
+            (click)="toggleSort('date')"
+            class="sort-button"
+            [class.active]="sortField === 'date'">
+            <span class="text-sm font-medium">Fecha</span>
+            <i [class]="getSortIcon('date')" class="sort-icon"></i>
+          </button>
+
+          <button
+            (click)="toggleSort('size')"
+            class="sort-button"
+            [class.active]="sortField === 'size'">
+            <span class="text-sm font-medium">Tamaño</span>
+            <i [class]="getSortIcon('size')" class="sort-icon"></i>
+          </button>
+        </div>
+
+        <!-- Control de vista -->
+        <button
+          (click)="toggleView()"
+          class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+          <i [class]="isGridView ? 'ti ti-layout-list' : 'ti ti-layout-grid'" class="text-xl"></i>
+        </button>
+
+        <!-- Botón de subir documento -->
+        <button
+          (click)="openUploadModal()"
+          *ngIf="viewType !== 'reports' || canUploadReport"
+          class="bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-blue-800 transition duration-200">
+          <i class="ti ti-upload mr-2"></i>
+          {{ viewType === 'evaluations' ? 'Subir Evaluación' : 'Subir Reporte' }}
+        </button>
+
+        <!-- Mensaje informativo para reportes -->
+        <p *ngIf="viewType === 'reports' && !canUploadReport && uploadReportMessage"
+           class="text-sm text-gray-600">
+          {{uploadReportMessage}}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center text-gray-500 text-xl w-full">
+    <i class="fas fa-spinner fa-spin mr-2"></i> Cargando documentos...
+  </div>
+
+  <!-- Vista de Evaluaciones -->
+  <ng-container *ngIf="viewType === 'evaluations'">
+    <!-- Vista de Cuadrícula -->
+    <div *ngIf="!isLoading && isGridView"
+         class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let doc of documents"
+           class="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-[1.02]">
+        <div class="flex flex-col h-full">
+          <!-- Icono del documento -->
+          <div class="text-center mb-4">
+            <i [class]="getFileIcon(doc.contentType)" class="text-5xl text-blue-700"></i>
+          </div>
+
+          <!-- Información del documento -->
+          <div class="space-y-3 flex-grow">
+            <h3 class="text-xl font-semibold text-blue-800">{{doc.name}}</h3>
+            <p class="text-gray-600">{{doc.description}}</p>
+            <div class="space-y-1">
+              <p class="text-sm text-gray-500">
+                <i class="ti ti-upload mr-1"></i>
+                Subido: {{doc.uploadAt | date:'dd/MM/yyyy HH:mm'}}
+              </p>
+              <p class="text-sm text-gray-500">
+                <i class="ti ti-file-size mr-1"></i> {{formatFileSize(doc.fileSize)}}
+              </p>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex justify-end mt-4 space-x-2">
+            <button
+              (click)="downloadDocument(doc)"
+              class="text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg transition duration-200">
+              <i class="ti ti-download"></i>
+            </button>
+            <button
+              (click)="openDeleteModal(doc)"
+              class="text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition duration-200">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Vista de Lista -->
+    <div *ngIf="!isLoading && !isGridView" class="w-full">
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let doc of documents" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <i [class]="getFileIcon(doc.contentType)" class="text-2xl text-blue-700 mr-2"></i>
+                <span class="text-sm font-medium text-gray-900">{{doc.name}}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-500">{{doc.description}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-500">{{doc.contentType}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-500">
+    {{doc.uploadAt | date:'dd/MM/yyyy HH:mm'}}
+  </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-500">{{formatFileSize(doc.fileSize)}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button
+                (click)="downloadDocument(doc)"
+                class="text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition duration-200 mr-2">
+                <i class="ti ti-download"></i>
+              </button>
+              <button
+                (click)="openDeleteModal(doc)"
+                class="text-red-600 hover:bg-red-50 p-2 rounded-lg transition duration-200">
+                <i class="ti ti-trash"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Vista de Reportes -->
+  <ng-container *ngIf="viewType === 'reports'">
+    <!-- Vista de Cuadrícula para Reportes -->
+    <div *ngIf="!isLoading && isGridView"
+         class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let report of reports"
+           class="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-[1.02]">
+        <div class="flex flex-col h-full">
+          <!-- Icono del reporte -->
+          <div class="text-center mb-4">
+            <i class="ti ti-report text-5xl text-blue-700"></i>
+          </div>
+
+          <!-- Información del reporte -->
+          <div class="space-y-3 flex-grow">
+            <h3 class="text-xl font-semibold text-blue-800">Reporte {{report.treatmentMonth}}° mes</h3>
+            <div class="space-y-1">
+              <p class="text-sm text-gray-500">
+                <i class="ti ti-calendar mr-1"></i> Subido: {{report.uploadAt | date:'dd/MM/yyyy HH:mm'}}
+              </p>
+              <p class="text-sm text-gray-500">
+                <i class="ti ti-file-size mr-1"></i> {{formatFileSize(report.fileSize)}}
+              </p>
+              <p class="text-sm text-gray-500">
+                <i class="ti ti-file mr-1"></i> {{report.fileName}}
+              </p>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex justify-end mt-4 space-x-2">
+            <button
+              (click)="downloadDocument(report)"
+              class="text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg transition duration-200">
+              <i class="ti ti-download"></i>
+            </button>
+            <button
+              (click)="openDeleteModal(report)"
+              class="text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition duration-200">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista de Lista para Reportes -->
+    <div *ngIf="!isLoading && !isGridView" class="w-full">
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div *ngIf="viewType === 'reports'" class="w-full bg-white shadow-md rounded-lg p-4 mb-6">
+          <div class="flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex items-center gap-2">
+              <i class="ti ti-clock text-blue-600"></i>
+              <span class="text-gray-700">
+        Mes {{uploadStatus.treatmentMonths}}° del tratamiento
+      </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <i class="ti ti-file-upload text-blue-600"></i>
+              <span class="text-gray-700">
+        Reportes disponibles: {{uploadStatus.availableReports}}
+      </span>
+            </div>
+
+            <div *ngIf="!canUploadReport && uploadStatus.nextAvailableDate"
+                 class="flex items-center gap-2">
+              <i class="ti ti-calendar text-blue-600"></i>
+              <span class="text-gray-700">
+        Próximo reporte disponible: {{uploadStatus.nextAvailableDate | date:'dd/MM/yyyy'}}
+      </span>
+            </div>
+          </div>
+
+          <div *ngIf="uploadReportMessage"
+               class="mt-2 text-sm text-gray-600">
+            {{uploadReportMessage}}
+          </div>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mes de Tratamiento</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de Subida</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let report of reports" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <i class="ti ti-report text-2xl text-blue-700 mr-2"></i>
+                <span class="text-sm font-medium text-gray-900">{{report.fileName}}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-500">{{report.treatmentMonth}}° mes</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-500">{{report.uploadAt | date:'dd/MM/yyyy HH:mm'}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-500">{{formatFileSize(report.fileSize)}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button
+                (click)="downloadDocument(report)"
+                class="text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition duration-200 mr-2">
+                <i class="ti ti-download"></i>
+              </button>
+              <button
+                (click)="openDeleteModal(report)"
+                class="text-red-600 hover:bg-red-50 p-2 rounded-lg transition duration-200">
+                <i class="ti ti-trash"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && ((viewType === 'evaluations' && documents.length === 0) || (viewType === 'reports' && reports.length === 0))"
+       class="text-center text-gray-500 w-full bg-white rounded-lg shadow p-8">
+    <i class="ti ti-file-off text-6xl mb-4"></i>
+    <p class="text-xl">No hay {{ viewType === 'evaluations' ? 'documentos' : 'reportes' }} registrados</p>
+  </div>
+
+  <!-- Upload Modal -->
+  <div *ngIf="showUploadModal"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h2 class="text-2xl font-bold text-blue-800 mb-6">
+        {{ viewType === 'evaluations' ? 'Subir Evaluación' : 'Subir Reporte' }}
+      </h2>
+
+      <div class="space-y-4">
+        <div *ngIf="viewType === 'evaluations'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          <input
+            type="text"
+            [(ngModel)]="newDocument.name"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div *ngIf="viewType === 'evaluations'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+          <textarea
+            [(ngModel)]="newDocument.description"
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Archivo</label>
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          (click)="closeUploadModal()"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+          Cancelar
+        </button>
+        <button
+          (click)="uploadDocument()"
+          [disabled]="!isValidUpload()"
+          class="px-6 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 disabled:bg-gray-400 transition-colors duration-200">
+          Subir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div *ngIf="showDeleteModal"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h2 class="text-2xl font-bold text-red-600 mb-4">Confirmar Eliminación</h2>
+      <p class="text-gray-600 mb-6">
+        ¿Estás seguro de que deseas eliminar
+        {{ viewType === 'evaluations' ? 'esta evaluación' : 'este reporte' }}?
+      </p>
+
+      <div class="flex justify-end gap-4">
+        <button
+          (click)="closeDeleteModal()"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+          Cancelar
+        </button>
+        <button
+          (click)="confirmDelete()"
+          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

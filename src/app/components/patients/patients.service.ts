@@ -1,38 +1,72 @@
 import { Injectable } from '@angular/core';
-import {environment} from "../../enviroment";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {Room} from "../rooms/room";
-import {RegisterPatient} from "./register-patient";
+import { environment } from '../../enviroment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import {RenewPlan} from "./renew-plan";
+import {ListPatient} from "./list-patient";
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PatientsService {
   private apiUrl: string = `${environment.apiUrl}/patients`;
 
   constructor(private http: HttpClient) {}
 
-  getPatients(): Observable<any[]> {
+
+  getPatients(): Observable<ListPatient[]> {
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<any[]>(`${this.apiUrl}/all`, {headers});
-  }
-  createPatient(data: RegisterPatient): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post<RegisterPatient>(`${this.apiUrl}/register`, data, {headers});
-  }
-  createSession(sessionData: any): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(`${environment.apiUrl}/sessions/register`, sessionData, {headers});
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Accept', 'application/json');
+
+    return this.http.get<ListPatient[]>(`${this.apiUrl}/all`, { headers }).pipe(
+      catchError(error => {
+        if (error.status === 400) {
+          console.error('Error en la solicitud:', error);
+          return throwError(() => new Error('Error al obtener los pacientes. Por favor, intente nuevamente.'));
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
-  getAllRooms(): Observable<any[]> {
+  createPatient(data: {
+    therapistId: number;
+    birthdate: string;
+    paternalSurname: any;
+    firstWeekDates: any;
+    maternalSurname: any;
+    roomId: number;
+    tutor: any;
+    idPlan: number;
+    presumptiveDiagnosis: any;
+    name: any;
+    startTime: any;
+    dni: any;
+    status: any
+  }): Observable<any> {
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<any[]>(`${environment.apiUrl}/rooms/all`, {headers});
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    return this.http.post<any>(`${this.apiUrl}/register`, data, {
+      headers,
+    }).pipe(
+      catchError(error => {
+        if (error.status === 400) {
+          const errorMessage = error.error?.message || 'Error al registrar el paciente';
+          console.error('Error en la creación:', errorMessage);
+          return throwError(() => new Error(errorMessage));
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   getAvailableTherapists(sessionDate: string, startTime: string, endTime: string): Observable<any[]> {
@@ -40,15 +74,62 @@ export class PatientsService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any[]>(`${environment.apiUrl}/sessions/available-therapists`, {params: { sessionDate, startTime, endTime }, headers});
   }
+
+  getAvailableRooms(sessionDate: string, startTime: string, endTime: string): Observable<any[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/sessions/available-rooms`, { params: { sessionDate, startTime, endTime }, headers });
+  }
+
   getPatientById(patientId: number): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<any>(`${this.apiUrl}/select/${patientId}`, { headers });
+    return this.http.get<any>(`${this.apiUrl}/select/${patientId}`, {
+      headers,
+    });
   }
-  updatePatient(patientId: number, patientData: RegisterPatient): Observable<any> {
+  updatePatient(patientId: number, patientData: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.put<any>(`${this.apiUrl}/select/${patientId}`, patientData, { headers });
+
+    return this.http.put<any>(
+      `${this.apiUrl}/select/${patientId}`,
+      patientData,
+      { headers }
+    );
   }
 
+  checkPatientDNI(dni: string, tutors: any[]): Observable<boolean> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<boolean>(`${this.apiUrl}/validate-dni`, {
+      params: {
+        dni: dni,
+        tutors: JSON.stringify(tutors),
+      },
+      headers,
+    });
+  }
+
+  renewPlan(data: RenewPlan): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    // Asegurarnos de que los tipos numéricos sean números y no strings
+    const processedData = {
+      ...data,
+      patientId: Number(data.patientId),
+      newPlanId: Number(data.newPlanId),
+      therapistId: Number(data.therapistId),
+      roomId: Number(data.roomId)
+    };
+
+    console.log('Datos procesados antes de enviar:', processedData);
+
+    return this.http.post<any>(`${this.apiUrl}/renew-plan`, processedData, { headers });
+  }
 }
+

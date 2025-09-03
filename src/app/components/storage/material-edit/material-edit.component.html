@@ -1,50 +1,183 @@
-<div class="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-12">
-  <h2 class="text-2xl font-bold mb-8">Editar Material</h2>
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <!-- Contenedor principal -->
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-900">Editar Material</h1>
 
-  <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
-    <!-- Nombre -->
-    <div class="mb-4">
-      <label for="nombre" class="block text-gray-700 font-bold">Nombre</label>
-      <input id="nombre" type="text" formControlName="nombre" class="w-full p-2 border rounded">
+    <form [formGroup]="editForm" (ngSubmit)="openSaveModal()" class="space-y-6">
+      <!-- Nombre del Material -->
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="nombre" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Nombre del Material:
+        </label>
+        <div class="flex items-center space-x-3 px-4 py-3">
+          <i class="ti ti-id-badge text-2xl text-gray-500"></i>
+          <input
+            id="nombre"
+            type="text"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none placeholder-gray-400"
+            placeholder="Escribe el nombre del material"
+            formControlName="nombre"
+          />
+        </div>
+        <div *ngIf="editForm.get('nombre')?.invalid && (editForm.get('nombre')?.dirty || editForm.get('nombre')?.touched)"
+             class="text-red-500 text-sm px-4 mt-1">
+          <div *ngIf="editForm.get('nombre')?.errors?.['required']">El nombre del material es requerido.</div>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="descripcion" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Descripción:
+        </label>
+        <div class="flex items-start space-x-3 px-4 py-3">
+          <i class="ti ti-align-left text-2xl text-gray-500"></i>
+          <textarea
+            id="descripcion"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none placeholder-gray-400 resize-none"
+            placeholder="Escribe la descripción del material"
+            formControlName="descripcion"
+            rows="3"
+          ></textarea>
+        </div>
+        <div *ngIf="editForm.get('descripcion')?.invalid && (editForm.get('descripcion')?.dirty || editForm.get('descripcion')?.touched)"
+             class="text-red-500 text-sm px-4 mt-1">
+          <div *ngIf="editForm.get('descripcion')?.errors?.['required']">La descripción es requerida.</div>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="estado" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Estado:
+        </label>
+        <div class="flex items-center space-x-3 px-4 py-3">
+          <i class="ti ti-flag text-2xl text-gray-500"></i>
+          <select
+            id="estado"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none"
+            formControlName="estado"
+          >
+            <option *ngFor="let status of estados" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stock -->
+      <div class="relative border rounded-lg shadow-sm focus-within:ring focus-within:ring-blue-500">
+        <label for="stock" class="absolute -top-4 left-4 bg-white px-1 text-sm font-medium text-gray-500">
+          Stock:
+        </label>
+        <div class="flex items-center space-x-3 px-4 py-3">
+          <i class="ti ti-package text-2xl text-gray-500"></i>
+          <input
+            id="stock"
+            type="number"
+            class="flex-1 border-none bg-transparent text-gray-800 outline-none placeholder-gray-400"
+            placeholder="Escribe el stock disponible"
+            formControlName="stock"
+            min="0"
+          />
+        </div>
+        <div *ngIf="editForm.get('stock')?.invalid && (editForm.get('stock')?.dirty || editForm.get('stock')?.touched)"
+             class="text-red-500 text-sm px-4 mt-1">
+          <div *ngIf="editForm.get('stock')?.errors?.['min']">El stock debe ser 0 o mayor.</div>
+        </div>
+      </div>
+
+      <!-- ¿Es Completo? -->
+      <div class="flex items-center border rounded-lg shadow-sm p-3 focus-within:ring focus-within:ring-blue-500">
+        <i class="ti ti-checks text-2xl text-gray-500 mr-3"></i>
+        <label for="esCompleto" class="font-medium text-gray-700">¿Es Completo?</label>
+        <input
+          id="esCompleto"
+          type="checkbox"
+          class="ml-auto w-6 h-6 align-middle border-gray-400"
+          formControlName="esCompleto"
+        />
+      </div>
+
+      <!-- ¿Es Soporte? -->
+      <div class="flex items-center border rounded-lg shadow-sm p-3 focus-within:ring focus-within:ring-blue-500">
+        <i class="ti ti-headset text-2xl text-gray-500 mr-3"></i>
+        <label for="esSoporte" class="font-medium text-gray-700">¿Es de Soporte?</label>
+        <input
+          id="esSoporte"
+          type="checkbox"
+          class="ml-auto w-6 h-6 align-middle border-gray-400"
+          formControlName="esSoporte"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="flex flex-col items-center gap-4 mt-8 md:flex-row md:justify-center">
+        <!-- Botón Guardar -->
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+          [disabled]="editForm.invalid"
+        >
+          Guardar Cambios
+        </button>
+        <!-- Botón Cancelar -->
+        <button
+          type="button"
+          (click)="openCancelModal()"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 flex justify-center items-center px-6 py-3 rounded-lg text-lg font-medium transition"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+
+    <!-- Modal Confirmación Guardar -->
+    <div
+      *ngIf="showSaveModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <h2 class="text-xl font-bold text-blue-900 mb-4">¿Guardar los cambios?</h2>
+        <p class="mb-6 text-gray-600">Se actualizarán los datos del material.</p>
+        <div class="flex justify-center gap-4">
+          <button
+            (click)="confirmSave()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500"
+          >
+            Guardar
+          </button>
+          <button
+            (click)="closeSaveModal()"
+            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Descripción -->
-    <div class="mb-4">
-      <label for="descripcion" class="block text-gray-700 font-bold">Descripción</label>
-      <textarea id="descripcion" formControlName="descripcion" class="w-full p-2 border rounded"></textarea>
+    <!-- Modal Confirmación Cancelar -->
+    <div
+      *ngIf="showCancelModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <h2 class="text-xl font-bold text-blue-900 mb-4">¿Cancelar la edición?</h2>
+        <p class="mb-6 text-gray-600">Se perderán todos los cambios no guardados.</p>
+        <div class="flex justify-center gap-4">
+          <button
+            (click)="confirmCancel()"
+            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="closeCancelModal()"
+            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-400"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
     </div>
-
-    <!-- Estado -->
-    <div class="mb-4">
-      <label for="estado" class="block text-gray-700 font-bold">Estado</label>
-      <select id="estado" formControlName="estado" class="w-full p-2 border rounded">
-        <option *ngFor="let status of estados" [value]="status">{{ status }}</option>
-      </select>
-    </div>
-
-    <!-- Stock -->
-    <div class="mb-4">
-      <label for="stock" class="block text-gray-700 font-bold">Stock</label>
-      <input id="stock" type="number" formControlName="stock" class="w-full p-2 border rounded" min="0">
-    </div>
-
-    <!-- ¿Es Completo? -->
-    <div class="mb-4">
-      <label class="block text-gray-700 font-bold">¿Es Completo?</label>
-      <input type="checkbox" formControlName="esCompleto">
-    </div>
-
-    <!-- ¿Es de Soporte? -->
-    <div class="mb-4">
-      <label class="block text-gray-700 font-bold">¿Es de Soporte?</label>
-      <input type="checkbox" formControlName="esSoporte">
-    </div>
-
-    <!-- Botón Guardar -->
-    <div class="mt-8">
-      <button type="submit" class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:scale-110 transition duration-150" [disabled]="!editForm.valid">
-        Guardar Cambios
-      </button>
-    </div>
-  </form>
-</div>
+  </div>
+</section>

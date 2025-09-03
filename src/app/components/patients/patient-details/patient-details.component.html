@@ -1,51 +1,180 @@
-<div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <!-- Cargando -->
-  <div *ngIf="isLoading" class="text-center text-gray-500 text-xl">
-    <i class="fas fa-spinner fa-spin mr-2"></i> Cargando detalles del paciente...
-  </div>
+<section class="flex flex-col items-center mt-6 px-4 w-full max-w-2xl mx-auto">
+  <!-- Contenedor principal -->
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full">
+    <!-- Cargando -->
+    <div *ngIf="isLoading" class="text-center text-gray-500 text-xl">
+      <i class="fas fa-spinner fa-spin mr-2"></i> Cargando detalles del paciente...
+    </div>
 
-  <!-- Detalles del paciente -->
-  <div *ngIf="!isLoading && patient" class="space-y-6">
-    <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Detalles del Paciente</h1>
-    
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <p class="text-lg"><strong class="text-gray-700">ID:</strong> <span class="text-blue-600">{{ patient.idPatient }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Nombre:</strong> <span class="text-blue-600">{{ patient.name }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Apellido Paterno:</strong> <span class="text-blue-600">{{ patient.paternalSurname }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Apellido Materno:</strong> <span class="text-blue-600">{{ patient.maternalSurname }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Edad:</strong> <span class="text-blue-600">{{ patient.age }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Alergias:</strong> <span class="text-blue-600">{{ patient.allergies || 'Ninguna' }}</span></p>
-        <p class="text-lg"><strong class="text-gray-700">Estado:</strong> 
-          <span [ngClass]="{'text-green-600': patient.status, 'text-red-600': !patient.status}">
-            {{ patient.status ? 'Activo' : 'Inactivo' }}
-          </span>
-        </p>
-        <p class="text-lg"><strong class="text-gray-700">Plan:</strong> <span class="text-blue-600">{{ patient.planId }}</span></p>
+    <!-- Detalles del paciente -->
+    <div *ngIf="!isLoading && patient" class="space-y-6">
+      <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">
+        Detalles del Paciente
+      </h1>
+
+      <div class="divide-y divide-gray-300 space-y-6">
+        <!-- Información Personal -->
+        <div class="space-y-4">
+          <h2 class="text-xl font-medium text-gray-700">Información Personal</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">ID:</span>
+              <span class="ml-auto text-gray-600">{{ patient.idPatient }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Nombre:</span>
+              <span class="ml-auto text-gray-600">{{ patient.name }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Paterno:</span>
+              <span class="ml-auto text-gray-600">{{ patient.paternalSurname }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id-badge text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Apellido Materno:</span>
+              <span class="ml-auto text-gray-600">{{ patient.maternalSurname }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">DNI:</span>
+              <span class="ml-auto text-gray-600">{{ patient.dni }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-calendar text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Edad:</span>
+              <span class="ml-auto text-gray-600">{{ patient.age }}</span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-user text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Estado:</span>
+              <span
+                class="ml-auto"
+                [ngClass]="{
+                  'text-green-500': patient.status,
+                  'text-red-500': !patient.status
+                }">
+                {{ patient.status ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+              <i class="ti ti-book text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Plan:</span>
+              <div class="ml-auto text-gray-600">
+                <span>{{ getCurrentPlanName() }}</span>
+                <span *ngIf="currentPlan" class="ml-2 text-sm text-gray-500">
+    </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3">
+          <i class="ti ti-checklist text-2xl text-gray-500 mr-3"></i>
+          <span class="font-medium text-gray-700">Estado del Plan:</span>
+          <span
+            class="ml-auto"
+            [ngClass]="{
+      'text-green-500': patient.planStatus === 'COMPLETADO',
+      'text-blue-500': patient.planStatus === 'EN_CURSO',
+      'text-yellow-500': patient.planStatus === 'EN_ESPERA'
+    }">
+    {{ getPlanStatusLabel(patient.planStatus) }}
+  </span>
+        </div>
+
+        <!-- Presunción Diagnotisca -->
+        <div class="space-y-4">
+          <h2 class="text-xl font-medium text-gray-700">Presunción Diagnóstica</h2>
+          <div class="flex flex-col border border-gray-300 rounded-lg shadow-sm p-3">
+            <textarea
+              readonly
+              class="w-full p-4 border rounded-md text-gray-700 bg-white-100 focus:outline-none">
+              {{ patient.presumptiveDiagnosis || 'Ninguna' }}
+            </textarea>
+          </div>
+        </div>
+
+        <!-- Tutores -->
+        <div *ngIf="patient?.tutors && patient.tutors.length > 0" class="space-y-4">
+          <h2 class="text-xl font-medium text-gray-700">Tutores</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              *ngFor="let tutor of patient.tutors"
+              class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3"
+            >
+              <i class="ti ti-id-card text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Nombre:</span>
+              <span class="ml-auto text-gray-600">{{ tutor.fullName }}</span>
+            </div>
+            <div
+              *ngFor="let tutor of patient.tutors"
+              class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3"
+            >
+              <i class="ti ti-id text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">DNI:</span>
+              <span class="ml-auto text-gray-600">{{ tutor.dni }}</span>
+            </div>
+            <div
+              *ngFor="let tutor of patient.tutors"
+              class="flex items-center border border-gray-300 rounded-lg shadow-sm p-3"
+            >
+              <i class="ti ti-phone text-2xl text-gray-500 mr-3"></i>
+              <span class="font-medium text-gray-700">Teléfono:</span>
+              <span class="ml-auto text-gray-600">{{ tutor.phone }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Botones -->
+      <div class="flex justify-center gap-8 mt-8">
+        <button
+          class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
+          (click)="goBack()"
+        >
+          <i class="ti ti-arrow-left mr-2"></i>
+          Volver a la Lista
+        </button>
+
+        <button
+          class="bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-base font-medium hover:bg-blue-200 transition duration-200"
+          (click)="editPatient()"
+        >
+          <i class="ti ti-edit mr-2"></i>
+          Editar Paciente
+        </button>
+
+        <!-- Botón de Historial Médico -->
+        <button
+          (click)="goToMedicalHistory()"
+          class="bg-green-100 text-green-700 px-6 py-3 rounded-full text-base font-medium hover:bg-green-200 transition duration-200"
+        >
+          <i class="ti ti-file-medical mr-2"></i>
+          Historial Médico
+        </button>
+
+        <button
+          *ngIf="patient.planStatus === 'COMPLETADO' && !patient.status"
+          class="bg-green-100 text-green-700 px-6 py-3 rounded-full text-base font-medium hover:bg-green-200 transition duration-200"
+          (click)="renewPlan()"
+        >
+          <i class="ti ti-refresh mr-2"></i>
+          Renovar Plan
+        </button>
       </div>
     </div>
-
-    <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Tutores</h2>
-      <ul class="list-disc list-inside space-y-2">
-        <li *ngFor="let tutor of patient.tutorNames" class="text-lg text-blue-600">{{ tutor }}</li>
-      </ul>
-    </div>
-
-    <!-- Botones -->
-    <div class="flex justify-center mt-8 space-x-4">
-      <button
-        class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
-        (click)="editPatient()"
-      >
-        <i class="fas fa-edit mr-2"></i> Editar Paciente
-      </button>
-      <button
-        class="bg-gray-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-gray-600 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg"
-        [routerLink]="'/patients'"
-      >
-        <i class="fas fa-arrow-left mr-2"></i> Volver a Lista
-      </button>
-    </div>
   </div>
-</div>
+</section>

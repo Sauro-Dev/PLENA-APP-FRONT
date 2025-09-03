@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute,RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StorageService } from '../storage.service';
 import { Material } from '../material';
 import { AreaInterventionResponse } from '../areaIntervention';
@@ -11,18 +11,18 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './material-details.component.html',
   styleUrls: ['./material-details.component.css'],
   standalone: true,
-  imports: [CommonModule,RouterLink],
+  imports: [CommonModule, RouterLink],
 })
 export class MaterialDetailsComponent implements OnInit {
   material: Material | null = null;
   allInterventionAreas: AreaInterventionResponse[] = [];
   interventionAreas: AreaInterventionResponse[] = [];
   isAssignInterAreaModalOpen = false;
-  isLoading = false;  // Variable para manejar el estado de carga
+  isLoading = false; // Variable para manejar el estado de carga
 
   constructor(
     private route: ActivatedRoute,
-    private storageService: StorageService,
+    private storageService: StorageService
   ) {}
 
   ngOnInit(): void {
@@ -38,10 +38,14 @@ export class MaterialDetailsComponent implements OnInit {
   getAllInterventionAreas(): void {
     this.storageService.getAllInterventionAreas().subscribe(
       (data) => {
-        this.allInterventionAreas = data;  // Asignamos todas las áreas
+        // Filtra todas las áreas para quedarnos solo con las que no están asignadas a ningún material
+        this.allInterventionAreas = data.filter((area) => !area.assignedTo);
       },
       (error) => {
-        console.error('Error al obtener todas las áreas de intervención:', error);
+        console.error(
+          'Error al obtener todas las áreas de intervención:',
+          error
+        );
       }
     );
   }
@@ -50,16 +54,16 @@ export class MaterialDetailsComponent implements OnInit {
   unassignInterArea(area: AreaInterventionResponse): void {
     const idMaterial = this.route.snapshot.paramMap.get('idMaterial');
     if (idMaterial) {
-      this.isLoading = true;  // Activar el estado de carga
+      this.isLoading = true; // Activar el estado de carga
       this.storageService.unassignInterArea(idMaterial, area).subscribe(
         () => {
           // Recargar las áreas de intervención después de desasignar
           this.loadInterventionAreas(idMaterial);
-          this.isLoading = false;  // Desactivar el estado de carga
+          this.isLoading = false; // Desactivar el estado de carga
         },
         (error) => {
           console.error('Error al desasignar material', error);
-          this.isLoading = false;  // Desactivar el estado de carga en caso de error
+          this.isLoading = false; // Desactivar el estado de carga en caso de error
         }
       );
     }
@@ -89,8 +93,17 @@ export class MaterialDetailsComponent implements OnInit {
   }
 
   // Método para abrir el modal de asignación
-  openAssignModal() {
-    this.isAssignInterAreaModalOpen = true;
+  openAssignModal(): void {
+    // Filtrar áreas no asignadas dentro del total: eliminamos las que están en this.interventionAreas
+    const filteredAreas = this.allInterventionAreas.filter(
+      (area) =>
+        !this.interventionAreas.some(
+          (assignedArea) => assignedArea.id === area.id
+        ) // Excluir las áreas ya asignadas al material actual
+    );
+
+    this.allInterventionAreas = filteredAreas;
+    this.isAssignInterAreaModalOpen = true; // Abre el modal
   }
 
   // Método para cerrar el modal de asignación
@@ -100,15 +113,15 @@ export class MaterialDetailsComponent implements OnInit {
 
   // Método para cargar las áreas de intervención
   loadInterventionAreas(materialId: string): void {
-    this.isLoading = true;  // Activar el estado de carga antes de la solicitud
+    this.isLoading = true; // Activar el estado de carga antes de la solicitud
     this.storageService.getInterventionAreas(materialId).subscribe(
       (data) => {
         this.interventionAreas = data;
-        this.isLoading = false;  // Desactivar el estado de carga después de obtener los datos
+        this.isLoading = false; // Desactivar el estado de carga después de obtener los datos
       },
       (error) => {
-        console.error('Error al cargar las áreas de intervención', error);
-        this.isLoading = false;  // Desactivar el estado de carga en caso de error
+        console.error('Error al cargar las áreas de intervención:', error);
+        this.isLoading = false; // Desactivar el estado de carga en caso de error
       }
     );
   }
@@ -116,26 +129,17 @@ export class MaterialDetailsComponent implements OnInit {
   assignMaterialInterArea(area: AreaInterventionResponse): void {
     const idMaterial = this.route.snapshot.paramMap.get('idMaterial');
     if (idMaterial) {
-      this.isLoading = true;  // Activar el estado de carga
+      this.isLoading = true; // Activar el estado de carga
 
       this.storageService.assignMaterialInterArea(idMaterial, +area.id).subscribe(
         () => {
           // Recargar las áreas de intervención después de asignar
           this.loadInterventionAreas(idMaterial);
-          this.isLoading = false;  // Desactivar el estado de carga
+          this.isLoading = false; // Desactivar el estado de carga
         },
-        (error: HttpErrorResponse) => {
-          this.isLoading = false;  // Desactivar el estado de carga en caso de error
-          if (error.status === 400) {
-            // Mostrar mensaje si el error es un BAD_REQUEST
-            alert('Esta Área de Intervención ya fue registrada.');
-          } else if (error.status === 404) {
-            // Mostrar mensaje si el error es un NOT_FOUND
-            alert('No se ha podido encontrar el material o el área de intervención.');
-          } else {
-            // Mostrar mensaje para otros tipos de error
-            alert('Ocurrió un error inesperado. Intenta nuevamente.');
-          }
+        (error) => {
+          console.error('Error asignando el área al material:', error);
+          this.isLoading = false; // Desactivar el estado de carga en caso de error
         }
       );
     }

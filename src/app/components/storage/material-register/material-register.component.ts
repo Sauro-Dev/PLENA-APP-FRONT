@@ -20,6 +20,10 @@ export class MaterialRegisterComponent {
   registerForm: FormGroup;
   estados: string[] = ['NUEVO', 'BUENO', 'REGULAR', 'DESGASTADO', 'ROTO'];
 
+  // Estado para modales
+  showRegisterModal = false;
+  showCancelModal = false;
+
   constructor(
     private fb: FormBuilder,
     private storageService: StorageService,
@@ -35,40 +39,42 @@ export class MaterialRegisterComponent {
     });
   }
 
-  onSubmit(): void {
+  openRegisterModal(): void {
     if (this.registerForm.valid) {
-      const formValue = {
-        nombre: this.registerForm.get('nombre')?.value,
-        estado: this.registerForm.get('estado')?.value,
-        stock: this.registerForm.get('stock')?.value,
-        esCompleto: this.registerForm.get('esCompleto')?.value,
-        esSoporte: this.registerForm.get('esSoporte')?.value,
-        descripcion: this.registerForm.get('descripcion')?.value
-      };
-
-      // Enviar solo los datos que el backend espera, sin el idMaterial
-      this.storageService.registerMaterial(formValue).subscribe(
-        (response) => {
-          alert('Material registrado exitosamente');
-          this.router.navigate(['/storage']);
-        },
-        (error) => {
-          console.error('Error al registrar el material', error);
-          alert('Hubo un error al registrar el material');
-        }
-      );
+      this.showRegisterModal = true;
     } else {
-      console.error('Formulario inválido');
+      this.registerForm.markAllAsTouched();
     }
   }
 
-  onCancel(): void {
-    const confirmCancel = confirm(
-      '¿Estás seguro de que deseas cancelar el registro?'
+  closeRegisterModal(): void {
+    this.showRegisterModal = false;
+  }
+
+  confirmRegister(): void {
+    const formValue = this.registerForm.value;
+
+    this.storageService.registerMaterial(formValue).subscribe(
+      () => {
+        this.closeRegisterModal();
+        this.router.navigate(['/storage']);
+      },
+      (error) => {
+        console.error('Error al registrar el material', error);
+      }
     );
-    if (confirmCancel) {
-      this.registerForm.reset();
-      this.router.navigate(['/storage']);
-    }
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancel(): void {
+    this.registerForm.reset();
+    this.router.navigate(['/storage']);
   }
 }

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './components/auth/auth.guard';
-import { roleGuard } from './components/roleGuards/role-guard.guard';
+import { roleGuard } from './components/auth/role-guard.guard';
 
 export const routes: Routes = [
   {
@@ -25,12 +25,10 @@ export const routes: Routes = [
   },
   {
     path: 'calendar',
-    loadComponent: () =>
-      import('./components/calendar/calendar/calendar.component').then(
-        (m) => m.CalendarComponent
-      ),
-      canActivate: [authGuard, roleGuard],
-      data: { breadcrumb: 'Calendario', roles: ['secretary', 'therapist', 'admin'] },
+    loadChildren: () =>
+      import('./components/calendar/calendar.routes').then((m) => m.default),
+    canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: 'Calendario', roles: ['secretary', 'therapist', 'admin'] }
   },
   {
     path: 'areas',
@@ -66,7 +64,7 @@ export const routes: Routes = [
       import('./components/users/user-profile/user-profile.component').then(
         (m) => m.UserProfileComponent
       ),
-      canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { breadcrumb: 'Mi Perfil', roles: ['secretary', 'therapist', 'admin'] },
 
   },
@@ -76,7 +74,17 @@ export const routes: Routes = [
       import('./components/users/update-profile/user-update.component').then(
         (m) => m.UserUpdateComponent
       ),
-    data: { breadcrumb: ' Actualizar mi Perfil' },
+    canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: ' Actualizar mi Perfil', roles: ['secretary', 'therapist', 'admin'] },
 
+  },
+  {
+    path: 'reports',
+    loadComponent: () =>
+      import('./components/reports/reports.component').then(
+        (m) => m.ReportsComponent
+      ),
+    canActivate: [authGuard, roleGuard],
+    data: { breadcrumb: 'Reportes', roles: ['admin', 'secretary'] },
   }
 ];

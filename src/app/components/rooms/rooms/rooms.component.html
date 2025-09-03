@@ -1,84 +1,205 @@
 <div class="container mx-auto p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-2xl mt-12">
-  <h1 class="text-4xl font-bold text-blue-800 mb-8 text-center">Gestión de Ambientes</h1>
+  <!-- Título Principal (versión móvil) -->
+  <h1 class="text-3xl font-semibold text-center text-blue-900 mb-6 block md:hidden">
+    Gestión de Ambientes
+  </h1>
 
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-    <button class="bg-blue-800 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 hover:scale-105 transition duration-300 ease-in-out transform shadow-lg mb-4 md:mb-0"
-            [routerLink]="'/rooms/add-room'">
-      <i class="fas fa-plus-circle mr-2"></i> Agregar Ambiente
+  <!-- Título Principal (versión escritorio) -->
+  <h1 class="text-5xl font-semibold text-center text-blue-900 mb-12 hidden md:block">
+    Gestión de Ambientes
+  </h1>
+
+  <!-- Sección de botones (Agregar Ambiente y Ver Salas Deshabilitadas) -->
+  <div class="flex flex-col md:flex-row md:justify-end items-stretch md:items-center gap-3 md:gap-4 mb-8">
+    <button
+      [routerLink]="'/rooms/add-room'"
+      class="w-full md:w-auto flex items-center justify-center bg-blue-700 text-white px-4 md:px-6 py-3 rounded-lg text-base md:text-lg font-semibold shadow-md hover:bg-blue-800 hover:scale-105 active:scale-95 transition-all duration-200">
+      <i class="fas fa-user-plus mr-2"></i> Agregar Ambiente
     </button>
 
-    <div class="flex flex-wrap justify-center md:justify-end space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-      <div class="w-full md:w-auto">
-        <label class="block text-lg font-medium text-gray-700 mb-2">Filtrar:</label>
-        <select class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                [(ngModel)]="therapeuticFilter"
-                (change)="onFilter()">
-          <option value="">Todos</option>
-          <option value="yes">Terapéutico</option>
-          <option value="no">No Terapéutico</option>
-        </select>
-      </div>
+    <button
+      (click)="openDisabledRoomsModal()"
+      class="w-full md:w-auto flex items-center justify-center bg-red-700 text-white px-4 md:px-6 py-3 rounded-lg text-base md:text-lg font-semibold shadow-md hover:bg-red-800 hover:scale-105 active:scale-95 transition-all duration-200">
+      <i class="fas fa-ban mr-2"></i> Ver Salas Deshabilitadas
+    </button>
 
-      <div class="w-full md:w-auto">
-        <label class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
-        <div class="relative">
-          <input type="text" 
-                 class="border border-gray-300 rounded-lg w-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                 placeholder="Buscar por nombre"
-                 [(ngModel)]="searchQuery" 
-                 (input)="onSearch()" />
-          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-        </div>
-      </div>
+    <!-- Modal de salas inhabilitadas -->
+    <app-disabled-rooms-modal
+      *ngIf="showDisabledRoomsModal"
+      (closeModal)="closeDisabledRoomsModal()">
+    </app-disabled-rooms-modal>
 
-      <div class="w-full md:w-auto">
-        <label class="block text-lg font-medium text-gray-700 mb-2">Mostrar:</label>
-        <select class="border border-gray-300 rounded-lg w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                [(ngModel)]="itemsPerPage"
-                (change)="paginate()">
-          <option value="10">10 ambientes</option>
-          <option value="20">20 ambientes</option>
-        </select>
+    <!-- Botón de filtros (Móvil) -->
+    <button
+      class="w-full md:hidden flex items-center justify-center bg-white border border-blue-600 text-blue-600 px-4 py-3 rounded-lg shadow-md hover:bg-blue-50 active:scale-95 transition-all"
+      (click)="toggleFilters()">
+      <i class="fas fa-filter text-lg"></i>
+      <span class="ml-2">Filtros</span>
+    </button>
+  </div>
+
+  <!-- Filtros móviles -->
+  <div *ngIf="showFilters" class="md:hidden bg-white p-4 rounded-xl shadow-md mb-6 space-y-4">
+    <!-- Búsqueda -->
+    <div>
+      <label class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+      <div class="relative">
+        <input
+          type="text"
+          class="border border-gray-300 rounded-xl w-full py-3 pl-14 pr-4"
+          placeholder="Buscar por nombre"
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        />
+        <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"></i>
       </div>
+    </div>
+
+    <!-- Filtro terapéutico -->
+    <div>
+      <label class="block text-lg font-medium text-gray-700 mb-2">Filtrar:</label>
+      <select
+        class="border border-gray-300 rounded-xl w-full px-4 py-3"
+        [(ngModel)]="therapeuticFilter"
+        (change)="onFilter()">
+        <option value="">Todos</option>
+        <option value="yes">Terapéutico</option>
+        <option value="no">No Terapéutico</option>
+      </select>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-    <div *ngFor="let room of filteredRooms"
-         class="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-2xl transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 relative">
-      <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-4 border-white shadow-md"
-           [ngClass]="{'bg-green-500': room.isTherapeutic, 'bg-red-500': !room.isTherapeutic}">
+  <!-- Filtros y búsqueda (Escritorio) -->
+  <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-md mb-8">
+    <!-- Campo de búsqueda -->
+    <div class="relative col-span-2">
+      <label class="block text-lg font-medium text-gray-700 mb-2">Buscar:</label>
+      <div class="relative">
+        <input
+          type="text"
+          class="border border-gray-300 rounded-xl w-1/2 py-3 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Buscar por nombre" [(ngModel)]="searchQuery" (input)="onSearch()" />
+        <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"></i>
       </div>
-      <h2 class="text-2xl font-semibold text-blue-800 mb-2">{{ room.name }}</h2>
-      <p class="text-gray-600 mb-2">{{ room.address }}</p>
-      <p class="text-gray-700 mb-4">Terapéutico: {{ room.isTherapeutic ? 'Sí' : 'No' }}</p>
-      <button [routerLink]="['/rooms/details', room.idRoom]" 
-              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out">
+    </div>
+
+    <!-- Filtrar por Terapéutico o no -->
+    <div>
+      <label class="block text-lg font-medium text-gray-700 mb-2">Filtrar:</label>
+      <select
+        class="border border-gray-300 rounded-xl w-full px-4 py-3 focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="therapeuticFilter" (change)="onFilter()">
+        <option value="">Todos</option>
+        <option value="yes">Terapéutico</option>
+        <option value="no">No Terapéutico</option>
+      </select>
+    </div>
+
+    <!-- Mostrar por página -->
+    <div>
+      <label class="block text-lg font-medium text-gray-700 mb-2">Mostrar:</label>
+      <select
+        class="border border-gray-300 rounded-xl w-full px-4 py-3 focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="itemsPerPage" (change)="paginate()">
+        <option value="12">12 ambientes</option>
+        <option value="24">24 ambientes</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Mensaje si no hay ambientes -->
+  <div *ngIf="filteredRooms.length === 0" class="text-center text-gray-500 text-xl mt-8">
+    No se encontraron ambientes registrados.
+  </div>
+
+  <!-- Tarjetas de Ambientes -->
+  <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4 bg-gray-100 rounded-xl shadow-md">
+    <div *ngFor="let room of paginatedRooms"
+         class="bg-white shadow-md rounded-xl px-6 py-4 text-center border border-gray-300 hover:shadow-lg transition duration-200 transform hover:scale-105 space-y-4">
+      <!-- Estado visual y Nombre centrados -->
+      <div class="flex flex-col items-center">
+        <div
+          class="w-8 h-8 rounded-full mb-2"
+          [ngClass]="{
+            'bg-green-500': room.enabled,
+            'bg-red-500': !room.enabled
+          }">
+        </div>
+        <h2 class="text-lg font-bold text-blue-800">{{ room.name }}</h2>
+      </div>
+
+      <hr class="my-4 border-gray-300" />
+
+      <!-- Sección de Dirección -->
+      <div class="mb-4">
+        <p class="text-gray-600 flex items-center">
+          <i class="ti ti-map-pin text-lg text-blue-700 mr-2"></i>
+          <span class="font-medium mr-1">Dirección:</span>
+          <span>{{ room.address }}</span>
+        </p>
+      </div>
+
+      <!-- Sección de Terapéutico -->
+      <div class="mb-4">
+        <p class="text-gray-700 flex items-center">
+          <i class="ti ti-heartbeat text-lg text-blue-700 mr-2"></i>
+          <span class="font-medium mr-1">Terapéutico:</span>
+          <span>{{ room.isTherapeutic ? 'Sí' : 'No' }}</span>
+        </p>
+      </div>
+
+      <!-- Sección de Estado -->
+      <div class="mb-4">
+        <p class="text-gray-700 flex items-center">
+          <i
+            class="ti text-lg mr-2"
+            [ngClass]="{
+              'ti-check text-blue-700': room.enabled,
+              'ti-close text-red-500': !room.enabled
+            }">
+          </i>
+          <span class="font-medium mr-1">Estado:</span>
+          <span
+            [ngClass]="{
+              'text-green-500 font-semibold': room.enabled,
+              'text-red-500 font-semibold': !room.enabled
+            }">
+            {{ room.enabled ? 'Habilitado' : 'Deshabilitado' }}
+          </span>
+        </p>
+      </div>
+
+      <!-- Botón -->
+      <button [routerLink]="['/rooms/details', room.idRoom]"
+              class="mt-4 inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full hover:bg-blue-200 transition duration-300">
         Ver detalles
       </button>
     </div>
   </div>
 
-  <div class="flex justify-center mt-8 space-x-2">
-    <button class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300" 
-            (click)="goToPage(1)" 
-            [disabled]="currentPage === 1">
+  <!-- Paginación -->
+  <div class="flex justify-center mt-6 space-x-2">
+    <button
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+      (click)="goToPage(1)" [disabled]="currentPage === 1">
       &lt;&lt;
     </button>
-    <button class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300" 
-            (click)="goToPage(currentPage - 1)"
-            [disabled]="currentPage === 1">
+    <button
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+      (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
       &lt;
     </button>
-    <span class="px-4 py-2 text-blue-800 font-medium">{{ currentPage }}</span>
-    <button class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300" 
-            (click)="goToPage(currentPage + 1)"
-            [disabled]="currentPage >= Math.ceil(filteredRooms.length / itemsPerPage)">
+    <span class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">{{ currentPage }}</span>
+    <button
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+      (click)="goToPage(currentPage + 1)"
+      [disabled]="currentPage >= Math.ceil(filteredRooms.length / itemsPerPage)">
       &gt;
     </button>
-    <button class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-300"
-            (click)="goToPage(Math.ceil(filteredRooms.length / itemsPerPage))"
-            [disabled]="currentPage >= Math.ceil(filteredRooms.length / itemsPerPage)">
+    <button
+      class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition duration-300 ease-in-out"
+      (click)="goToPage(Math.ceil(filteredRooms.length / itemsPerPage))"
+      [disabled]="currentPage >= Math.ceil(filteredRooms.length / itemsPerPage)">
       &gt;&gt;
     </button>
   </div>

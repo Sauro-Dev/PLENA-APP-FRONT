@@ -1,35 +1,38 @@
-import { Component, Inject, inject, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AreasService } from '../areas.service';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule, Location } from '@angular/common';
 @Component({
   selector: 'app-area-edit',
   templateUrl: './area-edit.component.html',
   styleUrls: ['./area-edit.component.css'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
-  standalone: true, 
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  standalone: true,
 })
 export class AreaEditComponent implements OnInit {
   areaId: string = '';
   areaForm: FormGroup;
+  showConfirmModal: boolean = false;
+  showCancelModal: boolean = false;
 
   private areaService = inject(AreasService);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
 
-
-  @ViewChild('nameInput') nameInput: any;
-  @ViewChild('descriptionInput') descriptionInput: any;
-
   constructor() {
-
     this.areaForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.maxLength(500)]]
+      description: ['', [Validators.required, Validators.maxLength(500)]],
+      enabled: [true],
     });
-    this.areaId = '';
   }
 
   ngOnInit(): void {
@@ -39,29 +42,13 @@ export class AreaEditComponent implements OnInit {
     }
   }
 
-  
-
-  onSubmit(): void {
-    if (this.areaForm.valid) {
-      const updatedArea = this.areaForm.value;
-      this.areaService.update(this.areaId, updatedArea).subscribe(
-        () => {
-          alert('Área actualizada correctamente');
-          this.location.back();
-        },
-        (error) => {
-          console.error('Error al actualizar el área:', error);
-        }
-      );
-    }
-  }
   loadAreaData(): void {
     this.areaService.getAreaById(this.areaId).subscribe(
       (data) => {
-        console.log(data);
-        this.areaForm.patchValue({ 
+        this.areaForm.patchValue({
           name: data.name,
           description: data.description,
+          enabled: data.enabled,
         });
       },
       (error) => {
@@ -69,5 +56,47 @@ export class AreaEditComponent implements OnInit {
       }
     );
   }
-  
+
+  openConfirmModal(): void {
+    if (this.areaForm.valid) {
+      this.showConfirmModal = true;
+    } else {
+      this.areaForm.markAllAsTouched();
+    }
+  }
+
+  closeConfirmModal(): void {
+    this.showConfirmModal = false;
+  }
+
+  confirmEdit(): void {
+    if (this.areaForm.valid) {
+      const updatedArea = this.areaForm.value;
+
+      this.areaService.update(this.areaId, updatedArea).subscribe(
+        () => {
+          this.location.back();
+        },
+        (error) => {
+          console.error('Error al actualizar el área:', error);
+        }
+      );
+    } else {
+      console.warn('El formulario no es válido. Verifica los campos.');
+      this.areaForm.markAllAsTouched();
+    }
+  }
+
+  openCancelModal(): void {
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  confirmCancel(): void {
+    this.closeCancelModal();
+    this.location.back();
+  }
 }
